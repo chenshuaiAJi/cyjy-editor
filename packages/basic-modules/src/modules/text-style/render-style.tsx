@@ -32,6 +32,9 @@ export function renderStyle(node: Descendant, vnode: VNode): VNode {
   if (italic) {
     styleVnode = <em>{styleVnode}</em>
   }
+  if (sup) {
+    styleVnode = <sup>{styleVnode}</sup>
+  }
   if (underline) {
     styleVnode = <u>{styleVnode}</u>
   }
@@ -40,9 +43,6 @@ export function renderStyle(node: Descendant, vnode: VNode): VNode {
   }
   if (sub) {
     styleVnode = <sub>{styleVnode}</sub>
-  }
-  if (sup) {
-    styleVnode = <sup>{styleVnode}</sup>
   }
 
   return styleVnode

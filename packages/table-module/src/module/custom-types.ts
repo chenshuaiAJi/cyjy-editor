@@ -44,4 +44,10 @@ export type TableElement = {
   isResizing?: boolean | null //  用于设置 index resize-bar 的 highlight 属性
   isHoverCellBorder?: boolean // 用于设置 index resize-bar 的 visible 属性
   columnWidths?: number[]
+
+  /** 定制需求-边框默认样式 */
+
+  borderWidth?: string // 边框宽度
+  borderStyle?: string // 边框样式
+  borderColor?: string // 边框颜色
 }

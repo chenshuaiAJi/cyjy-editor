@@ -4,27 +4,23 @@
  */
 
 // basic-modules
-import '@wangeditor-next/basic-modules/dist/css/style.css'
-import basicModules from '@wangeditor-next/basic-modules'
-
+import '@cyjy-editor/basic-modules/dist/css/style.css'
 import '@wangeditor-next/list-module/dist/css/style.css'
-import wangEditorListModule from '@wangeditor-next/list-module'
-
 // table-module
 import '@wangeditor-next/table-module/dist/css/style.css'
-import wangEditorTableModule from '@wangeditor-next/table-module'
-
 // video-module
 import '@wangeditor-next/video-module/dist/css/style.css'
-import wangEditorVideoModule from '@wangeditor-next/video-module'
-
 // upload-image-module
-import '@wangeditor-next/upload-image-module/dist/css/style.css'
-import wangEditorUploadImageModule from '@wangeditor-next/upload-image-module'
-
+import '@cyjy-editor/upload-image-module/dist/css/style.css'
 // code-highlight
 import '@wangeditor-next/code-highlight/dist/css/style.css'
+
+import basicModules from '@cyjy-editor/basic-modules'
+import wangEditorUploadImageModule from '@cyjy-editor/upload-image-module'
 import { wangEditorCodeHighlightModule } from '@wangeditor-next/code-highlight'
+import wangEditorListModule from '@wangeditor-next/list-module'
+import wangEditorTableModule from '@wangeditor-next/table-module'
+import wangEditorVideoModule from '@wangeditor-next/video-module'
 
 import registerModule from './register'
 

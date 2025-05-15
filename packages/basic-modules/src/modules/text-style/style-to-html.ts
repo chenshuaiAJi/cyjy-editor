@@ -24,10 +24,10 @@ function genStyledHtml(textNode: Descendant, html: string): string {
   if (bold) { styledHtml = `<strong>${styledHtml}</strong>` }
   if (code) { styledHtml = `<code>${styledHtml}</code>` }
   if (italic) { styledHtml = `<em>${styledHtml}</em>` }
+  if (sup) { styledHtml = `<sup>${styledHtml}</sup>` }
   if (underline) { styledHtml = `<u>${styledHtml}</u>` }
   if (through) { styledHtml = `<s>${styledHtml}</s>` }
   if (sub) { styledHtml = `<sub>${styledHtml}</sub>` }
-  if (sup) { styledHtml = `<sup>${styledHtml}</sup>` }
   return styledHtml
 }
 

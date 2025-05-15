@@ -135,3 +135,4 @@ stats.html
 
 # Turbo cache
 .turbo
+yarn.lock

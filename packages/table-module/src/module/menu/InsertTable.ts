@@ -28,6 +28,9 @@ function genTableNode(editor: IDomEditor, rowNum: number, colNum: number): Table
       const cellNode: TableCellElement = {
         type: 'table-cell',
         children: [{ text: '' }],
+        borderColor: '#000',
+        borderStyle: 'solid',
+        borderWidth: '1',
       }
 
       if (i === 0) {
@@ -48,6 +51,9 @@ function genTableNode(editor: IDomEditor, rowNum: number, colNum: number): Table
     width: tableFullWidth?.selected ? '100%' : 'auto',
     children: rows,
     columnWidths,
+    borderColor: '#000',
+    borderStyle: 'solid',
+    borderWidth: '1',
   }
 }
 

@@ -1,10 +1,10 @@
 {
-  "name": "@wangeditor-next/basic-modules",
-  "version": "1.5.34",
-  "description": "wangEditor basic modules",
-  "author": "cycleccc <2991205548@qq.com>",
+  "name": "@cyjy-editor/basic-modules",
+  "version": "1.0.1",
+  "description": "editor basic modules",
+  "author": "cyjy",
   "type": "module",
-  "homepage": "https://github.com/wangeditor-next/wangeditor-next#readme",
+  "homepage": "",
   "license": "MIT",
   "types": "dist/basic-modules/src/index.d.ts",
   "main": "dist/index.js",
@@ -25,11 +25,11 @@
     "dist"
   ],
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "registry": "http://10.254.11.100:4873"
   },
   "repository": {
-    "type": "git",
-    "url": "git+https://github.com/wangeditor-next/wangEditor-next.git"
+    "type": "git"
   },
   "scripts": {
     "test": "jest",
@@ -39,9 +39,6 @@
     "build": "cross-env NODE_ENV=production rollup -c rollup.config.js",
     "dev-size-stats": "cross-env NODE_ENV=development:size_stats rollup -c rollup.config.js",
     "size-stats": "cross-env NODE_ENV=production:size_stats rollup -c rollup.config.js"
-  },
-  "bugs": {
-    "url": "https://github.com/wangeditor-next/wangeditor-next/issues"
   },
   "peerDependencies": {
     "@wangeditor-next/core": "1.7.34",
