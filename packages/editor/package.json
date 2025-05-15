@@ -56,7 +56,7 @@
     "@wangeditor-next/code-highlight": "~1.3.31",
     "@wangeditor-next/core": "~1.7.34",
     "@wangeditor-next/list-module": "~1.1.40",
-    "@wangeditor-next/table-module": "~1.6.44",
+    "@cyjy-editor/table-module": "^1.0.1",
     "@cyjy-editor/upload-image-module": "1.0.1",
     "@wangeditor-next/video-module": "~1.3.40",
     "dom7": "^4.0.0",
