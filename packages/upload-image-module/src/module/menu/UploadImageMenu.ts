@@ -3,7 +3,7 @@
  * @author wangfupeng
  */
 
-import { insertImageNode, isInsertImageMenuDisabled } from '@wangeditor-next/basic-modules'
+import { insertImageNode, isInsertImageMenuDisabled } from '@cyjy-editor/basic-modules'
 import {
   IButtonMenu, IDomEditor, t,
 } from '@wangeditor-next/core'

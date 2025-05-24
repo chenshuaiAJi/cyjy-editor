@@ -1,4 +1,4 @@
-import * as basicModule from '@wangeditor-next/basic-modules'
+import * as basicModule from '@cyjy-editor/basic-modules'
 import { IDomEditor } from '@wangeditor-next/core'
 
 import createEditor from '../../../tests/utils/create-editor'

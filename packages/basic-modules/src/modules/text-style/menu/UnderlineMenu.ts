@@ -29,8 +29,6 @@ class UnderlineMenu extends BaseMenu {
    * @param value
    */
   exec(editor: IDomEditor, value: string | boolean) {
-    console.error('undeerline1', editor)
-
     const { mark, marksNeedToRemove } = this
 
     if (!isSelectedAllText(editor)) {

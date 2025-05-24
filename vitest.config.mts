@@ -4,12 +4,12 @@ import path from 'path'
 // 抽取重复的模块路径
 const modulePaths = [
   '@wangeditor-next/core',
-  '@wangeditor-next/basic-modules',
+  '@cyjy-editor/basic-modules',
   '@wangeditor-next/code-highlight',
   '@wangeditor-next/editor',
   '@wangeditor-next/list-module',
-  '@wangeditor-next/table-module',
-  '@wangeditor-next/upload-image-module',
+  '@cyjy-editor/table-module',
+  '@cyjy-editor/upload-image-module',
   '@wangeditor-next/video-module',
 ]
 
