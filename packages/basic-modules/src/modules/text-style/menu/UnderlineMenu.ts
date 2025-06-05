@@ -15,7 +15,7 @@ import BaseMenu from './BaseMenu'
 class UnderlineMenu extends BaseMenu {
   readonly mark = 'underline'
 
-  readonly marksNeedToRemove = ['wavy', 'stress'] // 增加 mark 的同时，需要移除哪些 mark （互斥，不能共存的）
+  readonly marksNeedToRemove = ['wavy'] // 增加 mark 的同时，需要移除哪些 mark （互斥，不能共存的）
 
   readonly title = t('textStyle.underline')
 
