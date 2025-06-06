@@ -1,5 +1,17 @@
 # Change Log
 
+## 1.7.36
+
+### Patch Changes
+
+- 54e958e: 抛出一个允许节点跳过缓存的配置项，默认屏蔽list不走缓存
+
+## 1.7.35
+
+### Patch Changes
+
+- e6f4533: 优化编辑器内容过多表格数据容易卡顿
+
 ## 1.7.34
 
 ### Patch Changes

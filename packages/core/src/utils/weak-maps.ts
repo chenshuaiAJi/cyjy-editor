@@ -4,17 +4,20 @@
  */
 
 import { Emitter } from 'event-emitter'
+import {
+  Ancestor, Editor, Node, Path, Range,
+} from 'slate'
 import { VNode } from 'snabbdom'
-import { Node, Ancestor, Editor, Path, Range } from 'slate'
-import { IDomEditor } from '../editor/interface'
-import TextArea from '../text-area/TextArea'
-import Toolbar from '../menus/bar/Toolbar'
-import HoverBar from '../menus/bar/HoverBar'
-import { IBarItem } from '../menus/bar-item/index'
-import { Key } from './key'
-import { PatchFn } from '../utils/vdom'
+
 import { IEditorConfig } from '../config/interface'
+import { IDomEditor } from '../editor/interface'
+import HoverBar from '../menus/bar/HoverBar'
+import Toolbar from '../menus/bar/Toolbar'
+import { IBarItem } from '../menus/bar-item/index'
 import PanelAndModal from '../menus/panel-and-modal/BaseClass'
+import TextArea from '../text-area/TextArea'
+import { PatchFn } from '../utils/vdom'
+import { Key } from './key'
 
 // textarea - editor
 export const EDITOR_TO_TEXTAREA = new WeakMap<IDomEditor, TextArea>()
@@ -36,7 +39,8 @@ export const EDITOR_TO_CONFIG = new WeakMap<IDomEditor, IEditorConfig>()
 export const IS_FIRST_PATCH = new WeakMap<TextArea, boolean>()
 export const TEXTAREA_TO_PATCH_FN = new WeakMap<TextArea, PatchFn>()
 export const TEXTAREA_TO_VNODE = new WeakMap<TextArea, VNode>()
-
+export const NODE_TO_VNODE = new WeakMap<Node, [number, VNode]>()
+export const NODE_TO_HTML = new WeakMap<Node, String>()
 /**
  * Two weak maps that allow us rebuild a path given a node. They are populated
  * at render time such that after a render occurs we can always backtrack.
