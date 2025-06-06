@@ -9,11 +9,14 @@ import {
   boldMenuConf,
   clearStyleMenuConf,
   codeMenuConf,
+  highlightSymbolsMenuConf,
   italicMenuConf,
+  stressMenuConf,
   subMenuConf,
   supMenuConf,
   throughMenuConf,
   underlineMenuConf,
+  wavyLineMenuConf,
 } from './menu/index'
 import { parseStyleHtml } from './parse-style-html'
 import { renderStyle } from './render-style'
@@ -30,6 +33,9 @@ const textStyle: Partial<IModuleConf> = {
     subMenuConf,
     supMenuConf,
     clearStyleMenuConf,
+    highlightSymbolsMenuConf,
+    stressMenuConf,
+    wavyLineMenuConf,
   ],
   styleToHtml,
   parseStyleHtml,

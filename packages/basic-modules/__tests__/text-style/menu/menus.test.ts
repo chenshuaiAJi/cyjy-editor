@@ -8,11 +8,14 @@ import { Editor, Element } from 'slate'
 import createEditor from '../../../../../tests/utils/create-editor'
 import BoldMenu from '../../../src/modules/text-style/menu/BoldMenu'
 import CodeMenu from '../../../src/modules/text-style/menu/CodeMenu'
+import HighlightSymbolsMenu from '../../../src/modules/text-style/menu/HighlightSymbolsMenu'
 import ItalicMenu from '../../../src/modules/text-style/menu/ItalicMenu'
+import StressMenu from '../../../src/modules/text-style/menu/StressMenu'
 import SubMenu from '../../../src/modules/text-style/menu/SubMenu'
 import SupMenu from '../../../src/modules/text-style/menu/SupMenu'
 import ThroughMenu from '../../../src/modules/text-style/menu/ThroughMenu'
 import UnderlineMenu from '../../../src/modules/text-style/menu/UnderlineMenu'
+import WavyMenu from '../../../src/modules/text-style/menu/WavyMenu'
 
 const MENU_INFO_LIST = [
   { mark: 'bold', menu: new BoldMenu() },
@@ -22,6 +25,9 @@ const MENU_INFO_LIST = [
   { mark: 'sup', menu: new SupMenu() },
   { mark: 'through', menu: new ThroughMenu() },
   { mark: 'underline', menu: new UnderlineMenu() },
+  { mark: 'wavy', menu: new WavyMenu() },
+  { mark: 'stress', menu: new StressMenu() },
+  { mark: 'highlightSymbols', menu: new HighlightSymbolsMenu() },
 ]
 
 describe('text style menus', () => {

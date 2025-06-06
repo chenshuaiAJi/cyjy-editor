@@ -14,4 +14,7 @@ export type StyledText = {
   underline?: boolean
   sup?: boolean
   sub?: boolean
+  wavy?: boolean
+  stress?: boolean
+  highlightSymbols?: 'highlight-space' | 'highlight-en-punctuation' | 'highlight-zh-punctuation'
 }

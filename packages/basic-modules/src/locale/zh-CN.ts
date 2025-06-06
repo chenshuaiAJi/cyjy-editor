@@ -89,6 +89,9 @@ export default {
     sup: '上标',
     through: '删除线',
     underline: '下划线',
+    wavy: '波浪线',
+    stress: '着重符',
+    highlightSymbols: '高亮符号',
   },
   undo: {
     undo: '撤销',

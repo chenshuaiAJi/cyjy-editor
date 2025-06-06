@@ -5,7 +5,9 @@
 
 import { Descendant, Text } from 'slate'
 
-import $, { getOuterHTML, isPlainText } from '../../utils/dom'
+import $, {
+  getOuterHTML, isPlainText, outerHtmlTag,
+} from '../../utils/dom'
 import { StyledText } from './custom-types'
 
 // 【注意】color bgColor fontSize fontFamily 在另外的菜单
@@ -17,17 +19,44 @@ import { StyledText } from './custom-types'
  */
 function genStyledHtml(textNode: Descendant, html: string): string {
   let styledHtml = html
+  let $text
   const {
-    bold, italic, underline, code, through, sub, sup,
+    bold, italic, code, through, sub, sup, wavy, stress, highlightSymbols, underline,
   } = textNode as StyledText
 
   if (bold) { styledHtml = `<strong>${styledHtml}</strong>` }
   if (code) { styledHtml = `<code>${styledHtml}</code>` }
   if (italic) { styledHtml = `<em>${styledHtml}</em>` }
   if (sup) { styledHtml = `<sup>${styledHtml}</sup>` }
-  if (underline) { styledHtml = `<u>${styledHtml}</u>` }
   if (through) { styledHtml = `<s>${styledHtml}</s>` }
   if (sub) { styledHtml = `<sub>${styledHtml}</sub>` }
+  if (underline) { styledHtml = `<u>${styledHtml}</u>` } else if (wavy) {
+    if (!outerHtmlTag(styledHtml, 'span')) {
+      styledHtml = `<span>${styledHtml}</span>`
+    }
+    $text = $(styledHtml)
+    $text.css('text-decoration', 'underline wavy')
+    styledHtml = getOuterHTML($text)
+  }
+  if (stress) {
+    if (!outerHtmlTag(styledHtml, 'span')) {
+      styledHtml = `<span>${styledHtml}</span>`
+    }
+    $text = $(styledHtml)
+    $text.css('text-emphasis', 'dot')
+    $text.css('text-emphasis-position', 'under')
+    styledHtml = getOuterHTML($text)
+  }
+  // 设置高亮符号
+  if (highlightSymbols) {
+    if (!outerHtmlTag(styledHtml, 'span')) {
+      styledHtml = `<span>${styledHtml}</span>`
+    }
+    $text = $(styledHtml)
+    $text.addClass(highlightSymbols)
+    styledHtml = getOuterHTML($text)
+  }
+
   return styledHtml
 }
 
@@ -44,10 +73,7 @@ export function styleToHtml(textNode: Descendant, textHtml: string): string {
     // textHtml 是纯文本，而不是 html tag
     return genStyledHtml(textNode, textHtml)
   }
-
-  // textHtml 是 html tag
   const $text = $(textHtml)
-
   let innerHtml = $text.html()
 
   innerHtml = genStyledHtml(textNode, innerHtml)

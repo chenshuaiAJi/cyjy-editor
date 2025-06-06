@@ -6,7 +6,10 @@
 import { IDomEditor } from '@wangeditor-next/core'
 import { Descendant, Text } from 'slate'
 
-import $, { Dom7Array, DOMElement } from '../../utils/dom'
+import $, {
+  Dom7Array, DOMElement, getClassValue,
+  getStyleValue,
+} from '../../utils/dom'
 import { StyledText } from './custom-types'
 
 /**
@@ -48,6 +51,8 @@ export function parseStyleHtml(
   // underline
   if (isMatch($text, 'u')) {
     textNode.underline = true
+  } else if (getStyleValue($text, 'text-decoration') === 'underline wavy') {
+    textNode.wavy = true
   }
 
   // through
@@ -68,6 +73,21 @@ export function parseStyleHtml(
   // code
   if (isMatch($text, 'code')) {
     textNode.code = true
+  }
+
+  const stress = `${getStyleValue($text, 'text-emphasis')},${getStyleValue(
+    $text,
+    'text-emphasis-position',
+  )}`
+
+  if (stress && stress !== ',') {
+    textNode.stress = true
+  }
+
+  const highlightSymbols = getClassValue($text) as StyledText['highlightSymbols']
+
+  if (highlightSymbols) {
+    textNode.highlightSymbols = highlightSymbols as any
   }
 
   return textNode

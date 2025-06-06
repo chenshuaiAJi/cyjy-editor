@@ -127,6 +127,9 @@ interface ICodeLangConfig {
 export interface IMenuConfig {
   bold: ISingleMenuConfig;
   underline: ISingleMenuConfig;
+  wavy: ISingleMenuConfig;
+  stress: ISingleMenuConfig;
+  highlightSymbols: ISingleMenuConfig;
   italic: ISingleMenuConfig;
   through: ISingleMenuConfig;
   code: ISingleMenuConfig;

@@ -89,6 +89,9 @@ export default {
     sup: 'Sup',
     through: 'Through',
     underline: 'Underline',
+    wavy: 'Wavy',
+    stress: 'Stress',
+    highlightSymbols: 'Highlight symbols',
   },
   undo: {
     undo: 'undo',

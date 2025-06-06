@@ -4,10 +4,11 @@
  */
 
 import { t } from '@wangeditor-next/core'
+
 import {
+  IMAGE_SVG,
   INDENT_RIGHT_SVG,
   JUSTIFY_LEFT_SVG,
-  IMAGE_SVG,
   MORE_SVG,
   VIDEO_SVG,
 } from '../../constants/svg'
@@ -22,6 +23,9 @@ export function genDefaultToolbarKeys() {
     '|',
     'bold',
     'underline',
+    'wavy',
+    'stress',
+    'highlightSymbols',
     'italic',
     {
       key: 'group-more-style', // 以 group 开头
@@ -96,6 +100,9 @@ export function genSimpleToolbarKeys() {
     '|',
     'bold',
     'underline',
+    'wavy',
+    'stress',
+    'highlightSymbols',
     'italic',
     'through',
     'color',

@@ -7,6 +7,7 @@ import { Descendant } from 'slate'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { jsx, VNode } from 'snabbdom'
 
+import { addVnodeClassName, addVnodeStyle } from '../../utils/dom'
 import { StyledText } from './custom-types'
 
 /**
@@ -17,7 +18,7 @@ import { StyledText } from './custom-types'
  */
 export function renderStyle(node: Descendant, vnode: VNode): VNode {
   const {
-    bold, italic, underline, code, through, sub, sup,
+    bold, italic, code, through, sub, sup, wavy, stress, highlightSymbols, underline,
   } = node as StyledText
   let styleVnode: VNode = vnode
 
@@ -35,14 +36,27 @@ export function renderStyle(node: Descendant, vnode: VNode): VNode {
   if (sup) {
     styleVnode = <sup>{styleVnode}</sup>
   }
-  if (underline) {
-    styleVnode = <u>{styleVnode}</u>
-  }
   if (through) {
     styleVnode = <s>{styleVnode}</s>
   }
   if (sub) {
     styleVnode = <sub>{styleVnode}</sub>
+  }
+  if (underline) {
+    styleVnode = <u>{styleVnode}</u>
+  } else if (wavy) {
+    addVnodeStyle(styleVnode, { textDecoration: 'underline wavy' })
+  }
+
+  if (stress) {
+    addVnodeStyle(styleVnode, { textEmphasis: 'dot' })
+    addVnodeStyle(styleVnode, { textEmphasisPosition: 'under' })
+  }
+
+  // 高亮用：获取叶子节点
+
+  if (highlightSymbols) {
+    addVnodeClassName(styleVnode, highlightSymbols)
   }
 
   return styleVnode

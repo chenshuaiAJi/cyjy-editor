@@ -31,6 +31,7 @@ import $, {
   val,
   width,
 } from 'dom7'
+import type { VNode, VNodeStyle } from 'snabbdom'
 
 // COMPAT: This is required to prevent TypeScript aliases from doing some very
 // weird things for Slate's types with the same name as globals. (2019/11/27)
@@ -90,21 +91,37 @@ export function isPlainText(str: string) {
 }
 
 /**
- * 获取 outerHTML
- * @param $elem dom7 elem
- */
-export function getOuterHTML($elem: Dom7Array) {
-  if ($elem.length === 0) { return '' }
-  return $elem[0].outerHTML
-}
-
-/**
  * 获取 tagName lower-case
  * @param $elem $elem
  */
 export function getTagName($elem: Dom7Array): string {
   if ($elem.length) { return $elem[0].tagName.toLowerCase() }
   return ''
+}
+
+/**
+ * 判断 str 是否被目标标签包裹
+ * @param str str
+ */
+export function outerHtmlTag(str: string, tagName:string) {
+  let $text
+
+  try {
+    $text = $(str.trim())
+  } catch (error) {
+    return false
+  }
+
+  return getTagName($text) === tagName
+}
+
+/**
+ * 获取 outerHTML
+ * @param $elem dom7 elem
+ */
+export function getOuterHTML($elem: Dom7Array) {
+  if ($elem.length === 0) { return '' }
+  return $elem[0].outerHTML
 }
 
 /**
@@ -132,6 +149,45 @@ export function getStyleValue($elem: Dom7Array, styleKey: string): string {
   }
 
   return res
+}
+
+/**
+ * 给 vnode 添加样式
+ * @param vnode vnode
+ * @param newStyle { key: val }
+ */
+export function addVnodeStyle(vnode: VNode, newStyle: VNodeStyle) {
+  if (vnode.data == null) { vnode.data = {} }
+  const data = vnode.data
+
+  if (data.style == null) { data.style = {} }
+
+  Object.assign(data.style, newStyle)
+}
+
+/**
+ * 给 vnode 添加 className
+ * @param vnode vnode
+ * @param className css class
+ */
+export function addVnodeClassName(vnode: VNode, className: string) {
+  if (vnode.data == null) {
+    vnode.data = {}
+  }
+  const data = vnode.data
+
+  if (data.props == null) {
+    data.props = {}
+  }
+  Object.assign(data.props, { className })
+}
+
+/**
+ * 获取 $elem 某一个 className 值
+ * @param $elem $elem
+ */
+export function getClassValue($elem: Dom7Array): string {
+  return $elem.attr('class') || '' // 如 'line-height: 2.5; color: red;'
 }
 
 export {
