@@ -1,6 +1,6 @@
 {
   "name": "@cyjy-editor/core",
-  "version": "1.7.36",
+  "version": "1.7.37",
   "description": "wangEditor core",
   "author": "cycleccc <2991205548@qq.com>",
   "type": "module",
@@ -29,7 +29,7 @@
     "registry": "http://10.254.11.100:4873"
   },
   "repository": {
-    "type": "git",
+    "type": "git"
   },
   "scripts": {
     "test": "jest",
