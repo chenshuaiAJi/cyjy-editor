@@ -3,7 +3,7 @@
  * @author wangfupeng
  */
 
-import { t } from '@wangeditor-next/core'
+import { t } from '@cyjy-editor/core'
 
 import { CODE_SVG } from '../../../constants/icon-svg'
 import BaseMenu from './BaseMenu'

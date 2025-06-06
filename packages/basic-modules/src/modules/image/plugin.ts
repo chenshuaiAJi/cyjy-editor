@@ -4,7 +4,7 @@
  */
 
 // import { Editor, Path, Operation } from 'slate'
-import { IDomEditor } from '@wangeditor-next/core'
+import { IDomEditor } from '@cyjy-editor/core'
 
 function withImage<T extends IDomEditor>(editor: T): T {
   const { isInline, isVoid } = editor

@@ -1,4 +1,4 @@
-import { IButtonMenu, IDomEditor, t } from '@wangeditor-next/core'
+import { IButtonMenu, IDomEditor, t } from '@cyjy-editor/core'
 import { Editor } from 'slate'
 
 import { CELL_PROPERTY_SVG } from '../../constants/svg'

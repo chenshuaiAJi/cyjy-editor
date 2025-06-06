@@ -5,7 +5,7 @@
 
 import {
   DomEditor, IButtonMenu, IDomEditor, t,
-} from '@wangeditor-next/core'
+} from '@cyjy-editor/core'
 
 import { EXTERNAL_SVG } from '../../../constants/icon-svg'
 import { LinkElement } from '../custom-types'

@@ -3,7 +3,7 @@
  * @author wangfupeng
  */
 
-import { IModuleConf } from '@wangeditor-next/core'
+import { IModuleConf } from '@cyjy-editor/core'
 
 import { pToHtmlConf } from './elem-to-html'
 import { parseParagraphHtmlConf } from './parse-elem-html'

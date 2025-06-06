@@ -3,7 +3,7 @@
  * @author CodePencil
  */
 
-import { IDomEditor } from '@wangeditor-next/core'
+import { IDomEditor } from '@cyjy-editor/core'
 
 import FormatPainter from './menu/FormatPainter'
 

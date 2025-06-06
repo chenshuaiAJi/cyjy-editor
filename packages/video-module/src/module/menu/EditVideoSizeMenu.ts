@@ -10,7 +10,7 @@ import {
   IDomEditor,
   IModalMenu,
   t,
-} from '@wangeditor-next/core'
+} from '@cyjy-editor/core'
 import { Node as SlateNode, Transforms } from 'slate'
 
 import $, { Dom7Array, DOMElement } from '../../utils/dom'

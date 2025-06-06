@@ -3,8 +3,8 @@
  * @author wangfupeng
  */
 
+import { createUploader, IDomEditor } from '@cyjy-editor/core'
 import Uppy, { UppyFile } from '@uppy/core'
-import { createUploader, IDomEditor } from '@wangeditor-next/core'
 
 import insertVideo from './insert-video'
 

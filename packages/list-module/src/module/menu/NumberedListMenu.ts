@@ -3,7 +3,7 @@
  * @author wangfupeng
  */
 
-import { t } from '@wangeditor-next/core'
+import { t } from '@cyjy-editor/core'
 
 import { NUMBERED_LIST_SVG } from '../../constants/svg'
 import BaseMenu from './BaseMenu'

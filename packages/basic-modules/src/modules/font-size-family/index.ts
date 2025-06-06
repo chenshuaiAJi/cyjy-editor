@@ -3,7 +3,7 @@
  * @author wangfupeng
  */
 
-import { IModuleConf } from '@wangeditor-next/core'
+import { IModuleConf } from '@cyjy-editor/core'
 
 import { fontFamilyMenuConf, fontSizeMenuConf } from './menu/index'
 import { parseStyleHtml } from './parse-style-html'

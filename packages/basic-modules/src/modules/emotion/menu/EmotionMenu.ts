@@ -5,7 +5,7 @@
 
 import {
   DomEditor, IDomEditor, IDropPanelMenu, t,
-} from '@wangeditor-next/core'
+} from '@cyjy-editor/core'
 import { Editor } from 'slate'
 
 import { EMOTION_SVG } from '../../../constants/icon-svg'

@@ -5,7 +5,7 @@
 
 import {
   DomEditor, IButtonMenu, IDomEditor, t,
-} from '@wangeditor-next/core'
+} from '@cyjy-editor/core'
 import { Range, Transforms } from 'slate'
 
 import { FULL_WIDTH_SVG } from '../../constants/svg'

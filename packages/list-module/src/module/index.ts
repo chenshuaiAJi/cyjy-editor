@@ -3,7 +3,7 @@
  * @author wangfupeng
  */
 
-import { IModuleConf } from '@wangeditor-next/core'
+import { IModuleConf } from '@cyjy-editor/core'
 
 import listItemToHtmlConf from './elem-to-html'
 import { bulletedListMenuConf, numberedListMenuConf } from './menu/index'

@@ -3,7 +3,7 @@
  * @author wangfupeng
  */
 
-import { IButtonMenu, IDomEditor, t } from '@wangeditor-next/core'
+import { IButtonMenu, IDomEditor, t } from '@cyjy-editor/core'
 import { Editor, Range, Transforms } from 'slate'
 
 import { ENTER_SVG } from '../../../constants/icon-svg'

@@ -3,7 +3,7 @@
  * @author wangfupeng
  */
 
-import { DomEditor, IDomEditor } from '@wangeditor-next/core'
+import { DomEditor, IDomEditor } from '@cyjy-editor/core'
 import isUrl from 'is-url'
 import { Editor, Node, Transforms } from 'slate'
 

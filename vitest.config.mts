@@ -3,7 +3,7 @@ import path from 'path'
 
 // 抽取重复的模块路径
 const modulePaths = [
-  '@wangeditor-next/core',
+  '@cyjy-editor/core',
   '@cyjy-editor/basic-modules',
   '@wangeditor-next/code-highlight',
   '@wangeditor-next/editor',

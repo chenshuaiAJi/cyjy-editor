@@ -10,7 +10,7 @@ import {
   IDomEditor,
   IModalMenu,
   t,
-} from '@wangeditor-next/core'
+} from '@cyjy-editor/core'
 import { Node, Range } from 'slate'
 
 import { VIDEO_SVG } from '../../constants/svg'

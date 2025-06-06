@@ -3,7 +3,8 @@
  * @author wangfupeng
  */
 
-import { i18nAddResources } from '@wangeditor-next/core'
+import { i18nAddResources } from '@cyjy-editor/core'
+
 import enResources from './en'
 import zhResources from './zh-CN'
 

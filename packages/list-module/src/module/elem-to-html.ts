@@ -3,7 +3,7 @@
  * @author wangfupeng
  */
 
-import { DomEditor } from '@wangeditor-next/core'
+import { DomEditor } from '@cyjy-editor/core'
 import { Editor, Element, Path } from 'slate'
 
 import { ELEM_TO_EDITOR } from '../utils/maps'

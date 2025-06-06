@@ -2,7 +2,7 @@
  * @description common module
  * @author wangfupeng
  */
-import { IModuleConf } from '@wangeditor-next/core'
+import { IModuleConf } from '@cyjy-editor/core'
 
 import { enterMenuConf } from './menu/index'
 

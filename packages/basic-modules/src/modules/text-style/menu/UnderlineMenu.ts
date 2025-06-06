@@ -3,7 +3,7 @@
  * @author wangfupeng
  */
 
-import { IDomEditor, t } from '@wangeditor-next/core'
+import { IDomEditor, t } from '@cyjy-editor/core'
 
 import { UNDER_LINE_SVG } from '../../../constants/icon-svg'
 import {

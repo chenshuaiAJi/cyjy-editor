@@ -3,7 +3,7 @@
  * @author CodePencil
  */
 
-import { IButtonMenu, IDomEditor, t } from '@wangeditor-next/core'
+import { IButtonMenu, IDomEditor, t } from '@cyjy-editor/core'
 import { Editor, Text } from 'slate'
 
 import { FORMAT_PAINTER } from '../../../constants/icon-svg'

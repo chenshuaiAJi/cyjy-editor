@@ -3,7 +3,7 @@
  * @author wangfupeng
  */
 
-import { IDomEditor, IOption, t } from '@wangeditor-next/core'
+import { IDomEditor, IOption, t } from '@cyjy-editor/core'
 
 import { FONT_SIZE_SVG } from '../../../constants/icon-svg'
 import BaseMenu from './BaseMenu'

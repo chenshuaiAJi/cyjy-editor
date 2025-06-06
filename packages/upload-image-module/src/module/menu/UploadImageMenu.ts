@@ -6,7 +6,7 @@
 import { insertImageNode, isInsertImageMenuDisabled } from '@cyjy-editor/basic-modules'
 import {
   IButtonMenu, IDomEditor, t,
-} from '@wangeditor-next/core'
+} from '@cyjy-editor/core'
 
 import { UPLOAD_IMAGE_SVG } from '../../constants/svg'
 import $ from '../../utils/dom'

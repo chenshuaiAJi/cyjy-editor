@@ -1,4 +1,4 @@
-import { IDomEditor, isHTMLElememt } from '@wangeditor-next/core'
+import { IDomEditor, isHTMLElememt } from '@cyjy-editor/core'
 import throttle from 'lodash.throttle'
 import { Editor, Element as SlateElement, Transforms } from 'slate'
 

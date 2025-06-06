@@ -1,7 +1,7 @@
 import {
   IButtonMenu,
   IDomEditor,
-} from '@wangeditor-next/core'
+} from '@cyjy-editor/core'
 import {
   Editor,
   Path,

@@ -5,7 +5,7 @@
 
 import {
   DomEditor, IDomEditor, IOption, ISelectMenu, t,
-} from '@wangeditor-next/core'
+} from '@cyjy-editor/core'
 import {
   Editor, Element, Node, Transforms,
 } from 'slate'

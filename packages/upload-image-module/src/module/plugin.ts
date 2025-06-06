@@ -4,7 +4,7 @@
  */
 
 import { isInsertImageMenuDisabled } from '@cyjy-editor/basic-modules'
-import { IDomEditor } from '@wangeditor-next/core'
+import { IDomEditor } from '@cyjy-editor/core'
 
 import uploadImages from './upload-images'
 
