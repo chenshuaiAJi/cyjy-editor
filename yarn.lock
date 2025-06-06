@@ -2020,6 +2020,11 @@
   resolved "http://10.254.11.100:4873/@types/tough-cookie/-/tough-cookie-4.0.5.tgz#cb6e2a691b70cb177c6e3ae9c1d2e8b2ea8cd304"
   integrity sha512-/Ad8+nIOV7Rl++6f1BdKxFSMgmoqEoYbHRpPcx3JEfv8VRsQe9Z4mCXeJBzxs7mbHY/XOZZuXlRNfhpVPbs6ZA==
 
+"@types/use-sync-external-store@^0.0.6":
+  version "0.0.6"
+  resolved "http://10.254.11.100:4873/@types/use-sync-external-store/-/use-sync-external-store-0.0.6.tgz#60be8d21baab8c305132eb9cb912ed497852aadc"
+  integrity sha512-zFDAD+tlpf2r4asuHEj0XH6pY6i0g5NeAHPn+15wk3BV6JA69eERFXC1gyGThDkVa1zCyKr5jox1+2LbV/AMLg==
+
 "@types/yargs-parser@*":
   version "21.0.3"
   resolved "http://10.254.11.100:4873/@types/yargs-parser/-/yargs-parser-21.0.3.tgz#815e30b786d2e8f0dcd85fd5bcf5e1a04d008f15"
@@ -2296,6 +2301,11 @@
     slate "^0.82.0"
     snabbdom "^3.6.0"
 
+"@wangeditor-next/list-module@~1.1.40":
+  version "1.1.42"
+  resolved "http://10.254.11.100:4873/@wangeditor-next/list-module/-/list-module-1.1.42.tgz#b48136050e00ec5b098c2599e9530ebba2519bca"
+  integrity sha512-s8cH+Vgvb9Fedsj8B26uWN+lMTXfmb7sli5YwPRJBj/0Cjklv6sPmrBjo5IdzC1wXw1B09NJmpt5TpcWhqnxXg==
+
 "@wangeditor-next/table-module@~1.6.44":
   version "1.6.45"
   resolved "http://10.254.11.100:4873/@wangeditor-next/table-module/-/table-module-1.6.45.tgz#70d133877248f919ea0033d648afe475f913d8ad"
@@ -2305,6 +2315,11 @@
   version "1.1.38"
   resolved "http://10.254.11.100:4873/@wangeditor-next/upload-image-module/-/upload-image-module-1.1.38.tgz#6279a69abd8436bf067f9c535b8341dcc2107c09"
   integrity sha512-8S4V60HZ5qFM8ml+aFFC1Ehb+fewmB8Cm2Eg6W+0MCj0UsgCn0pzgwopTof2ggtCo6VlysY1LuFz1fAJpUmu0w==
+
+"@wangeditor-next/video-module@~1.3.40":
+  version "1.3.42"
+  resolved "http://10.254.11.100:4873/@wangeditor-next/video-module/-/video-module-1.3.42.tgz#c6cf8ec413f173c3b39b2f66bb39f24203978107"
+  integrity sha512-dXEj9RcxYAZeJcPjkcaQk8132QbnaRhadrq3A99vP3NUpeK+qhsoUtOSZGsYDUx2qLTFcB7Z/eMFkqK/O0+QmA==
 
 "@yarnpkg/lockfile@^1.1.0":
   version "1.1.0"
@@ -8712,6 +8727,11 @@ url-parse@^1.5.3:
   dependencies:
     querystringify "^2.1.1"
     requires-port "^1.0.0"
+
+use-sync-external-store@^1.2.0:
+  version "1.5.0"
+  resolved "http://10.254.11.100:4873/use-sync-external-store/-/use-sync-external-store-1.5.0.tgz#55122e2a3edd2a6c106174c27485e0fd59bcfca0"
+  integrity sha512-Rb46I4cGGVBmjamjphe8L/UnvJD+uPPtTkNvX5mZgqdbavhI4EbgIWJiIHXJ8bc/i9EQGPRh4DwEURJ552Do0A==
 
 util-deprecate@^1.0.1, util-deprecate@^1.0.2:
   version "1.0.2"
