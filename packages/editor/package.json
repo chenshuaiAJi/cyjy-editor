@@ -1,6 +1,6 @@
 {
   "name": "@cyjy-editor/editor",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "description": "Web rich text editor, Web 富文本编辑器",
   "keywords": [
     "wangeditor",
@@ -51,14 +51,14 @@
   },
   "dependencies": {
     "@cyjy-editor/basic-modules": "^1.0.33",
+    "@cyjy-editor/core": "~1.7.34",
+    "@cyjy-editor/list-module": "~1.1.40",
     "@cyjy-editor/table-module": "^1.0.1",
     "@cyjy-editor/upload-image-module": "^1.0.1",
+    "@cyjy-editor/video-module": "~1.3.40",
     "@uppy/core": "^2.1.1",
     "@uppy/xhr-upload": "^2.0.3",
     "@wangeditor-next/code-highlight": "~1.3.31",
-    "@cyjy-editor/core": "~1.7.34",
-    "@cyjy-editor/list-module": "~1.1.40",
-    "@cyjy-editor/video-module": "~1.3.40",
     "dom7": "^4.0.0",
     "is-hotkey": "^0.2.0",
     "lodash.camelcase": "^4.3.0",
