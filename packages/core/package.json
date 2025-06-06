@@ -25,11 +25,11 @@
     "dist"
   ],
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "registry": "http://10.254.11.100:4873"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wangeditor-next/wangEditor-next.git"
   },
   "scripts": {
     "test": "jest",

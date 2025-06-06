@@ -2020,11 +2020,6 @@
   resolved "http://10.254.11.100:4873/@types/tough-cookie/-/tough-cookie-4.0.5.tgz#cb6e2a691b70cb177c6e3ae9c1d2e8b2ea8cd304"
   integrity sha512-/Ad8+nIOV7Rl++6f1BdKxFSMgmoqEoYbHRpPcx3JEfv8VRsQe9Z4mCXeJBzxs7mbHY/XOZZuXlRNfhpVPbs6ZA==
 
-"@types/use-sync-external-store@^0.0.6":
-  version "0.0.6"
-  resolved "http://10.254.11.100:4873/@types/use-sync-external-store/-/use-sync-external-store-0.0.6.tgz#60be8d21baab8c305132eb9cb912ed497852aadc"
-  integrity sha512-zFDAD+tlpf2r4asuHEj0XH6pY6i0g5NeAHPn+15wk3BV6JA69eERFXC1gyGThDkVa1zCyKr5jox1+2LbV/AMLg==
-
 "@types/yargs-parser@*":
   version "21.0.3"
   resolved "http://10.254.11.100:4873/@types/yargs-parser/-/yargs-parser-21.0.3.tgz#815e30b786d2e8f0dcd85fd5bcf5e1a04d008f15"
@@ -2261,6 +2256,18 @@
   integrity sha512-X6GdMu3sYfn3Q7yaPBOUFO7TpHGzyrCjdtln+mwX8NifqBQ99cHn49OIl519jXer83nPS9ZH1t1wfCstt5to0g==
   dependencies:
     is-url "^1.2.4"
+
+"@wangeditor-next/core@~1.7.34":
+  version "1.7.36"
+  resolved "http://10.254.11.100:4873/@wangeditor-next/core/-/core-1.7.36.tgz#95f524675b06044a7cca3982df650149e9c6a57d"
+  integrity sha512-aqKOsxbM+esFVX5y8qe3xl3LkknuZlYHz1Ak99PWDeUsoaWMSbyod7TcXOLawa0dWyNvVNbDayOw98l4OOiuCg==
+  dependencies:
+    "@types/event-emitter" "^0.3.3"
+    event-emitter "^0.3.5"
+    html-void-elements "^3.0.0"
+    i18next "^23.0.0"
+    scroll-into-view-if-needed "^3.0.0"
+    slate-history "^0.109.0"
 
 "@wangeditor-next/editor@^5.6.12":
   version "5.6.34"
@@ -8705,11 +8712,6 @@ url-parse@^1.5.3:
   dependencies:
     querystringify "^2.1.1"
     requires-port "^1.0.0"
-
-use-sync-external-store@^1.2.0:
-  version "1.5.0"
-  resolved "http://10.254.11.100:4873/use-sync-external-store/-/use-sync-external-store-1.5.0.tgz#55122e2a3edd2a6c106174c27485e0fd59bcfca0"
-  integrity sha512-Rb46I4cGGVBmjamjphe8L/UnvJD+uPPtTkNvX5mZgqdbavhI4EbgIWJiIHXJ8bc/i9EQGPRh4DwEURJ552Do0A==
 
 util-deprecate@^1.0.1, util-deprecate@^1.0.2:
   version "1.0.2"

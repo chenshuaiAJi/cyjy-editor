@@ -7,10 +7,10 @@ const modulePaths = [
   '@cyjy-editor/basic-modules',
   '@wangeditor-next/code-highlight',
   '@wangeditor-next/editor',
-  '@wangeditor-next/list-module',
+  '@cyjy-editor/list-module',
   '@cyjy-editor/table-module',
   '@cyjy-editor/upload-image-module',
-  '@wangeditor-next/video-module',
+  '@cyjy-editor/video-module',
 ]
 
 export default defineConfig({
