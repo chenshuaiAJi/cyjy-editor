@@ -1,6 +1,6 @@
 {
   "name": "@cyjy-editor/editor",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "description": "Web rich text editor, Web 富文本编辑器",
   "keywords": [
     "wangeditor",
@@ -50,7 +50,7 @@
     "size-stats": "cross-env NODE_ENV=production:size_stats rollup -c rollup.config.js"
   },
   "dependencies": {
-    "@cyjy-editor/basic-modules": "^1.0.1",
+    "@cyjy-editor/basic-modules": "1.0.33",
     "@cyjy-editor/table-module": "^1.0.1",
     "@cyjy-editor/upload-image-module": "^1.0.1",
     "@uppy/core": "^2.1.1",
