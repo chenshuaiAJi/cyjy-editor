@@ -44,6 +44,7 @@ export function renderStyle(node: Descendant, vnode: VNode): VNode {
   }
   if (underline) {
     styleVnode = <u>{styleVnode}</u>
+    addVnodeStyle(styleVnode, { textDecoration: 'underline' })
   } else if (wavy) {
     addVnodeStyle(styleVnode, { textDecoration: 'underline wavy' })
   }

@@ -30,7 +30,15 @@ function genStyledHtml(textNode: Descendant, html: string): string {
   if (sup) { styledHtml = `<sup>${styledHtml}</sup>` }
   if (through) { styledHtml = `<s>${styledHtml}</s>` }
   if (sub) { styledHtml = `<sub>${styledHtml}</sub>` }
-  if (underline) { styledHtml = `<u>${styledHtml}</u>` } else if (wavy) {
+  if (underline) {
+    styledHtml = `<u>${styledHtml}</u>`
+    if (!outerHtmlTag(styledHtml, 'span')) {
+      styledHtml = `<span>${styledHtml}</span>`
+    }
+    $text = $(styledHtml)
+    $text.css('text-decoration', 'underline')
+    styledHtml = getOuterHTML($text)
+  } else if (wavy) {
     if (!outerHtmlTag(styledHtml, 'span')) {
       styledHtml = `<span>${styledHtml}</span>`
     }

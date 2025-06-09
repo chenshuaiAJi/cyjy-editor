@@ -60,6 +60,7 @@ class HighlightSymbolsMenu implements IButtonMenu {
   exec(editor: IDomEditor, _value: string | boolean) {
     const { mark } = this
 
+    editor.emit('loadingEditor', true)
     editor.selectAll()
     const spaceRegex = /\s/g
     const englishPunctuationRegex = /[.,;!?():"'–—…[\]{}<>]/g
@@ -115,6 +116,7 @@ class HighlightSymbolsMenu implements IButtonMenu {
       })
     }
     Editor.normalize(editor)
+    editor.emit('loadingEditor', false)
     editor.deselect()
   }
 }
