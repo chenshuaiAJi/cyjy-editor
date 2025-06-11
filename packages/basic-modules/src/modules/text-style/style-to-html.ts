@@ -32,7 +32,7 @@ function genStyledHtml(textNode: Descendant, html: string): string {
   if (sub) { styledHtml = `<sub>${styledHtml}</sub>` }
   if (underline) {
     if (!outerHtmlTag(styledHtml, 'span')) {
-      styledHtml = `<span>${styledHtml}</span>`
+      styledHtml = `<span><u>${styledHtml}</u></span>`
     }
     $text = $(styledHtml)
     $text.css('text-decoration', 'underline')
