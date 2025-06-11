@@ -35,7 +35,6 @@ function genStyledHtml(textNode: Descendant, html: string): string {
     $text = $(styledHtml)
     $text.css('text-decoration', 'underline')
     styledHtml = getOuterHTML($text)
-    throw new Error('underline wavy 暂不支持')
   } else if (wavy) {
     if (!outerHtmlTag(styledHtml, 'span')) {
       styledHtml = `<span>${styledHtml}</span>`
