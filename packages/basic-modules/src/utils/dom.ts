@@ -190,6 +190,16 @@ export function getClassValue($elem: Dom7Array): string {
   return $elem.attr('class') || '' // 如 'line-height: 2.5; color: red;'
 }
 
+/**
+ * 获取 $elem 某一个 data 属性值
+ * @param $elem $elem
+ * @param dataKey data key (不需要包含'data-'前缀)
+ */
+export function getDataValue($elem: Dom7Array, dataKey: string): string {
+  if ($elem.length === 0) return '';
+  return $elem.attr(`data-${dataKey}`) || '';
+}
+
 export {
   DOMComment, DOMElement, DOMNode, DOMRange, DOMSelection, DOMStaticRange, DOMText,
 }

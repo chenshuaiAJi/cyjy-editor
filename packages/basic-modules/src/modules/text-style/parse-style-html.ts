@@ -9,6 +9,7 @@ import { Descendant, Text } from 'slate'
 import $, {
   Dom7Array, DOMElement, getClassValue,
   getStyleValue,
+  getDataValue,
 } from '../../utils/dom'
 import { StyledText } from './custom-types'
 
@@ -88,6 +89,15 @@ export function parseStyleHtml(
 
   if (highlightSymbols) {
     textNode.highlightSymbols = highlightSymbols as any
+  }
+
+  const diffSymbols = getDataValue($text, 'diffKey');
+  if (diffSymbols) {
+    //@ts-ignore
+    textNode.diffSymbols = {
+      type: diffSymbols.split('-')[0],
+      key: diffSymbols.split('-')[1],
+    } as StyledText['diffSymbols'];
   }
 
   return textNode
