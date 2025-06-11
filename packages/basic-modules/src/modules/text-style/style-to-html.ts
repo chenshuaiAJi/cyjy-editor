@@ -21,7 +21,7 @@ function genStyledHtml(textNode: Descendant, html: string): string {
   let styledHtml = html
   let $text
   const {
-    bold, italic, code, through, sub, sup, wavy, stress, highlightSymbols, underline, diffSymbols
+    bold, italic, code, through, sub, sup, wavy, stress, highlightSymbols, underline, diffSymbols,
   } = textNode as StyledText
 
   if (bold) { styledHtml = `<strong>${styledHtml}</strong>` }
@@ -31,10 +31,7 @@ function genStyledHtml(textNode: Descendant, html: string): string {
   if (through) { styledHtml = `<s>${styledHtml}</s>` }
   if (sub) { styledHtml = `<sub>${styledHtml}</sub>` }
   if (underline) {
-    styledHtml = `<u>${styledHtml}</u>`
-    if (!outerHtmlTag(styledHtml, 'span')) {
-      styledHtml = `<span>${styledHtml}</span>`
-    }
+    styledHtml = `<span><u>${styledHtml}</u></span>`
     $text = $(styledHtml)
     $text.css('text-decoration', 'underline')
     styledHtml = getOuterHTML($text)
@@ -67,7 +64,7 @@ function genStyledHtml(textNode: Descendant, html: string): string {
   // 设置 diff 符号
   if (diffSymbols) {
     $text = $(styledHtml)
-    $text.addClass(`diff-${diffSymbols.type}`);
+    $text.addClass(`diff-${diffSymbols.type}`)
     styledHtml = getOuterHTML($text)
   }
   return styledHtml

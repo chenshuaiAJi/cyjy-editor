@@ -18,7 +18,7 @@ import { StyledText } from './custom-types'
  */
 export function renderStyle(node: Descendant, vnode: VNode): VNode {
   const {
-    bold, italic, code, through, sub, sup, wavy, stress, highlightSymbols, underline, diffSymbols
+    bold, italic, code, through, sub, sup, wavy, stress, highlightSymbols, underline, diffSymbols,
   } = node as StyledText
   let styleVnode: VNode = vnode
 
@@ -60,10 +60,8 @@ export function renderStyle(node: Descendant, vnode: VNode): VNode {
     addVnodeClassName(styleVnode, highlightSymbols)
   }
 
-  
   if (diffSymbols) {
-    addVnodeClassName(styleVnode, `diff-${diffSymbols.type}`);
+    addVnodeClassName(styleVnode, `diff-${diffSymbols.type}`)
   }
-
   return styleVnode
 }
