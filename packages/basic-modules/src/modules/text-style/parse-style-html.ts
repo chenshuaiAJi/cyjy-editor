@@ -50,7 +50,7 @@ export function parseStyleHtml(
   }
 
   // underline
-  if (isMatch($text, 'u')) {
+  if (getStyleValue($text, 'text-decoration') === 'underline') {
     textNode.underline = true
   } else if (getStyleValue($text, 'text-decoration') === 'underline wavy') {
     textNode.wavy = true

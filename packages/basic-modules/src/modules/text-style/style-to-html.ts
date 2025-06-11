@@ -31,7 +31,9 @@ function genStyledHtml(textNode: Descendant, html: string): string {
   if (through) { styledHtml = `<s>${styledHtml}</s>` }
   if (sub) { styledHtml = `<sub>${styledHtml}</sub>` }
   if (underline) {
-    styledHtml = `<span><u>${styledHtml}</u></span>`
+    if (!outerHtmlTag(styledHtml, 'span')) {
+      styledHtml = `<span>${styledHtml}</span>`
+    }
     $text = $(styledHtml)
     $text.css('text-decoration', 'underline')
     styledHtml = getOuterHTML($text)
