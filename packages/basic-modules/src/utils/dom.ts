@@ -103,16 +103,16 @@ export function getTagName($elem: Dom7Array): string {
  * 判断 str 是否被目标标签包裹
  * @param str str
  */
-export function outerHtmlTag(str: string, tagName:string) {
-  let $text
+export function isWrappedWithTag(str: string, tagName: string): boolean {
+  // Trim the input string
+  const trimmed = str.trim()
 
-  try {
-    $text = $(str.trim())
-  } catch (error) {
-    return false
-  }
+  // Create regex patterns for opening and closing tags
+  const openTagPattern = new RegExp(`^<${tagName}(\\s+[^>]*)?>`)
+  const closeTagPattern = new RegExp(`</${tagName}>$`)
 
-  return getTagName($text) === tagName
+  // Check if the string starts with the opening tag and ends with the closing tag
+  return openTagPattern.test(trimmed) && closeTagPattern.test(trimmed)
 }
 
 /**
@@ -196,8 +196,8 @@ export function getClassValue($elem: Dom7Array): string {
  * @param dataKey data key (不需要包含'data-'前缀)
  */
 export function getDataValue($elem: Dom7Array, dataKey: string): string {
-  if ($elem.length === 0) return '';
-  return $elem.attr(`data-${dataKey}`) || '';
+  if ($elem.length === 0) { return '' }
+  return $elem.attr(`data-${dataKey}`) || ''
 }
 
 export {

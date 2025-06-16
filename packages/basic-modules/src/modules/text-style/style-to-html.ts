@@ -6,7 +6,7 @@
 import { Descendant, Text } from 'slate'
 
 import $, {
-  getOuterHTML, isPlainText, outerHtmlTag,
+  getOuterHTML, isPlainText, isWrappedWithTag,
 } from '../../utils/dom'
 import { StyledText } from './custom-types'
 
@@ -31,14 +31,14 @@ function genStyledHtml(textNode: Descendant, html: string): string {
   if (through) { styledHtml = `<s>${styledHtml}</s>` }
   if (sub) { styledHtml = `<sub>${styledHtml}</sub>` }
   if (underline) {
-    if (!outerHtmlTag(styledHtml, 'span')) {
+    if (!isWrappedWithTag(styledHtml, 'span')) {
       styledHtml = `<span><u>${styledHtml}</u></span>`
     }
     $text = $(styledHtml)
     $text.css('text-decoration', 'underline')
     styledHtml = getOuterHTML($text)
   } else if (wavy) {
-    if (!outerHtmlTag(styledHtml, 'span')) {
+    if (!isWrappedWithTag(styledHtml, 'span')) {
       styledHtml = `<span>${styledHtml}</span>`
     }
     $text = $(styledHtml)
@@ -46,7 +46,7 @@ function genStyledHtml(textNode: Descendant, html: string): string {
     styledHtml = getOuterHTML($text)
   }
   if (stress) {
-    if (!outerHtmlTag(styledHtml, 'span')) {
+    if (!isWrappedWithTag(styledHtml, 'span')) {
       styledHtml = `<span>${styledHtml}</span>`
     }
     $text = $(styledHtml)
@@ -56,7 +56,7 @@ function genStyledHtml(textNode: Descendant, html: string): string {
   }
   // 设置高亮符号
   if (highlightSymbols) {
-    if (!outerHtmlTag(styledHtml, 'span')) {
+    if (!isWrappedWithTag(styledHtml, 'span')) {
       styledHtml = `<span>${styledHtml}</span>`
     }
     $text = $(styledHtml)
