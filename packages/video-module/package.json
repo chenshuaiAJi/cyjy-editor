@@ -1,6 +1,6 @@
 {
   "name": "@cyjy-editor/video-module",
-  "version": "1.3.44",
+  "version": "1.3.45",
   "description": "wangEditor video module",
   "author": "cycleccc <2991205548@qq.com>",
   "type": "module",
@@ -44,7 +44,7 @@
     "url": "https://github.com/wangeditor-next/wangeditor-next/issues"
   },
   "peerDependencies": {
-    "@cyjy-editor/core": "1.7.37",
+    "@cyjy-editor/core": "^1.7.37",
     "@uppy/core": "^2.1.4",
     "@uppy/xhr-upload": "^2.0.7",
     "dom7": "^3.0.0 || ^4.0.0",
