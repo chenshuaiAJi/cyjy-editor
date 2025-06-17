@@ -1,6 +1,6 @@
 {
   "name": "@cyjy-editor/table-module",
-  "version": "1.0.21",
+  "version": "1.0.22",
   "description": "wangEditor table module",
   "author": "cycleccc <2991205548@qq.com>",
   "type": "module",
@@ -44,7 +44,7 @@
     "url": "https://github.com/wangeditor-next/wangeditor-next/issues"
   },
   "peerDependencies": {
-    "@cyjy-editor/core": "1.7.37",
+    "@cyjy-editor/core": "^1.7.37",
     "dom7": "^3.0.0 || ^4.0.0",
     "lodash.debounce": "^4.0.8",
     "lodash.isequal": "^4.5.0",
