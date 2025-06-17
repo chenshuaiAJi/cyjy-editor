@@ -1,6 +1,6 @@
 {
   "name": "@cyjy-editor/upload-image-module",
-  "version": "1.0.22",
+  "version": "1.0.24",
   "description": "wangEditor upload-image module",
   "author": "cyjy",
   "type": "module",
@@ -42,7 +42,7 @@
   },
   "peerDependencies": {
     "@cyjy-editor/basic-modules": "^1.0.1",
-    "@cyjy-editor/core": "1.7.37",
+    "@cyjy-editor/core": "^1.7.37",
     "@uppy/core": "^2.0.3",
     "@uppy/xhr-upload": "^2.0.3",
     "dom7": "^3.0.0 || ^4.0.0",
