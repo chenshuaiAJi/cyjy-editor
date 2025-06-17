@@ -55,6 +55,20 @@ function parseElemHtml($elem: Dom7Array, editor: IDomEditor): Descendant | Desce
 
   // <span> 判断有没有 data-w-e-type 属性。有则是 elem ，没有则是 text
   if (tagName === 'span') {
+    const hasBr = Array.from($elem[0].childNodes).some(child => getTagName($(child)) === 'br')
+
+    if (hasBr) {
+      if (TEXT_TAGS.includes(tagName)) {
+        if ($elem[0].childNodes.length > 0 && $elem[0].childNodes[0].nodeType !== 3) {
+          const childNodes = $elem[0].childNodes
+
+          return { ...parseElemHtml($(childNodes[0]), editor), ...parseTextElemHtml($elem, editor) }
+        }
+        // text node
+        return parseTextElemHtml($elem, editor)
+      }
+    }
+
     if ($elem.attr('data-w-e-type')) {
       return parseCommonElemHtml($elem, editor)
     }
