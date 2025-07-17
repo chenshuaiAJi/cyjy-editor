@@ -190,7 +190,16 @@ function renderTable(elemNode: SlateElement, children: VNode[] | null, editor: I
     'div',
     {
       hook: {
-        insert: ({ elm }: VNode) => observerTableResize(editor, elm),
+        insert: ({ elm }: VNode) => {
+          observerTableResize(editor, elm)
+        },
+        // setHtml方法渲染table时，renderTable比insert先执行，height已经为0了，所以需要postpatch在patch完成后再计算一次
+        postpatch: ({ elm }: VNode) => {
+          // 只有在没有高度或高度为0时才调用 observerTableResize
+          if (!height || height === 0) {
+            observerTableResize(editor, elm)
+          }
+        },
         destroy: () => {
           unObserveTableResize()
         },
