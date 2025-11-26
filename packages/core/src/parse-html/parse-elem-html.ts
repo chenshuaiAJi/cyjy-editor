@@ -21,6 +21,9 @@ function parseChildNode($childElem, parentStyle, editor) {
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     const elem = parseElemHtml($childElem, editor)
 
+    // Element 节点不应该继承传入的 { text: '' } 默认值，该值会导致slate识别错误
+    delete parentStyle.text
+
     return Array.isArray(elem)
       ? elem.map(v => ({ ...parentStyle, ...v }))
       : [{ ...parentStyle, ...elem }]
@@ -58,7 +61,10 @@ function parseElemHtml($elem: Dom7Array, editor: IDomEditor): Descendant | Desce
     if ($elem.attr('data-w-e-type')) {
       return parseCommonElemHtml($elem, editor)
     }
-    if ($elem[0].childNodes.length > 1) {
+
+    const hasImgOrA = $elem.find('img, a').length > 0
+
+    if ($elem[0].childNodes.length > 1 || hasImgOrA) {
       const childNodes = $elem[0].childNodes
       const parentStyle = parseTextElemHtmlToStyle($($elem[0]), editor)
 
@@ -71,7 +77,6 @@ function parseElemHtml($elem: Dom7Array, editor: IDomEditor): Descendant | Desce
     }
 
     return parseTextElemHtml($elem, editor)
-
   }
 
   // <code> 特殊处理
@@ -89,7 +94,7 @@ function parseElemHtml($elem: Dom7Array, editor: IDomEditor): Descendant | Desce
 
   // 非 <code> ，正常处理
   if (TEXT_TAGS.includes(tagName)) {
-    if ($elem[0].childNodes.length > 0 && $elem[0].childNodes[0].nodeType !== 3) {
+    if ($elem[0].childNodes.length > 0 && $elem[0].childNodes[0].nodeType !== Node.TEXT_NODE) {
       const childNodes = $elem[0].childNodes
 
       return { ...parseElemHtml($(childNodes[0]), editor), ...parseTextElemHtml($elem, editor) }

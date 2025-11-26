@@ -1,5 +1,114 @@
 # @wangeditor-next/plugin-formula
 
+## 1.0.35
+
+### Patch Changes
+
+- Updated dependencies [dd1b701]
+  - @wangeditor-next/editor@5.6.49
+
+## 1.0.34
+
+### Patch Changes
+
+- Updated dependencies [6b823fa]
+  - @wangeditor-next/editor@5.6.48
+
+## 1.0.33
+
+### Patch Changes
+
+- Updated dependencies [5aeb10f]
+  - @wangeditor-next/editor@5.6.47
+
+## 1.0.32
+
+### Patch Changes
+
+- Updated dependencies [b6e16d5]
+  - @wangeditor-next/editor@5.6.46
+
+## 1.0.31
+
+### Patch Changes
+
+- Updated dependencies [7808410]
+  - @wangeditor-next/editor@5.6.45
+
+## 1.0.30
+
+### Patch Changes
+
+- Updated dependencies [f6e1fda]
+  - @wangeditor-next/editor@5.6.44
+
+## 1.0.29
+
+### Patch Changes
+
+- Updated dependencies [ad751aa]
+- Updated dependencies [ad751aa]
+  - @wangeditor-next/editor@5.6.43
+
+## 1.0.28
+
+### Patch Changes
+
+- Updated dependencies [a37ae4b]
+  - @wangeditor-next/editor@5.6.42
+
+## 1.0.27
+
+### Patch Changes
+
+- Updated dependencies [cc355f3]
+  - @wangeditor-next/editor@5.6.41
+
+## 1.0.26
+
+### Patch Changes
+
+- a4b6fd8: chore: add rollup package link
+- Updated dependencies [e204312]
+- Updated dependencies [a4b6fd8]
+  - @wangeditor-next/editor@5.6.40
+
+## 1.0.25
+
+### Patch Changes
+
+- Updated dependencies [b557818]
+  - @wangeditor-next/editor@5.6.39
+
+## 1.0.24
+
+### Patch Changes
+
+- Updated dependencies [a28a86f]
+  - @wangeditor-next/editor@5.6.38
+
+## 1.0.23
+
+### Patch Changes
+
+- 2b8635e: revert native-shime 乾坤适配
+- Updated dependencies [2b8635e]
+  - @wangeditor-next/editor@5.6.37
+
+## 1.0.22
+
+### Patch Changes
+
+- Updated dependencies [6c7e34d]
+  - @wangeditor-next/editor@5.6.36
+
+## 1.0.21
+
+### Patch Changes
+
+- Updated dependencies [09fa830]
+  - @wangeditor-next/editor@5.6.35
+
 ## 1.0.20
 
 ### Patch Changes

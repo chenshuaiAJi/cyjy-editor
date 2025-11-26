@@ -1,9 +1,9 @@
 {
   "name": "@wangeditor-next/wangeditor",
   "private": true,
-  "packageManager": "yarn@4.5.3",
+  "packageManager": "pnpm@9.15.0",
   "engines": {
-    "node": "^18.0.0"
+    "node": "^22.13.0"
   },
   "browserslist": [
     "defaults",
@@ -12,21 +12,22 @@
   "scripts": {
     "cz": "cz",
     "test": "cross-env NODE_OPTIONS=--unhandled-rejections=warn vitest run --passWithNoTests --dangerouslyIgnoreUnhandledErrors",
+    "test:watch": "cross-env NODE_OPTIONS=--unhandled-rejections=warn vitest run --passWithNoTests --dangerouslyIgnoreUnhandledErrors --watch",
     "test-c": "cross-env NODE_OPTIONS=--unhandled-rejections=warn vitest run --passWithNoTests --dangerouslyIgnoreUnhandledErrors --coverage",
     "dev": "cross-env FORCE_COLOR=1 turbo dev",
     "dev:sh": "sh scripts/build-base.sh dev",
     "build": "cross-env FORCE_COLOR=1 turbo build",
-    "publish": "yarn changeset publish",
-    "prerelease": "yarn build",
-    "format": "yarn prettier --write",
+    "publish": "pnpm changeset publish",
+    "prerelease": "pnpm build",
+    "format": "pnpm prettier --write",
     "lint": "eslint --cache --quiet --no-error-on-unmatched-pattern ./",
     "lint:fix": "eslint --fix --cache --quiet --no-error-on-unmatched-pattern ./",
     "lint:staged": "lint-staged",
     "prettier": "prettier --ignore-path .gitignore \"packages/*/+(src|__tests__)/**/*.+(ts|tsx)\"  --cache",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
-    "e2e:dev": "concurrently \"yarn example\" \"yarn run cypress:open\"",
-    "e2e": "concurrently \"yarn example\" \"yarn run cypress:run\"",
+    "e2e:dev": "concurrently \"pnpm example\" \"pnpm run cypress:open\"",
+    "e2e": "concurrently \"pnpm example\" \"pnpm run cypress:run\"",
     "prepare": "husky install",
     "changeset": "changeset",
     "example": "turbo run example --filter=@wangeditor-next/editor"
@@ -48,8 +49,8 @@
     "@babel/preset-typescript": "^7.14.5",
     "@babel/runtime-corejs3": "^7.14.7",
     "@changesets/cli": "^2.27.7",
-    "@commitlint/cli": "^19.5.0",
-    "@commitlint/config-conventional": "^19.5.0",
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
     "@rollup/plugin-babel": "^6.0.0",
     "@rollup/plugin-commonjs": "^28.0.0",
     "@rollup/plugin-json": "^6.0.0",
@@ -58,9 +59,10 @@
     "@rollup/plugin-terser": "^0.4.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.0.0",
+    "@types/minimatch": "^5.1.2",
     "@typescript-eslint/eslint-plugin": "^6.8.0",
     "@typescript-eslint/parser": "^6.8.0",
-    "@vitest/coverage-v8": "2.1.2",
+    "@vitest/coverage-v8": "^3.2.4",
     "autoprefixer": "^10.2.5",
     "babel-core": "^7.0.0-bridge.0",
     "concurrently": "^9.0.0",
@@ -69,7 +71,7 @@
     "cssnano": "^7.0.0",
     "cypress": "^13.0.0",
     "cz-conventional-changelog": "^3.3.0",
-    "eslint": "^8.57.0",
+    "eslint": "^8.57.1",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-cypress": "^3.0.0",
@@ -80,16 +82,16 @@
     "eslint-plugin-simple-import-sort": "^12.0.0",
     "eslint-plugin-vue": "^9.27.0",
     "http-server": "^14.0.0",
-    "husky": "^9.1.6",
+    "husky": "^9.1.7",
     "jest-environment-jsdom": "^29.0.0",
     "less": "^4.0.0",
-    "lint-staged": "^15.2.10",
+    "lint-staged": "^15.5.2",
     "lodash": "^4.17.21",
     "minimist": "^1.2.8",
     "nock": "^13.2.4",
     "patch-package": "^8.0.0",
     "postcss": "^8.2.15",
-    "prettier": "^3.3.3",
+    "prettier": "^3.6.2",
     "rollup": "^4.0.0",
     "rollup-plugin-cleanup": "^3.2.1",
     "rollup-plugin-copy": "^3.4.0",
@@ -101,9 +103,9 @@
     "rollup-plugin-typescript2": "^0.36.0",
     "rollup-plugin-visualizer": "^5.5.0",
     "tslib": "^2.3.0",
-    "turbo": "^2.4.2",
+    "turbo": "^2.5.4",
     "typescript": "5.7.2",
-    "vitest": "^2.1.2"
+    "vitest": "^3.2.4"
   },
   "commitlint": {
     "extends": [
@@ -123,5 +125,22 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.14.6"
-  }
+  },
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wangEditor-next/wangEditor-next.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wangEditor-next/wangEditor-next/issues"
+  },
+  "homepage": "https://github.com/wangEditor-next/wangEditor-next#readme"
 }

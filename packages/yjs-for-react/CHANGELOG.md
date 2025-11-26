@@ -1,5 +1,124 @@
 # @wangeditor-next/yjs-for-react
 
+## 0.1.60
+
+### Patch Changes
+
+- Updated dependencies [dd1b701]
+  - @wangeditor-next/editor@5.6.49
+
+## 0.1.59
+
+### Patch Changes
+
+- Updated dependencies [6b823fa]
+  - @wangeditor-next/editor@5.6.48
+
+## 0.1.58
+
+### Patch Changes
+
+- Updated dependencies [5aeb10f]
+  - @wangeditor-next/yjs@0.1.44
+  - @wangeditor-next/editor@5.6.47
+
+## 0.1.57
+
+### Patch Changes
+
+- Updated dependencies [b6e16d5]
+  - @wangeditor-next/editor@5.6.46
+  - @wangeditor-next/yjs@0.1.43
+
+## 0.1.56
+
+### Patch Changes
+
+- 7808410: feat(table): 添加行拖动和调整高度功能
+- Updated dependencies [7808410]
+  - @wangeditor-next/editor@5.6.45
+  - @wangeditor-next/yjs@0.1.43
+
+## 0.1.55
+
+### Patch Changes
+
+- Updated dependencies [f6e1fda]
+  - @wangeditor-next/editor@5.6.44
+  - @wangeditor-next/yjs@0.1.42
+
+## 0.1.54
+
+### Patch Changes
+
+- Updated dependencies [ad751aa]
+- Updated dependencies [ad751aa]
+  - @wangeditor-next/editor@5.6.43
+  - @wangeditor-next/yjs@0.1.41
+
+## 0.1.53
+
+### Patch Changes
+
+- Updated dependencies [a37ae4b]
+  - @wangeditor-next/editor@5.6.42
+  - @wangeditor-next/yjs@0.1.40
+
+## 0.1.52
+
+### Patch Changes
+
+- Updated dependencies [cc355f3]
+  - @wangeditor-next/editor@5.6.41
+
+## 0.1.51
+
+### Patch Changes
+
+- a4b6fd8: chore: add rollup package link
+- Updated dependencies [e204312]
+- Updated dependencies [a4b6fd8]
+  - @wangeditor-next/editor@5.6.40
+  - @wangeditor-next/yjs@0.1.39
+
+## 0.1.50
+
+### Patch Changes
+
+- Updated dependencies [b557818]
+  - @wangeditor-next/editor@5.6.39
+  - @wangeditor-next/yjs@0.1.38
+
+## 0.1.49
+
+### Patch Changes
+
+- Updated dependencies [a28a86f]
+  - @wangeditor-next/editor@5.6.38
+
+## 0.1.48
+
+### Patch Changes
+
+- Updated dependencies [2b8635e]
+  - @wangeditor-next/editor@5.6.37
+  - @wangeditor-next/yjs@0.1.37
+
+## 0.1.47
+
+### Patch Changes
+
+- Updated dependencies [6c7e34d]
+  - @wangeditor-next/editor@5.6.36
+
+## 0.1.46
+
+### Patch Changes
+
+- Updated dependencies [09fa830]
+  - @wangeditor-next/editor@5.6.35
+  - @wangeditor-next/yjs@0.1.36
+
 ## 0.1.45
 
 ### Patch Changes

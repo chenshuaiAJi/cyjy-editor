@@ -1,5 +1,80 @@
 # Change Log
 
+## 1.1.52
+
+### Patch Changes
+
+- d2a3191: fix(list-module): correctly handle deletion of nodes after a skip-level promotion(L1->L3)(#655)
+
+## 1.1.51
+
+### Patch Changes
+
+- 7808410: feat(table): 添加行拖动和调整高度功能
+- Updated dependencies [fdd0544]
+- Updated dependencies [e320246]
+- Updated dependencies [7808410]
+  - @wangeditor-next/core@1.7.45
+
+## 1.1.50
+
+### Patch Changes
+
+- Updated dependencies [f6e1fda]
+  - @wangeditor-next/core@1.7.44
+
+## 1.1.49
+
+### Patch Changes
+
+- Updated dependencies [06ebf22]
+- Updated dependencies [ad751aa]
+- Updated dependencies [ad751aa]
+  - @wangeditor-next/core@1.7.43
+
+## 1.1.48
+
+### Patch Changes
+
+- Updated dependencies [a37ae4b]
+  - @wangeditor-next/core@1.7.42
+
+## 1.1.47
+
+### Patch Changes
+
+- a4b6fd8: chore: add rollup package link
+- Updated dependencies [a4b6fd8]
+  - @wangeditor-next/core@1.7.41
+
+## 1.1.46
+
+### Patch Changes
+
+- Updated dependencies [d000e3f]
+  - @wangeditor-next/core@1.7.40
+
+## 1.1.45
+
+### Patch Changes
+
+- Updated dependencies [2b8635e]
+  - @wangeditor-next/core@1.7.39
+
+## 1.1.44
+
+### Patch Changes
+
+- Updated dependencies [5e7bfdf]
+  - @wangeditor-next/core@1.7.38
+
+## 1.1.43
+
+### Patch Changes
+
+- Updated dependencies [8c91da0]
+  - @wangeditor-next/core@1.7.37
+
 ## 1.1.42
 
 ### Patch Changes

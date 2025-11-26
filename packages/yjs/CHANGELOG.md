@@ -1,5 +1,80 @@
 # @wangeditor-next/yjs
 
+## 0.1.44
+
+### Patch Changes
+
+- 5aeb10f: feat(yjs): add yjs-for-vue(#165)
+
+## 0.1.43
+
+### Patch Changes
+
+- 7808410: feat(table): 添加行拖动和调整高度功能
+- Updated dependencies [fdd0544]
+- Updated dependencies [e320246]
+- Updated dependencies [7808410]
+  - @wangeditor-next/core@1.7.45
+
+## 0.1.42
+
+### Patch Changes
+
+- Updated dependencies [f6e1fda]
+  - @wangeditor-next/core@1.7.44
+
+## 0.1.41
+
+### Patch Changes
+
+- Updated dependencies [06ebf22]
+- Updated dependencies [ad751aa]
+- Updated dependencies [ad751aa]
+  - @wangeditor-next/core@1.7.43
+
+## 0.1.40
+
+### Patch Changes
+
+- Updated dependencies [a37ae4b]
+  - @wangeditor-next/core@1.7.42
+
+## 0.1.39
+
+### Patch Changes
+
+- a4b6fd8: chore: add rollup package link
+- Updated dependencies [a4b6fd8]
+  - @wangeditor-next/core@1.7.41
+
+## 0.1.38
+
+### Patch Changes
+
+- Updated dependencies [d000e3f]
+  - @wangeditor-next/core@1.7.40
+
+## 0.1.37
+
+### Patch Changes
+
+- Updated dependencies [2b8635e]
+  - @wangeditor-next/core@1.7.39
+
+## 0.1.36
+
+### Patch Changes
+
+- Updated dependencies [5e7bfdf]
+  - @wangeditor-next/core@1.7.38
+
+## 0.1.35
+
+### Patch Changes
+
+- Updated dependencies [8c91da0]
+  - @wangeditor-next/core@1.7.37
+
 ## 0.1.34
 
 ### Patch Changes

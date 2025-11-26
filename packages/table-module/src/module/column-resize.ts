@@ -1,4 +1,4 @@
-import { IDomEditor, isHTMLElememt } from '@wangeditor-next/core'
+import { DomEditor, IDomEditor, isHTMLElememt } from '@wangeditor-next/core'
 import throttle from 'lodash.throttle'
 import { Editor, Element as SlateElement, Transforms } from 'slate'
 
@@ -74,7 +74,6 @@ let isSelectionOperation = false
 // 拖拽列宽相关信息
 let isMouseDownForResize = false
 let clientXWhenMouseDown = 0
-let cellWidthWhenMouseDown = 0
 let editorWhenMouseDown: IDomEditor | null = null
 const $window = $(window)
 
@@ -88,17 +87,11 @@ function onMouseDown(event: Event) {
   } else if (elem.tagName === 'DIV' && elem.closest('.column-resizer-item')) {
     if (editorWhenMouseDown === null) { return }
 
-    const [[elemNode]] = Editor.nodes(editorWhenMouseDown, {
-      match: isOfType(editorWhenMouseDown, 'table'),
-    })
-    const { columnWidths = [], resizingIndex = -1 } = elemNode as TableElement
-
     // 记录必要信息
     isMouseDownForResize = true
     const { clientX } = event as MouseEvent
 
     clientXWhenMouseDown = clientX
-    cellWidthWhenMouseDown = columnWidths[resizingIndex]
     document.body.style.cursor = 'col-resize'
     event.preventDefault()
   }
@@ -111,40 +104,107 @@ function onMouseDown(event: Event) {
 
 $window.on('mousedown', onMouseDown)
 
+/**
+ * 计算相邻列宽度调整（用于中间列拖动）
+ * 修改为：拖拽时当前列宽度增加，其他列宽度不变，整体表格宽度增加
+ */
+function calculateAdjacentWidths(columnWidths: number[], resizingIndex: number, widthChange: number, editor: IDomEditor): number[] {
+  const newWidths = [...columnWidths]
+
+  // 获取最小宽度配置
+  const { minWidth = 60 } = editor.getMenuConfig('insertTable')
+  const minColumnWidth = parseInt(minWidth.toString(), 10) || 60
+
+  // 直接增加当前列的宽度，其他列保持不变
+  const currentWidth = newWidths[resizingIndex]
+  const newWidth = Math.max(minColumnWidth, currentWidth + widthChange) // 确保不小于最小宽度
+
+  newWidths[resizingIndex] = Math.floor(newWidth * 100) / 100
+
+  return newWidths
+}
+
+/**
+ * 根据鼠标位置计算列宽度
+ * 修改为：拖拽时当前列宽度增加，其他列宽度不变，整体表格宽度增加
+ * @param columnWidths 当前列宽度数组
+ * @param resizingIndex 正在调整的边界索引
+ * @param mousePositionInTable 鼠标相对于表格左边的位置
+ * @param cumulativeWidths 列宽度的累积和数组
+ * @param editor 编辑器实例
+ * @returns 调整后的列宽度数组
+ */
+function calculateAdjacentWidthsByBorderPosition(
+  columnWidths: number[],
+  resizingIndex: number,
+  mousePositionInTable: number,
+  cumulativeWidths: number[],
+  editor: IDomEditor,
+): number[] {
+  const newWidths = [...columnWidths]
+
+  // 检查边界范围
+  if (resizingIndex < 0 || resizingIndex >= columnWidths.length) {
+    return newWidths
+  }
+
+  // 获取最小宽度配置
+  const { minWidth = 60 } = editor.getMenuConfig('insertTable')
+  const minColumnWidth = parseInt(minWidth.toString(), 10) || 60
+
+  // 计算当前边界的左边界位置（前面所有列的宽度总和）
+  const leftBoundary = resizingIndex === 0 ? 0 : cumulativeWidths[resizingIndex - 1]
+
+  // 计算鼠标位置相对于当前列左边界的偏移
+  const mouseOffset = mousePositionInTable - leftBoundary
+
+  // 确保不小于最小宽度
+  const newWidth = Math.max(minColumnWidth, mouseOffset)
+
+  // 直接设置当前列的宽度，其他列保持不变
+  newWidths[resizingIndex] = Math.floor(newWidth * 100) / 100
+
+  return newWidths
+}
+
 const onMouseMove = throttle((event: Event) => {
   if (!isMouseDownForResize) { return }
   if (editorWhenMouseDown === null) { return }
   event.preventDefault()
 
   const { clientX } = event as MouseEvent
-  let newWith = cellWidthWhenMouseDown + (clientX - clientXWhenMouseDown) // 计算新宽度
-
-  newWith = Math.floor(newWith * 100) / 100 // 保留小数点后两位
-  if (newWith < 30) { newWith = 30 } // 最小宽度
+  const widthChange = clientX - clientXWhenMouseDown // 计算宽度变化
 
   const [[elemNode]] = Editor.nodes(editorWhenMouseDown, {
     match: isOfType(editorWhenMouseDown, 'table'),
   })
   const { columnWidths = [], resizingIndex = -1 } = elemNode as TableElement
 
-  const cumulativeTotalWidth = columnWidths.reduce((a, b) => a + b, 0)
-  const remainWidth = cumulativeTotalWidth - columnWidths[resizingIndex]
+  let adjustColumnWidths: number[]
+  const tableNode = DomEditor.getSelectedNodeByType(editorWhenMouseDown, 'table') as TableElement
+  const tableDom = DomEditor.toDOMNode(editorWhenMouseDown, tableNode)
 
-  // 如果拖动引起的宽度超过容器宽度，则不调整
-  const containerElement = document.querySelector('.table-container')
+  // 所有列都采用相同的拖拽逻辑：当前列宽度增加，其他列不变
+  const tableElement = tableDom.querySelector('.table')
 
-  if (containerElement && newWith > cellWidthWhenMouseDown) {
-    // 允许缩小，但不允许放大
-    if (remainWidth + newWith > containerElement.clientWidth) {
-      newWith = Math.max(30, cellWidthWhenMouseDown) // 确保不小于最小宽度
-    }
+  if (tableElement) {
+    const tableRect = tableElement.getBoundingClientRect()
+    const mousePositionInTable = clientX - tableRect.left // 鼠标相对于表格左边的位置
+
+    // 计算边界的新位置
+    const cumulativeWidths = getCumulativeWidths(columnWidths)
+    const newBorderPosition = mousePositionInTable
+
+    // 根据新的边界位置计算列宽度
+    adjustColumnWidths = calculateAdjacentWidthsByBorderPosition(columnWidths, resizingIndex, newBorderPosition, cumulativeWidths, editorWhenMouseDown)
+  } else {
+    // 如果找不到表格元素，则使用简单的宽度变化逻辑
+    adjustColumnWidths = calculateAdjacentWidths(columnWidths, resizingIndex, widthChange, editorWhenMouseDown)
   }
 
-  const adjustColumnWidths = [...columnWidths].map(width => Math.floor(width))
+  // 移除容器宽度限制，允许表格宽度超过编辑器宽度，显示横向滚动条
 
-  adjustColumnWidths[resizingIndex] = newWith
-
-  // 这是宽度
+  // 应用新的列宽度
   Transforms.setNodes(editorWhenMouseDown, { columnWidths: adjustColumnWidths } as TableElement, {
     mode: 'highest',
   })

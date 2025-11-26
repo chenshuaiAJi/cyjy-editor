@@ -1,5 +1,99 @@
 # Change Log
 
+## 1.5.47
+
+### Patch Changes
+
+- 6b823fa: fix(blockquote/plugin): 修复有文字 + /n + img 的情况下，会误删 img 的问题(#709)
+
+## 1.5.46
+
+### Patch Changes
+
+- b6e16d5: chore(styles): 移除 code-block.less 中的样式，转移至 code-highlight 模块以避免重复，同时更新相关导入路径
+  - @wangeditor-next/core@1.7.45
+
+## 1.5.45
+
+### Patch Changes
+
+- e320246: fix(core/parse-html): 修复腾讯等文档复制html时，存在<span><img /></span>的不支持结构的问题(#645)
+- 7808410: feat(table): 添加行拖动和调整高度功能
+- Updated dependencies [fdd0544]
+- Updated dependencies [e320246]
+- Updated dependencies [7808410]
+  - @wangeditor-next/core@1.7.45
+
+## 1.5.44
+
+### Patch Changes
+
+- Updated dependencies [f6e1fda]
+  - @wangeditor-next/core@1.7.44
+
+## 1.5.43
+
+### Patch Changes
+
+- Updated dependencies [06ebf22]
+- Updated dependencies [ad751aa]
+- Updated dependencies [ad751aa]
+  - @wangeditor-next/core@1.7.43
+
+## 1.5.42
+
+### Patch Changes
+
+- a37ae4b: fix: 特定场景下死循环问题；style: 魔法字符串；fix: 继承已有子节点；fix：#645
+- a37ae4b: 修复在SelectLangMenu提供了selected能力，而在code-block没处理导致选中了其他语言，但是代码块代码没高亮的问题
+- Updated dependencies [a37ae4b]
+  - @wangeditor-next/core@1.7.42
+
+## 1.5.41
+
+### Patch Changes
+
+- a4b6fd8: chore: add rollup package link
+- Updated dependencies [a4b6fd8]
+  - @wangeditor-next/core@1.7.41
+
+## 1.5.40
+
+### Patch Changes
+
+- Updated dependencies [d000e3f]
+  - @wangeditor-next/core@1.7.40
+
+## 1.5.39
+
+### Patch Changes
+
+- 9e5955e: 修复在SelectLangMenu提供了selected能力，而在code-block没处理导致选中了其他语言，但是代码块代码没高亮的问题
+- Updated dependencies [2b8635e]
+  - @wangeditor-next/core@1.7.39
+
+## 1.5.38
+
+### Patch Changes
+
+- 5e7bfdf: 修复表格批量选择时使用选择范围+标准API替代直接节点操作，解决工具栏状态和格式延续问题
+- Updated dependencies [5e7bfdf]
+  - @wangeditor-next/core@1.7.38
+
+## 1.5.37
+
+### Patch Changes
+
+- 8c91da0: 修复表格批量选择功能中的样式和变换操作
+  - 修复了表格批量选择时 addMark 和 removeMark 方法的处理逻辑
+  - 修复了 Transforms.setNodes 在表格批量选择场景下的行为
+  - 改进了基础模块（颜色、对齐、行高等）与表格批量选择的集成
+  - 添加了完整的测试覆盖，确保功能稳定性
+  - 扩展了编辑器接口，支持 getTableSelection 方法
+
+- Updated dependencies [8c91da0]
+  - @wangeditor-next/core@1.7.37
+
 ## 1.5.36
 
 ### Patch Changes

@@ -1,5 +1,101 @@
 # Change Log
 
+## 1.1.50
+
+### Patch Changes
+
+- Updated dependencies [6b823fa]
+  - @wangeditor-next/basic-modules@1.5.47
+
+## 1.1.49
+
+### Patch Changes
+
+- Updated dependencies [b6e16d5]
+  - @wangeditor-next/basic-modules@1.5.46
+  - @wangeditor-next/core@1.7.45
+
+## 1.1.48
+
+### Patch Changes
+
+- 7808410: feat(table): 添加行拖动和调整高度功能
+- Updated dependencies [fdd0544]
+- Updated dependencies [e320246]
+- Updated dependencies [7808410]
+  - @wangeditor-next/core@1.7.45
+  - @wangeditor-next/basic-modules@1.5.45
+
+## 1.1.47
+
+### Patch Changes
+
+- Updated dependencies [f6e1fda]
+  - @wangeditor-next/core@1.7.44
+  - @wangeditor-next/basic-modules@1.5.44
+
+## 1.1.46
+
+### Patch Changes
+
+- 06ebf22: feat(video-module、upload-image-module): customUpload添加eidtor实例为第三个参数（兼容），便于用户在使用customUpload时调用上传进度条
+- Updated dependencies [06ebf22]
+- Updated dependencies [ad751aa]
+- Updated dependencies [ad751aa]
+  - @wangeditor-next/core@1.7.43
+  - @wangeditor-next/basic-modules@1.5.43
+
+## 1.1.45
+
+### Patch Changes
+
+- Updated dependencies [a37ae4b]
+- Updated dependencies [a37ae4b]
+  - @wangeditor-next/basic-modules@1.5.42
+  - @wangeditor-next/core@1.7.42
+
+## 1.1.44
+
+### Patch Changes
+
+- a4b6fd8: chore: add rollup package link
+- Updated dependencies [a4b6fd8]
+  - @wangeditor-next/basic-modules@1.5.41
+  - @wangeditor-next/core@1.7.41
+
+## 1.1.43
+
+### Patch Changes
+
+- Updated dependencies [d000e3f]
+  - @wangeditor-next/core@1.7.40
+  - @wangeditor-next/basic-modules@1.5.40
+
+## 1.1.42
+
+### Patch Changes
+
+- Updated dependencies [9e5955e]
+- Updated dependencies [2b8635e]
+  - @wangeditor-next/basic-modules@1.5.39
+  - @wangeditor-next/core@1.7.39
+
+## 1.1.41
+
+### Patch Changes
+
+- Updated dependencies [5e7bfdf]
+  - @wangeditor-next/basic-modules@1.5.38
+  - @wangeditor-next/core@1.7.38
+
+## 1.1.40
+
+### Patch Changes
+
+- Updated dependencies [8c91da0]
+  - @wangeditor-next/basic-modules@1.5.37
+  - @wangeditor-next/core@1.7.37
+
 ## 1.1.39
 
 ### Patch Changes

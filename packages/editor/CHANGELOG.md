@@ -1,5 +1,190 @@
 # Change Log
 
+## 5.6.49
+
+### Patch Changes
+
+- dd1b701: fix(table-module): fix the borderWidth of table copied from Safari(#146)
+- Updated dependencies [dd1b701]
+- Updated dependencies [d2a3191]
+- Updated dependencies [abbac6e]
+  - @wangeditor-next/table-module@1.6.60
+  - @wangeditor-next/list-module@1.1.52
+
+## 5.6.48
+
+### Patch Changes
+
+- 6b823fa: fix(blockquote/plugin): 修复有文字 + /n + img 的情况下，会误删 img 的问题(#709)
+- Updated dependencies [6b823fa]
+  - @wangeditor-next/basic-modules@1.5.47
+  - @wangeditor-next/upload-image-module@1.1.50
+
+## 5.6.47
+
+### Patch Changes
+
+- 5aeb10f: feat(yjs): add yjs-for-vue(#165)
+- Updated dependencies [5aeb10f]
+  - @wangeditor-next/table-module@1.6.59
+
+## 5.6.46
+
+### Patch Changes
+
+- b6e16d5: chore(styles): 移除 code-block.less 中的样式，转移至 code-highlight 模块以避免重复，同时更新相关导入路径
+- Updated dependencies [b6e16d5]
+  - @wangeditor-next/basic-modules@1.5.46
+  - @wangeditor-next/code-highlight@1.3.43
+  - @wangeditor-next/upload-image-module@1.1.49
+
+## 5.6.45
+
+### Patch Changes
+
+- 7808410: feat(table): 添加行拖动和调整高度功能
+- Updated dependencies [fdd0544]
+- Updated dependencies [e320246]
+- Updated dependencies [7808410]
+  - @wangeditor-next/core@1.7.45
+  - @wangeditor-next/basic-modules@1.5.45
+  - @wangeditor-next/code-highlight@1.3.42
+  - @wangeditor-next/list-module@1.1.51
+  - @wangeditor-next/table-module@1.6.58
+  - @wangeditor-next/upload-image-module@1.1.48
+  - @wangeditor-next/video-module@1.3.51
+
+## 5.6.44
+
+### Patch Changes
+
+- f6e1fda: feat: 扩展menu插入、修改逻辑(#661)
+- Updated dependencies [f6e1fda]
+- Updated dependencies [acff6e3]
+  - @wangeditor-next/core@1.7.44
+  - @wangeditor-next/table-module@1.6.57
+  - @wangeditor-next/basic-modules@1.5.44
+  - @wangeditor-next/code-highlight@1.3.41
+  - @wangeditor-next/list-module@1.1.50
+  - @wangeditor-next/upload-image-module@1.1.47
+  - @wangeditor-next/video-module@1.3.50
+
+## 5.6.43
+
+### Patch Changes
+
+- ad751aa: chore: 移除多个包中的lodash.isequal依赖
+- ad751aa: chore: 移除多个包中的lodash.isequal依赖
+- Updated dependencies [06ebf22]
+- Updated dependencies [fbf1afc]
+- Updated dependencies [ad751aa]
+- Updated dependencies [ad751aa]
+  - @wangeditor-next/core@1.7.43
+  - @wangeditor-next/upload-image-module@1.1.46
+  - @wangeditor-next/video-module@1.3.49
+  - @wangeditor-next/table-module@1.6.56
+  - @wangeditor-next/basic-modules@1.5.43
+  - @wangeditor-next/code-highlight@1.3.40
+  - @wangeditor-next/list-module@1.1.49
+
+## 5.6.42
+
+### Patch Changes
+
+- a37ae4b: fix: 特定场景下死循环问题；style: 魔法字符串；fix: 继承已有子节点；fix：#645
+- Updated dependencies [a37ae4b]
+- Updated dependencies [a37ae4b]
+  - @wangeditor-next/basic-modules@1.5.42
+  - @wangeditor-next/core@1.7.42
+  - @wangeditor-next/upload-image-module@1.1.45
+  - @wangeditor-next/code-highlight@1.3.39
+  - @wangeditor-next/list-module@1.1.48
+  - @wangeditor-next/table-module@1.6.55
+  - @wangeditor-next/video-module@1.3.48
+
+## 5.6.41
+
+### Patch Changes
+
+- cc355f3: fix: 宽度拖拽调整获取当前选中的表格或容器宽度
+- Updated dependencies [cc355f3]
+  - @wangeditor-next/table-module@1.6.54
+
+## 5.6.40
+
+### Patch Changes
+
+- e204312: fix: 宽度自适应获取当前选中的表格容器宽度，防止文档多表格时获取到其它表格容器元素和兼容高版本node.js
+- a4b6fd8: chore: add rollup package link
+- Updated dependencies [e204312]
+- Updated dependencies [a4b6fd8]
+  - @wangeditor-next/table-module@1.6.53
+  - @wangeditor-next/basic-modules@1.5.41
+  - @wangeditor-next/code-highlight@1.3.38
+  - @wangeditor-next/core@1.7.41
+  - @wangeditor-next/list-module@1.1.47
+  - @wangeditor-next/upload-image-module@1.1.44
+  - @wangeditor-next/video-module@1.3.47
+
+## 5.6.39
+
+### Patch Changes
+
+- b557818: 表格自适应功能优化、表格样式统一、codelang 类型纠正
+- Updated dependencies [b557818]
+- Updated dependencies [d000e3f]
+  - @wangeditor-next/table-module@1.6.52
+  - @wangeditor-next/core@1.7.40
+  - @wangeditor-next/basic-modules@1.5.40
+  - @wangeditor-next/code-highlight@1.3.37
+  - @wangeditor-next/list-module@1.1.46
+  - @wangeditor-next/upload-image-module@1.1.43
+  - @wangeditor-next/video-module@1.3.46
+
+## 5.6.38
+
+### Patch Changes
+
+- a28a86f: revert: 回退 table module fullwidth 更改
+- Updated dependencies [a28a86f]
+  - @wangeditor-next/table-module@1.6.51
+
+## 5.6.37
+
+### Patch Changes
+
+- 2b8635e: 修复若干 bug、优化表格使用
+- Updated dependencies [22548a3]
+- Updated dependencies [9e5955e]
+- Updated dependencies [2b8635e]
+  - @wangeditor-next/table-module@1.6.50
+  - @wangeditor-next/basic-modules@1.5.39
+  - @wangeditor-next/core@1.7.39
+  - @wangeditor-next/upload-image-module@1.1.42
+  - @wangeditor-next/code-highlight@1.3.36
+  - @wangeditor-next/list-module@1.1.45
+  - @wangeditor-next/video-module@1.3.45
+
+## 5.6.36
+
+### Patch Changes
+
+- 6c7e34d: fix table、indent、video error
+
+## 5.6.35
+
+### Patch Changes
+
+- 09fa830: 切换 yarn 为 pnpm
+- Updated dependencies [5e7bfdf]
+  - @wangeditor-next/basic-modules@1.5.38
+  - @wangeditor-next/core@1.7.38
+  - @wangeditor-next/table-module@1.6.48
+  - @wangeditor-next/upload-image-module@1.1.41
+  - @wangeditor-next/code-highlight@1.3.35
+  - @wangeditor-next/list-module@1.1.44
+  - @wangeditor-next/video-module@1.3.44
+
 ## 5.6.34
 
 ### Patch Changes

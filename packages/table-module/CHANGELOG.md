@@ -1,5 +1,120 @@
 # Change Log
 
+## 1.6.60
+
+### Patch Changes
+
+- dd1b701: fix(table-module): fix the borderWidth of table copied from Safari(#146)
+- abbac6e: fix(table-module): 修复多选table-cell时，鼠标触发到设置cell宽度的border，会导致选中丢失的问题
+
+## 1.6.59
+
+### Patch Changes
+
+- 5aeb10f: feat(yjs): add yjs-for-vue(#165)
+
+## 1.6.58
+
+### Patch Changes
+
+- 7808410: feat(table): 添加行拖动和调整高度功能
+- Updated dependencies [fdd0544]
+- Updated dependencies [e320246]
+- Updated dependencies [7808410]
+  - @wangeditor-next/core@1.7.45
+
+## 1.6.57
+
+### Patch Changes
+
+- acff6e3: 修改宽度拖拽逻辑
+- Updated dependencies [f6e1fda]
+  - @wangeditor-next/core@1.7.44
+
+## 1.6.56
+
+### Patch Changes
+
+- fbf1afc: fix(table-module/per-parse-html): 修复执行setHtml命令时，丢失td样式的问题(#665)
+- ad751aa: chore: 移除多个包中的lodash.isequal依赖
+- ad751aa: chore: 移除多个包中的lodash.isequal依赖
+- Updated dependencies [06ebf22]
+- Updated dependencies [ad751aa]
+- Updated dependencies [ad751aa]
+  - @wangeditor-next/core@1.7.43
+
+## 1.6.55
+
+### Patch Changes
+
+- Updated dependencies [a37ae4b]
+  - @wangeditor-next/core@1.7.42
+
+## 1.6.54
+
+### Patch Changes
+
+- cc355f3: fix: 宽度拖拽调整获取当前选中的表格或容器宽度
+
+## 1.6.53
+
+### Patch Changes
+
+- e204312: fix: 宽度自适应获取当前选中的表格容器宽度，防止文档多表格时获取到其它表格容器元素和兼容高版本node.js
+- a4b6fd8: chore: add rollup package link
+- Updated dependencies [a4b6fd8]
+  - @wangeditor-next/core@1.7.41
+
+## 1.6.52
+
+### Patch Changes
+
+- b557818: 表格自适应功能优化、表格样式统一、codelang 类型纠正
+- Updated dependencies [d000e3f]
+  - @wangeditor-next/core@1.7.40
+
+## 1.6.51
+
+### Patch Changes
+
+- a28a86f: revert: 回退 table module fullwidth 更改
+
+## 1.6.50
+
+### Patch Changes
+
+- 22548a3: fix(table-moudle): 优化单元格和表格拖拽调整宽度逻辑，兼容word2019，2021表格，调整合并单元省略隐藏td符合html格式，提升整体使用体验
+- Updated dependencies [2b8635e]
+  - @wangeditor-next/core@1.7.39
+
+## 1.6.49
+
+### Patch Changes
+
+- 68bc0e0: 修复:setNodes批量操作时排除合并单元格的场景，避免误批量操作导致合并单元格异常
+
+## 1.6.48
+
+### Patch Changes
+
+- 5e7bfdf: 修复表格批量选择时使用选择范围+标准API替代直接节点操作，解决工具栏状态和格式延续问题
+- Updated dependencies [5e7bfdf]
+  - @wangeditor-next/core@1.7.38
+
+## 1.6.47
+
+### Patch Changes
+
+- 8c91da0: 修复表格批量选择功能中的样式和变换操作
+  - 修复了表格批量选择时 addMark 和 removeMark 方法的处理逻辑
+  - 修复了 Transforms.setNodes 在表格批量选择场景下的行为
+  - 改进了基础模块（颜色、对齐、行高等）与表格批量选择的集成
+  - 添加了完整的测试覆盖，确保功能稳定性
+  - 扩展了编辑器接口，支持 getTableSelection 方法
+
+- Updated dependencies [8c91da0]
+  - @wangeditor-next/core@1.7.37
+
 ## 1.6.46
 
 ### Patch Changes
