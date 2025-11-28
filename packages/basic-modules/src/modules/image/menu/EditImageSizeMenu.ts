@@ -82,13 +82,13 @@ class EditorImageSizeMenu implements IModalMenu {
     const { widthInputId, heightInputId, buttonId } = this
 
     const [widthContainerElem, inputWidthElem] = genModalInputElems(
-      t('image.width'),
+      t('image.imgWidth'),
       widthInputId,
       'auto',
     )
     const $inputWidth = $(inputWidthElem)
     const [heightContainerElem, inputHeightElem] = genModalInputElems(
-      t('image.height'),
+      t('image.imgHeight'),
       heightInputId,
       'auto',
     )
