@@ -4,7 +4,7 @@
  */
 
 import './assets/index.less'
-import '@cyjy-editor/core/dist/css/style.css'
+// import '@wangeditor-next/core/dist/css/style.css'
 // 兼容性（要放在最开始就执行）
 import './utils/browser-polyfill'
 import './utils/node-polyfill'
@@ -45,7 +45,7 @@ export {
   IUploadConfig,
   t,
   Toolbar,
-} from '@cyjy-editor/core'
+} from '@wangeditor-next/core'
 
 // 导出 slate API 和接口 （需重命名，加 `Slate` 前缀）
 export {

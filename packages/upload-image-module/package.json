@@ -1,6 +1,6 @@
 {
-  "name": "@cyjy-editor/upload-image-module",
-  "version": "1.0.25",
+  "name": "@wangeditor-next/upload-image-module",
+  "version": "1.1.50",
   "description": "wangEditor upload-image module",
   "author": "cyjy",
   "type": "module",
@@ -32,8 +32,8 @@
     "type": "git"
   },
   "scripts": {
-    "test": "jest",
-    "test-c": "jest --coverage",
+    "test": "vitest run",
+    "test-c": "vitest run --coverage",
     "dev": "cross-env NODE_ENV=development rollup -c rollup.config.js",
     "dev-watch": "cross-env NODE_ENV=development rollup -c rollup.config.js -w",
     "build": "cross-env NODE_ENV=production rollup -c rollup.config.js",
@@ -45,9 +45,14 @@
     "@cyjy-editor/core": "^1.7.37",
     "@uppy/core": "^2.0.3",
     "@uppy/xhr-upload": "^2.0.3",
+    "@wangeditor-next/basic-modules": "1.5.47",
+    "@wangeditor-next/core": "1.7.45",
     "dom7": "^3.0.0 || ^4.0.0",
     "lodash.foreach": "^4.5.0",
     "slate": "^0.82.0",
     "snabbdom": "^3.6.0"
+  },
+  "devDependencies": {
+    "@wangeditor-next-shared/rollup-config": "workspace:^"
   }
 }

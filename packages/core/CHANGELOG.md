@@ -1,5 +1,68 @@
 # Change Log
 
+## 1.7.45
+
+### Patch Changes
+
+- fdd0544: fix(core/syncSelection): 修复在code、table中回车会滚动到顶部的问题(#640)
+- e320246: fix(core/parse-html): 修复腾讯等文档复制html时，存在<span><img /></span>的不支持结构的问题(#645)
+- 7808410: feat(table): 添加行拖动和调整高度功能
+
+## 1.7.44
+
+### Patch Changes
+
+- f6e1fda: feat: 扩展menu插入、修改逻辑(#661)
+
+## 1.7.43
+
+### Patch Changes
+
+- 06ebf22: feat(video-module、upload-image-module): customUpload添加eidtor实例为第三个参数（兼容），便于用户在使用customUpload时调用上传进度条
+- ad751aa: chore: 移除多个包中的lodash.isequal依赖
+- ad751aa: chore: 移除多个包中的lodash.isequal依赖
+
+## 1.7.42
+
+### Patch Changes
+
+- a37ae4b: fix: 特定场景下死循环问题；style: 魔法字符串；fix: 继承已有子节点；fix：#645
+
+## 1.7.41
+
+### Patch Changes
+
+- a4b6fd8: chore: add rollup package link
+
+## 1.7.40
+
+### Patch Changes
+
+- d000e3f: Update interface.ts
+
+## 1.7.39
+
+### Patch Changes
+
+- 2b8635e: avoid repeated execution of HTML/content (#635)
+
+## 1.7.38
+
+### Patch Changes
+
+- 5e7bfdf: 修复表格批量选择时使用选择范围+标准API替代直接节点操作，解决工具栏状态和格式延续问题
+
+## 1.7.37
+
+### Patch Changes
+
+- 8c91da0: 修复表格批量选择功能中的样式和变换操作
+  - 修复了表格批量选择时 addMark 和 removeMark 方法的处理逻辑
+  - 修复了 Transforms.setNodes 在表格批量选择场景下的行为
+  - 改进了基础模块（颜色、对齐、行高等）与表格批量选择的集成
+  - 添加了完整的测试覆盖，确保功能稳定性
+  - 扩展了编辑器接口，支持 getTableSelection 方法
+
 ## 1.7.36
 
 ### Patch Changes

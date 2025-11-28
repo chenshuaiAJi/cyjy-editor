@@ -1,8 +1,8 @@
 {
-  "name": "@cyjy-editor/basic-modules",
-  "version": "1.0.52",
-  "description": "editor basic modules",
-  "author": "cyjy",
+  "name": "@wangeditor-next/basic-modules",
+  "version": "1.5.47",
+  "description": "wangEditor basic modules",
+  "author": "cycleccc <2991205548@qq.com>",
   "type": "module",
   "homepage": "",
   "license": "MIT",
@@ -32,8 +32,8 @@
     "type": "git"
   },
   "scripts": {
-    "test": "jest",
-    "test-c": "jest --coverage",
+    "test": "vitest run",
+    "test-c": "vitest run --coverage",
     "dev": "cross-env NODE_ENV=development rollup -c rollup.config.js",
     "dev-watch": "cross-env NODE_ENV=development rollup -c rollup.config.js -w",
     "build": "cross-env NODE_ENV=production rollup -c rollup.config.js",
@@ -41,7 +41,7 @@
     "size-stats": "cross-env NODE_ENV=production:size_stats rollup -c rollup.config.js"
   },
   "peerDependencies": {
-    "@cyjy-editor/core": "^1.7.37",
+    "@wangeditor-next/core": "1.7.45",
     "dom7": "^3.0.0 || ^4.0.0",
     "lodash.throttle": "^4.1.1",
     "nanoid": "^5.0.0",
@@ -52,6 +52,7 @@
     "is-url": "^1.2.4"
   },
   "devDependencies": {
-    "@types/is-url": "^1.2.29"
+    "@types/is-url": "^1.2.29",
+    "@wangeditor-next-shared/rollup-config": "workspace:^"
   }
 }

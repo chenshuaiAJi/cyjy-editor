@@ -19,6 +19,7 @@ import {
   Transforms,
 } from 'slate'
 
+import { EDITOR_TO_SELECTION } from './weak-maps'
 import { withSelection } from './with-selection'
 
 // table cell 内部的删除处理
@@ -154,6 +155,31 @@ function isTableLocation(editor: IDomEditor, location: Location): boolean {
   return hasTable
 }
 
+/**
+ * 检查当前选中的节点是否是受保护的节点类型（不应该被删除的节点）
+ * @param editor editor
+ * @returns 是否是受保护的节点
+ */
+function isProtectedNode(editor: IDomEditor): boolean {
+  // 检查是否是受保护的节点类型
+  const protectedTypes = [
+    'paragraph',
+    'header1', 'header2', 'header3', 'header4', 'header5', 'header6',
+    'blockquote',
+    'list-item',
+    'todo',
+    'divider',
+  ]
+
+  for (const type of protectedTypes) {
+    if (DomEditor.getSelectedNodeByType(editor, type)) {
+      return true
+    }
+  }
+
+  return false
+}
+
 function withTable<T extends IDomEditor>(editor: T): T {
   const {
     insertBreak,
@@ -204,7 +230,8 @@ function withTable<T extends IDomEditor>(editor: T): T {
         // 如果前面是 table, 当前是 paragraph ，则不执行删除。否则会删除 table 最后一个 cell
         // 兼容了 table 嵌套 p标签元素 selection数组五层的情况 - issues/342
 
-        if (!tableCell && isTableOnBeforeLocation && DomEditor.getSelectedNodeByType(newEditor, 'paragraph')) {
+        // 如果前面是 table, 当前是受保护的节点类型，则不执行删除
+        if (!tableCell && isTableOnBeforeLocation && isProtectedNode(newEditor)) {
           return
         }
       }
@@ -274,7 +301,8 @@ function withTable<T extends IDomEditor>(editor: T): T {
         const isTableOnAfterLocation = isTableLocation(newEditor, after) // after 是否是 table
         // 如果后面是 table, 当前是 paragraph，则不执行删除
 
-        if (!tableCell && isTableOnAfterLocation && DomEditor.getSelectedNodeByType(newEditor, 'paragraph')) {
+        // 如果后面是 table, 当前是受保护的节点类型，则不执行删除
+        if (!tableCell && isTableOnAfterLocation && isProtectedNode(newEditor)) {
           return
         }
       }
@@ -406,6 +434,120 @@ function withTable<T extends IDomEditor>(editor: T): T {
    * 光标选区行为新增
    */
   withSelection(newEditor)
+
+  /**
+   * 添加获取表格批量选择的方法
+   */
+  newEditor.getTableSelection = () => {
+    return EDITOR_TO_SELECTION.get(newEditor) || null
+  }
+
+  /**
+   * 重写mark和node操作方法以支持表格批量选择
+   */
+  const { addMark: originalAddMark, removeMark: originalRemoveMark } = newEditor
+  const originalTransforms = { ...Transforms }
+
+  newEditor.addMark = (key: string, value: any) => {
+    const tableSelection = EDITOR_TO_SELECTION.get(newEditor)
+
+    if (tableSelection && tableSelection.length > 0) {
+      // 表格批量选择：对每个选中的单元格应用mark
+      // 保存当前选择状态
+      const originalSelection = newEditor.selection
+
+      tableSelection.forEach(row => {
+        row.forEach(cell => {
+          const [, cellPath] = cell[0]
+
+          // 为每个单元格设置选择范围（选中整个单元格的内容）
+          const start = Editor.start(newEditor, cellPath)
+          const end = Editor.end(newEditor, cellPath)
+
+          // 设置选择范围到当前单元格
+          Transforms.select(newEditor, { anchor: start, focus: end })
+
+          // 在当前单元格范围内应用原始的 addMark 方法
+          originalAddMark(key, value)
+        })
+      })
+
+      // 恢复原始选择状态
+      if (originalSelection) {
+        Transforms.select(newEditor, originalSelection)
+      }
+    } else {
+      // 常规选择：使用原有逻辑
+      originalAddMark(key, value)
+    }
+  }
+
+  newEditor.removeMark = (key: string) => {
+    const tableSelection = EDITOR_TO_SELECTION.get(newEditor)
+
+    if (tableSelection && tableSelection.length > 0) {
+      // 表格批量选择：对每个选中的单元格移除mark
+      // 保存当前选择状态
+      const originalSelection = newEditor.selection
+
+      tableSelection.forEach(row => {
+        row.forEach(cell => {
+          const [, cellPath] = cell[0]
+
+          // 为每个单元格设置选择范围（选中整个单元格的内容）
+          const start = Editor.start(newEditor, cellPath)
+          const end = Editor.end(newEditor, cellPath)
+
+          // 设置选择范围到当前单元格
+          Transforms.select(newEditor, { anchor: start, focus: end })
+
+          // 在当前单元格范围内应用原始的 removeMark 方法
+          originalRemoveMark(key)
+        })
+      })
+
+      // 恢复原始选择状态
+      if (originalSelection) {
+        Transforms.select(newEditor, originalSelection)
+      }
+    } else {
+      // 常规选择：使用原有逻辑
+      originalRemoveMark(key)
+    }
+  }
+
+  /**
+   * 重写Transforms.setNodes以支持表格批量选择（如对齐功能）
+   */
+  Transforms.setNodes = (targetEditor, props, options = {}) => {
+    // 只有当传入的editor是当前newEditor且有表格选择时才特殊处理
+    if (targetEditor === newEditor) {
+      const tableSelection = EDITOR_TO_SELECTION.get(newEditor)
+
+      if (tableSelection && tableSelection.length > 0) {
+        // 排除合并单元格操作
+        if ('hidden' in props || 'rowSpan' in props || 'colSpan' in props) {
+          originalTransforms.setNodes(targetEditor, props, options)
+          return
+        }
+        // 表格批量选择：对所有选中的单元格应用属性
+        tableSelection.forEach(row => {
+          row.forEach(cell => {
+            const [, cellPath] = cell[0]
+
+            originalTransforms.setNodes(targetEditor, props, {
+              ...options,
+              at: cellPath,
+            })
+          })
+        })
+        return
+      }
+    }
+
+    // 常规情况：使用原有逻辑
+    originalTransforms.setNodes(targetEditor, props, options)
+  }
 
   // 可继续修改其他 newEditor API ...
 

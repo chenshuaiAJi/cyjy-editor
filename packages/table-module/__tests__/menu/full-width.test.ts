@@ -38,9 +38,9 @@ describe('Table Module Full Width Menu', () => {
     const editor = createEditor()
 
     vi.spyOn(core.DomEditor, 'getSelectedNodeByType').mockImplementation(
-      () => ({ width: '100%' }) as any,
+      () => ({ width: 'auto' }) as any,
     )
-    expect(fullWidthMenu.getValue(editor)).toBeTruthy()
+    expect(fullWidthMenu.getValue(editor)).toBeFalsy()
   })
 
   test('isActive should get falsy value if editor selected node is not table', () => {
@@ -111,7 +111,11 @@ describe('Table Module Full Width Menu', () => {
     setEditorSelection(editor)
 
     vi.spyOn(slate.Range, 'isCollapsed').mockImplementation(() => true)
-    vi.spyOn(core.DomEditor, 'getSelectedNodeByType').mockImplementation(() => ({}) as any)
+    vi.spyOn(core.DomEditor, 'getSelectedNodeByType').mockImplementation(() => ({
+      type: 'table',
+      children: [],
+    }) as any)
+    vi.spyOn(core.DomEditor, 'toDOMNode').mockImplementation(() => document.createElement('table'))
 
     const fn = vi.fn()
 
