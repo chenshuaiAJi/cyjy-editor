@@ -57,6 +57,8 @@ export default {
     ok: '确定',
     width: '宽度',
     height: '高度',
+    imgWidth: '宽度(请保证>=15px)',
+    imgHeight: '高度(请保证>=15px)',
   },
   indent: {
     decrease: '减少缩进',
