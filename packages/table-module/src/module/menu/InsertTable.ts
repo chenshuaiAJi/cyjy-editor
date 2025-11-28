@@ -5,7 +5,7 @@
 
 import {
   DomEditor, IDomEditor, IDropPanelMenu, t,
-} from '@cyjy-editor/core'
+} from '@wangeditor-next/core'
 import {
   Range, Transforms,
 } from 'slate'

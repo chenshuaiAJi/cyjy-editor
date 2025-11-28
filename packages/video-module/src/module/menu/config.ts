@@ -3,7 +3,7 @@
  * @author wangfupeng
  */
 
-import { IUploadVideoConfig } from '@cyjy-editor/core'
+import { IUploadVideoConfig } from '@wangeditor-next/core'
 
 import { VideoElement } from '../custom-types'
 

@@ -10,7 +10,7 @@ import {
   IEditorConfig,
   IToolbarConfig,
   Toolbar,
-} from '@cyjy-editor/core'
+} from '@wangeditor-next/core'
 import { Descendant } from 'slate'
 
 import Boot from './Boot'

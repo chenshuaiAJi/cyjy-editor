@@ -1,4 +1,4 @@
-import { IButtonMenu, IDomEditor } from '@cyjy-editor/core'
+import { IButtonMenu, IDomEditor } from '@wangeditor-next/core'
 import { Editor } from 'slate'
 
 import { WAVY_ICON } from '../constants/icon-svg'

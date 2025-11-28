@@ -5,7 +5,7 @@
 
 import {
   DomEditor, IDomEditor, IDropPanelMenu, t,
-} from '@cyjy-editor/core'
+} from '@wangeditor-next/core'
 import { Editor } from 'slate'
 
 import { CLEAN_SVG } from '../../../constants/icon-svg'

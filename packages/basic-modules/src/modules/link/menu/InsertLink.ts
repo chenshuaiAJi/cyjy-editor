@@ -9,7 +9,7 @@ import {
   IDomEditor,
   IModalMenu,
   t,
-} from '@cyjy-editor/core'
+} from '@wangeditor-next/core'
 import { Editor, Node, Range } from 'slate'
 
 import { LINK_SVG } from '../../../constants/icon-svg'

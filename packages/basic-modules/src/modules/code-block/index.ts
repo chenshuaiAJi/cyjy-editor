@@ -3,7 +3,7 @@
  * @author wangfupeng
  */
 
-import { IModuleConf } from '@cyjy-editor/core'
+import { IModuleConf } from '@wangeditor-next/core'
 
 import { codeToHtmlConf, preToHtmlConf } from './elem-to-html'
 import { codeBlockMenuConf } from './menu/index'

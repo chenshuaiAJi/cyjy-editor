@@ -3,7 +3,7 @@
  * @author wangfupeng
  */
 
-import { IButtonMenu, IDomEditor, t } from '@cyjy-editor/core'
+import { IButtonMenu, IDomEditor, t } from '@wangeditor-next/core'
 
 import { CANCEL_FULL_SCREEN_SVG, FULL_SCREEN_SVG } from '../../../constants/icon-svg'
 

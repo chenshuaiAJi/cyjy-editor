@@ -3,7 +3,7 @@
  * @author wangfupeng
  */
 
-import { IDomEditor } from '@cyjy-editor/core'
+import { IDomEditor } from '@wangeditor-next/core'
 import { Element as SlateElement } from 'slate'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { jsx, VNode } from 'snabbdom'

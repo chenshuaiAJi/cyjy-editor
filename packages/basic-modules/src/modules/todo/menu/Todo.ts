@@ -5,7 +5,7 @@
 
 import {
   DomEditor, IButtonMenu, IDomEditor, t,
-} from '@cyjy-editor/core'
+} from '@wangeditor-next/core'
 import { Editor, Element, Transforms } from 'slate'
 
 import { CHECK_BOX_SVG } from '../../../constants/icon-svg'

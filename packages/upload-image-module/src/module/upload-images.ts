@@ -3,9 +3,9 @@
  * @author wangfupeng
  */
 
-import { insertImageNode } from '@cyjy-editor/basic-modules'
-import { createUploader, IDomEditor } from '@cyjy-editor/core'
 import Uppy, { UppyFile } from '@uppy/core'
+import { insertImageNode } from '@wangeditor-next/basic-modules'
+import { createUploader, IDomEditor } from '@wangeditor-next/core'
 
 // 存储 editor uppy 的关系 - 缓存 uppy ，不重复创建
 const EDITOR_TO_UPPY_MAP = new WeakMap<IDomEditor, Uppy>()

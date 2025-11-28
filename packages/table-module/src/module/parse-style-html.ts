@@ -2,7 +2,7 @@
  * @description parse style html
  * @author hsuna
  */
-import { IDomEditor } from '@cyjy-editor/core'
+import { IDomEditor } from '@wangeditor-next/core'
 import { Descendant } from 'slate'
 
 import $, { DOMElement, getStyleValue } from '../utils/dom'

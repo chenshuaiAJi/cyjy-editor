@@ -1,4 +1,4 @@
-import { IDomEditor } from '@cyjy-editor/core'
+import { IDomEditor } from '@wangeditor-next/core'
 import { Editor } from 'slate'
 
 /** 清空所有标记（文本样式） */

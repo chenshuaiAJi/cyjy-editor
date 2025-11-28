@@ -3,7 +3,7 @@
  * @author wangfupeng
  */
 
-import { IModuleConf } from '@cyjy-editor/core'
+import { IModuleConf } from '@wangeditor-next/core'
 
 import { tableCellToHtmlConf, tableRowToHtmlConf, tableToHtmlConf } from './elem-to-html'
 import {

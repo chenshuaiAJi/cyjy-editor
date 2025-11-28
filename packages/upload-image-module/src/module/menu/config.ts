@@ -3,7 +3,7 @@
  * @author wangfupeng
  */
 
-import { IUploadImageConfig } from '@cyjy-editor/core'
+import { IUploadImageConfig } from '@wangeditor-next/core'
 
 // 生成默认配置
 export function genUploadImageConfig(): IUploadImageConfig {

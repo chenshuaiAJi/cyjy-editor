@@ -3,7 +3,7 @@
  * @author wangfupeng
  */
 
-import { IDomEditor } from '@cyjy-editor/core'
+import { IDomEditor } from '@wangeditor-next/core'
 import { Dom7Array } from 'dom7'
 import { Descendant, Text } from 'slate'
 

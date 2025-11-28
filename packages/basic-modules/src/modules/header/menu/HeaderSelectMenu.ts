@@ -5,7 +5,7 @@
 
 import {
   IDomEditor, IOption, ISelectMenu, t,
-} from '@cyjy-editor/core'
+} from '@wangeditor-next/core'
 
 import { HEADER_SVG } from '../../../constants/icon-svg'
 import { getHeaderType, isMenuDisabled, setHeaderType } from '../helper'

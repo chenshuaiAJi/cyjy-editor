@@ -5,7 +5,7 @@
 
 import {
   DomEditor, IDomEditor, IOption, ISelectMenu,
-} from '@cyjy-editor/core'
+} from '@wangeditor-next/core'
 import { Editor } from 'slate'
 
 abstract class BaseMenu implements ISelectMenu {

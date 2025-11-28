@@ -3,10 +3,10 @@
  * @author wangfupeng
  */
 
-import { insertImageNode, isInsertImageMenuDisabled } from '@cyjy-editor/basic-modules'
+import { insertImageNode, isInsertImageMenuDisabled } from '@wangeditor-next/basic-modules'
 import {
   IButtonMenu, IDomEditor, t,
-} from '@cyjy-editor/core'
+} from '@wangeditor-next/core'
 
 import { UPLOAD_IMAGE_SVG } from '../../constants/svg'
 import $ from '../../utils/dom'

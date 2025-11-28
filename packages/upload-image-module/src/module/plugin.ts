@@ -3,8 +3,8 @@
  * @author wangfupeng
  */
 
-import { isInsertImageMenuDisabled } from '@cyjy-editor/basic-modules'
-import { IDomEditor } from '@cyjy-editor/core'
+import { isInsertImageMenuDisabled } from '@wangeditor-next/basic-modules'
+import { IDomEditor } from '@wangeditor-next/core'
 
 import uploadImages from './upload-images'
 

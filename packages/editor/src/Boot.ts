@@ -29,7 +29,7 @@ import {
   registerStyleToHtmlHandler,
   RenderStyleFnType,
   styleToHtmlFnType,
-} from '@cyjy-editor/core'
+} from '@wangeditor-next/core'
 import { ISingleMenuConfig } from 'packages/core/src/config/interface'
 
 import registerModule from './register-builtin-modules/register'

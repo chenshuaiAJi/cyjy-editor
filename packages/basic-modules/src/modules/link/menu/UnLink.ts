@@ -5,7 +5,7 @@
 
 import {
   DomEditor, IButtonMenu, IDomEditor, t,
-} from '@cyjy-editor/core'
+} from '@wangeditor-next/core'
 import { Transforms } from 'slate'
 
 import { UN_LINK_SVG } from '../../../constants/icon-svg'

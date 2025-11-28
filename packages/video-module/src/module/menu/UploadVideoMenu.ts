@@ -5,7 +5,7 @@
 
 import {
   DomEditor, IButtonMenu, IDomEditor, t,
-} from '@cyjy-editor/core'
+} from '@wangeditor-next/core'
 import { Range } from 'slate'
 
 import { UPLOAD_VIDEO_SVG } from '../../constants/svg'

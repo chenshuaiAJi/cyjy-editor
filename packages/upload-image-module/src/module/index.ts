@@ -3,7 +3,7 @@
  * @author wangfupeng
  */
 
-import { IModuleConf } from '@cyjy-editor/core'
+import { IModuleConf } from '@wangeditor-next/core'
 
 import { uploadImageMenuConf } from './menu/index'
 import withUploadImage from './plugin'

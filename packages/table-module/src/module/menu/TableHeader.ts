@@ -5,7 +5,7 @@
 
 import {
   DomEditor, IButtonMenu, IDomEditor, t,
-} from '@cyjy-editor/core'
+} from '@wangeditor-next/core'
 import { Range, Transforms } from 'slate'
 
 import { TABLE_HEADER_SVG } from '../../constants/svg'
