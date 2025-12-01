@@ -1,5 +1,13 @@
 # Change Log
 
+## 1.3.52
+
+### Patch Changes
+
+- 4334a17: for commit verdaccio
+- Updated dependencies [4334a17]
+  - @wangeditor-next/core@1.7.46
+
 ## 1.3.51
 
 ### Patch Changes

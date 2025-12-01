@@ -1,5 +1,19 @@
 # Change Log
 
+## 5.6.50
+
+### Patch Changes
+
+- 4334a17: for commit verdaccio
+- Updated dependencies [4334a17]
+  - @wangeditor-next/upload-image-module@1.1.51
+  - @wangeditor-next/basic-modules@1.5.49
+  - @wangeditor-next/table-module@1.6.61
+  - @wangeditor-next/video-module@1.3.52
+  - @wangeditor-next/core@1.7.46
+  - @wangeditor-next/code-highlight@1.3.44
+  - @wangeditor-next/list-module@1.1.53
+
 ## 5.6.49
 
 ### Patch Changes

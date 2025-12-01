@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.7.46
+
+### Patch Changes
+
+- 4334a17: for commit verdaccio
+
 ## 1.7.45
 
 ### Patch Changes
