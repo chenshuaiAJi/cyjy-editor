@@ -1,8 +1,9 @@
 {
   "name": "@wangeditor-next/wangeditor",
   "packageManager": "pnpm@9.15.0",
-    "publishConfig": {
-    "registry": "http://10.254.11.100:4873/"
+  "publishConfig": {
+    "registry": "http://10.254.11.100:4873",
+    "access": "public"
   },
   "engines": {
     "node": "^22.13.0"
