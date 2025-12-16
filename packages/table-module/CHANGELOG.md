@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.6.62
+
+### Patch Changes
+
+- 针对表格已存在的brderWidth属性不回显问题优化
+
 ## 1.6.61
 
 ### Patch Changes

@@ -135,7 +135,16 @@ class TableProperty implements IButtonMenu {
 
     // 初始化所有表单的值
     $content.find('[name]').each(elem => {
-      $(elem).val(data[$(elem).attr('name')])
+      const name = $(elem).attr('name')
+      let val = data[name]
+
+      // 如果是 borderWidth，可能存储为 "3px"，需转换为纯数字字符串 "3"
+      if (name === 'borderWidth' && typeof val === 'string') {
+        const m = val.match(/^(\d+(?:\.\d+)?)/)
+
+        val = m ? m[1] : val
+      }
+      $(elem).val(val)
     })
 
     const setSelectedColor = (elem, color) => {
