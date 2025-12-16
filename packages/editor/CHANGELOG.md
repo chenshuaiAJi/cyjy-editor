@@ -1,5 +1,11 @@
 # Change Log
 
+## 5.6.51
+
+### Patch Changes
+
+- 升级编辑器版本
+
 ## 5.6.50
 
 ### Patch Changes
