@@ -140,9 +140,7 @@ class TableProperty implements IButtonMenu {
 
       // 如果是 borderWidth，可能存储为 "3px"，需转换为纯数字字符串 "3"
       if (name === 'borderWidth' && typeof val === 'string') {
-        const m = val.match(/^(\d+(?:\.\d+)?)/)
-
-        val = m ? m[1] : val
+        val = val.match(/^(\d+)(?:px)?$/)?.[1] || ''
       }
       $(elem).val(val)
     })

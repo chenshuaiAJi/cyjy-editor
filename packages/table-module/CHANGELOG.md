@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.6.64
+
+### Patch Changes
+
+- borderWidth html转换问题
+
 ## 1.6.63
 
 ### Patch Changes

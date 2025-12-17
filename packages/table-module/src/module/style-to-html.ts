@@ -18,7 +18,7 @@ export function styleToHtml(node, elemHtml) {
   const $elem = $(elemHtml)
 
   if (backgroundColor) { $elem.css('background-color', backgroundColor) }
-  if (borderWidth) { $elem.css('border-width', `${borderWidth}px`) }
+  if (borderWidth) { $elem.css('border-width', `${borderWidth.indexOf('px') === -1 ? `${borderWidth}px` : borderWidth}`) }
   if (borderStyle) { $elem.css('border-style', borderStyle === 'none' ? '' : borderStyle) }
   if (borderColor) { $elem.css('border-color', borderColor) }
   if (textAlign) { $elem.css('text-align', textAlign) }

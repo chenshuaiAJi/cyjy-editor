@@ -1,5 +1,13 @@
 # Change Log
 
+## 5.6.52
+
+### Patch Changes
+
+- borderWidth html转换问题
+- Updated dependencies
+  - @wangeditor-next/table-module@1.6.64
+
 ## 5.6.51
 
 ### Patch Changes
