@@ -1,5 +1,11 @@
 # Change Log
 
+## 5.6.53
+
+### Patch Changes
+
+- table更新，同步主版本
+
 ## 5.6.52
 
 ### Patch Changes
