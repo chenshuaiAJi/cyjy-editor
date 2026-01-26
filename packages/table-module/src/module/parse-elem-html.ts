@@ -114,13 +114,21 @@ function parseTableHtml(
   }
   const tdList = $elem.find('tr')[0]?.children || []
   const colgroupElments: HTMLCollection = $elem.find('colgroup')[0]?.children || null
-  // @ts-ignore
-  const colLength = children[children.length - 1].children.length
 
-  if (colgroupElments && colgroupElments.length === colLength) {
-    tableELement.columnWidths = Array.from(colgroupElments).map((col: any) => {
-      return parseInt(col.getAttribute('width'), 10)
+  // 提取 colgroup 中的宽度数组（如果存在）
+  const colgroupWidths: number[] = []
+
+  if (colgroupElments && colgroupElments.length > 0) {
+    Array.from(colgroupElments).forEach((col: any) => {
+      const colWidth = parseInt(col.getAttribute('width') || '90', 10)
+
+      colgroupWidths.push(colWidth)
     })
+  }
+
+  // 优先使用 colgroup 的宽度（如果存在）
+  if (colgroupWidths.length > 0) {
+    tableELement.columnWidths = colgroupWidths
   } else if (tdList.length > 0) {
     const columnWidths: number[] = []
 
