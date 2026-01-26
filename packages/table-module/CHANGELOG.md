@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.6.65
+
+### Patch Changes
+
+- 优化表格解析逻辑
+
 ## 1.6.64
 
 ### Patch Changes
