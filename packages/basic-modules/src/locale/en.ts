@@ -16,6 +16,9 @@ export default {
   },
   codeBlock: {
     title: 'Code block',
+    copy: 'Copy',
+    copied: 'Copied',
+    copyFailed: 'Copy failed',
   },
   color: {
     color: 'Font color',
@@ -50,6 +53,7 @@ export default {
     delete: 'Delete image',
     edit: 'Edit image',
     editSize: 'Edit size',
+    preview: 'Preview image',
     viewLink: 'View link',
     src: 'Image src',
     desc: 'Description',

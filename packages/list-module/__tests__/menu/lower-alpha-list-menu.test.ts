@@ -1,0 +1,116 @@
+/**
+ * @description list LowerAlphaListMenu test
+ * @author wangfupeng
+ */
+
+import createEditor from '../../../../tests/utils/create-editor'
+import LowerAlphaListMenu from '../../src/module/menu/LowerAlphaListMenu'
+
+describe('list LowerAlphaListMenu', () => {
+  const menu = new LowerAlphaListMenu()
+
+  it('isActive', () => {
+    const editor = createEditor({
+      content: [
+        { type: 'paragraph', children: [{ text: 'hello' }] },
+        { type: 'list-item', ordered: true, children: [{ text: 'a' }] },
+        {
+          type: 'list-item', ordered: true, orderType: 'a', children: [{ text: 'b' }],
+        },
+      ],
+    })
+
+    editor.deselect()
+    expect(menu.isActive(editor)).toBeFalsy()
+
+    editor.select({ path: [0, 0], offset: 0 }) // 选中 p
+    expect(menu.isActive(editor)).toBeFalsy()
+
+    editor.select({ path: [1, 0], offset: 0 }) // 选中 numbered li
+    expect(menu.isActive(editor)).toBeFalsy()
+
+    editor.select({ path: [2, 0], offset: 0 }) // 选中 lower-alpha li
+    expect(menu.isActive(editor)).toBeTruthy()
+  })
+
+  it('isDisabled', () => {
+    const editor = createEditor({
+      content: [
+        { type: 'paragraph', children: [{ text: 'hello' }] },
+        {
+          type: 'list-item', ordered: true, orderType: 'a', children: [{ text: 'a' }],
+        },
+        {
+          type: 'table',
+          width: 'auto',
+          children: [
+            {
+              type: 'table-row',
+              children: [{ type: 'table-cell', children: [{ text: '' }], isHeader: true }],
+            },
+          ],
+        },
+        {
+          type: 'pre',
+          children: [{ type: 'code', language: '', children: [{ text: 'a' }] }],
+        },
+      ],
+    })
+
+    editor.deselect()
+    expect(menu.isDisabled(editor)).toBeTruthy()
+
+    editor.select({ path: [0, 0], offset: 0 }) // 选中 p
+    expect(menu.isDisabled(editor)).toBeFalsy()
+
+    editor.select({ path: [1, 0], offset: 0 }) // 选中 li
+    expect(menu.isDisabled(editor)).toBeFalsy()
+
+    editor.select({ path: [2, 0, 0, 0], offset: 0 }) // 选中 table 单元格
+    expect(menu.isDisabled(editor)).toBeTruthy()
+
+    editor.select({ path: [3, 0, 0], offset: 0 }) // 选中 code
+    expect(menu.isDisabled(editor)).toBeTruthy()
+  })
+
+  it('exec', () => {
+    const pElem = { type: 'paragraph', children: [{ text: 'hello' }] }
+    const editor = createEditor({
+      content: [pElem],
+    })
+
+    expect(menu.getValue(editor)).toBe('')
+    editor.select({ path: [0, 0], offset: 0 }) // 选中 p
+
+    menu.exec(editor, '') // p 转 lower-alpha li
+    expect(editor.children).toEqual([
+      {
+        type: 'list-item',
+        ordered: true,
+        orderType: 'a',
+        children: [{ text: 'hello' }],
+      },
+    ])
+
+    menu.exec(editor, '') // li 转 p
+    expect(editor.children).toEqual([pElem])
+  })
+
+  it('exec should switch numbered to lower-alpha', () => {
+    const editor = createEditor({
+      content: [{ type: 'list-item', ordered: true, children: [{ text: 'hello' }] }],
+    })
+
+    editor.select({ path: [0, 0], offset: 0 })
+
+    menu.exec(editor, '')
+    expect(editor.children).toEqual([
+      {
+        type: 'list-item',
+        ordered: true,
+        orderType: 'a',
+        children: [{ text: 'hello' }],
+      },
+    ])
+  })
+})

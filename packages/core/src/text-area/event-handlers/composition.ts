@@ -4,13 +4,17 @@
  */
 
 import {
-  Editor, Element, Range, Text,
+  Editor, Element, Range, Text, Transforms,
 } from 'slate'
 
 import { DomEditor } from '../../editor/dom-editor'
 import { IDomEditor } from '../../editor/interface'
 import { DOMNode } from '../../utils/dom'
 import { IS_CHROME, IS_FIREFOX, IS_SAFARI } from '../../utils/ua'
+import {
+  EDITOR_TO_PENDING_COMPOSITION_END,
+  EDITOR_TO_PENDING_SELECTION,
+} from '../../utils/weak-maps'
 import { hasEditableTarget } from '../helpers'
 import { hidePlaceholder } from '../place-holder'
 import { editorSelectionToDOM } from '../syncSelection'
@@ -18,6 +22,28 @@ import TextArea from '../TextArea'
 
 const EDITOR_TO_TEXT: WeakMap<IDomEditor, string> = new WeakMap()
 const EDITOR_TO_START_CONTAINER: WeakMap<IDomEditor, DOMNode> = new WeakMap()
+
+function getDOMSelectionStartContainer(editor: IDomEditor): DOMNode | null {
+  let root: Document | ShadowRoot
+
+  try {
+    root = DomEditor.findDocumentOrShadowRoot(editor)
+  } catch (error) {
+    return null
+  }
+
+  const domSelection = root.getSelection()
+
+  if (!domSelection || domSelection.rangeCount <= 0) {
+    return null
+  }
+
+  try {
+    return domSelection.getRangeAt(0).startContainer
+  } catch (error) {
+    return null
+  }
+}
 
 function areBothTextNodes(editor, selection) {
   if (Range.isCollapsed(selection)) {
@@ -44,6 +70,53 @@ function areBothTextNodes(editor, selection) {
   }
 }
 
+function recoverSelectionForCompositionEnd(editor: IDomEditor): Range | null {
+  let { selection } = editor
+
+  if (selection) {
+    return selection
+  }
+
+  try {
+    const root = DomEditor.findDocumentOrShadowRoot(editor)
+    const domSelection = root.getSelection()
+
+    if (domSelection) {
+      const domRange = DomEditor.toSlateRange(editor, domSelection, {
+        exactMatch: false,
+        suppressThrow: true,
+      })
+
+      if (domRange) {
+        Transforms.select(editor, domRange)
+        selection = domRange
+      }
+    }
+  } catch (error) {
+    // Ignore transient DOM/selection mismatches and continue with fallbacks.
+  }
+
+  if (!selection) {
+    try {
+      editor.restoreSelection?.()
+    } catch {
+      // Undo/redo around void blocks can make cached selection paths stale.
+      // Continue to the explicit end-of-document fallback.
+    }
+    selection = editor.selection
+  }
+
+  if (!selection) {
+    const fallbackPoint = Editor.end(editor, [])
+    const fallbackRange = { anchor: fallbackPoint, focus: fallbackPoint }
+
+    Transforms.select(editor, fallbackRange)
+    selection = fallbackRange
+  }
+
+  return selection
+}
+
 /**
  * composition start 事件
  * @param e event
@@ -54,8 +127,22 @@ export function handleCompositionStart(e: Event, textarea: TextArea, editor: IDo
   const event = e as CompositionEvent
 
   if (!hasEditableTarget(editor, event.target)) { return }
+  EDITOR_TO_PENDING_SELECTION.delete(editor)
 
   const { selection } = editor
+
+  if (selection && Range.isCollapsed(selection)) {
+    // Align with Slate: use native DOM selection snapshot for composition
+    // transitions, avoiding stale Slate->DOM mapping windows.
+    const startContainer = getDOMSelectionStartContainer(editor)
+
+    if (startContainer) {
+      const curText = startContainer.textContent || ''
+
+      EDITOR_TO_TEXT.set(editor, curText)
+      EDITOR_TO_START_CONTAINER.set(editor, startContainer)
+    }
+  }
 
   if (selection && Range.isExpanded(selection)) {
     Editor.deleteFragment(editor)
@@ -67,18 +154,6 @@ export function handleCompositionStart(e: Event, textarea: TextArea, editor: IDo
       // restoreSelection 会对比前后 model 选区是否相同，相同就不更新了
       editorSelectionToDOM(textarea, editor, true)
     })
-  }
-
-  if (editor.selection) {
-    // 记录下 dom text ，以便触发 maxLength 时使用
-    const domRange = DomEditor.toDOMRange(editor, editor.selection)
-    const startContainer = domRange.startContainer
-    const curText = startContainer.textContent || ''
-
-    EDITOR_TO_TEXT.set(editor, curText)
-
-    // 记录下 dom range startContainer
-    EDITOR_TO_START_CONTAINER.set(editor, startContainer)
   }
   textarea.isComposing = true
 
@@ -109,8 +184,16 @@ export function handleCompositionEnd(e: Event, textarea: TextArea, editor: IDomE
 
   if (!hasEditableTarget(editor, event.target)) { return }
   textarea.isComposing = false
+  const shouldSkipInsertion = EDITOR_TO_PENDING_COMPOSITION_END.get(editor) === true
 
-  const { selection } = editor
+  if (shouldSkipInsertion) {
+    EDITOR_TO_PENDING_COMPOSITION_END.delete(editor)
+    EDITOR_TO_PENDING_SELECTION.delete(editor)
+  } else {
+    EDITOR_TO_PENDING_SELECTION.delete(editor)
+  }
+
+  const selection = recoverSelectionForCompositionEnd(editor)
 
   if (selection == null) { return }
 
@@ -141,6 +224,7 @@ export function handleCompositionEnd(e: Event, textarea: TextArea, editor: IDomE
   const { data } = event
 
   if (!data) { return }
+  if (shouldSkipInsertion) { return }
 
   // 检查 maxLength -【注意】这里只处理拼音输入的 maxLength 限制。其他限制，在插件 with-max-length.ts 中处理
   const { maxLength } = editor.getConfig()
@@ -149,10 +233,10 @@ export function handleCompositionEnd(e: Event, textarea: TextArea, editor: IDomE
     const leftLengthOfMaxLength = DomEditor.getLeftLengthOfMaxLength(editor)
 
     if (leftLengthOfMaxLength < data.length) {
-      const domRange = DomEditor.toDOMRange(editor, selection)
+      const startContainer = getDOMSelectionStartContainer(editor)
 
-      if (domRange.startContainer.nodeType === Node.TEXT_NODE) {
-        domRange.startContainer.textContent = EDITOR_TO_TEXT.get(editor) || ''
+      if (startContainer && startContainer.nodeType === Node.TEXT_NODE) {
+        startContainer.textContent = EDITOR_TO_TEXT.get(editor) || ''
       }
       if (leftLengthOfMaxLength > 0) {
         // 剩余长度 >0 ，但小于 data 长度，截取一部分插入
@@ -168,10 +252,14 @@ export function handleCompositionEnd(e: Event, textarea: TextArea, editor: IDomE
     const domSelection = root.getSelection()
 
     if (domSelection && areBothTextNodes(editor, selection)) {
-      editor.selection = DomEditor.toSlateRange(editor, domSelection, {
+      const slateRange = DomEditor.toSlateRange(editor, domSelection, {
         exactMatch: false,
         suppressThrow: false,
       })
+
+      if (slateRange) {
+        editor.selection = slateRange
+      }
     }
     Editor.insertText(editor, data)
   }
@@ -185,7 +273,11 @@ export function handleCompositionEnd(e: Event, textarea: TextArea, editor: IDomE
       const oldStartContainer = EDITOR_TO_START_CONTAINER.get(editor) // 拼音输入开始时的 text node
 
       if (oldStartContainer == null) { return }
-      const curStartContainer = DomEditor.toDOMRange(editor, setTimeoutSelection).startContainer // 拼音输入结束时的 text node
+      if (oldStartContainer.nodeType !== Node.TEXT_NODE) { return }
+      const curStartContainer = getDOMSelectionStartContainer(editor)
+
+      if (curStartContainer == null) { return } // 拼音输入结束时的 text node
+      if (curStartContainer.nodeType !== Node.TEXT_NODE) { return }
 
       if (curStartContainer === oldStartContainer) {
         // 拼音输入的开始和结束，都在同一个 text node ，则不做处理

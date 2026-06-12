@@ -9,7 +9,11 @@ import createEditor from '../../../../tests/utils/create-editor'
 import { parseHtmlConf } from '../../src/modules/link/parse-elem-html'
 
 describe('link - parse html', () => {
-  const editor = createEditor()
+  let editor: ReturnType<typeof createEditor>
+
+  beforeEach(() => {
+    editor = createEditor()
+  })
 
   it('without children', () => {
     const $link = $('<a href="http://localhost/" target="_blank"></a>')
@@ -51,6 +55,20 @@ describe('link - parse html', () => {
       url: 'http://localhost/',
       target: '_blank',
       children: [{ text: 'hello ' }, { text: 'world', bold: true }],
+    })
+  })
+
+  it('should normalize href formatting whitespace from imported html', () => {
+    const $link = $('<a href=" \nhttps://localhost/a b\t\r " target="_blank">hello</a>')
+    const children = [{ text: 'hello' }]
+
+    const res = parseHtmlConf.parseElemHtml($link[0], children, editor)
+
+    expect(res).toEqual({
+      type: 'link',
+      url: 'https://localhost/a%20b',
+      target: '_blank',
+      children: [{ text: 'hello' }],
     })
   })
 })

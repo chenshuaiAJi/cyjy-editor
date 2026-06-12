@@ -3,10 +3,13 @@
  * @author wangfupeng
  */
 
+import type { IDomEditor, IEditorConfig } from '@wangeditor-next/editor'
 import {
-  createEditor, IDomEditor, IEditorConfig, SlateDescendant,
+  createEditor, SlateDescendant,
 } from '@wangeditor-next/editor'
-import React, { useEffect, useRef, useState } from 'react'
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react'
 
 interface IProps {
   defaultContent?: SlateDescendant[]
@@ -18,6 +21,8 @@ interface IProps {
   mode?: string
   style?: React.CSSProperties
   className?: string
+  loading?: boolean
+  loadingText?: React.ReactNode
 }
 
 interface ICustomDomEditor extends IDomEditor {
@@ -27,12 +32,14 @@ interface ICustomDomEditor extends IDomEditor {
 function EditorComponent(props: Partial<IProps>) {
   const {
     defaultContent = [], onCreated, defaultHtml = '', value = '', onChange, defaultConfig = {}, mode = 'default', style = {}, className,
+    loading = false, loadingText = 'Loading...',
   } = props
   const ref = useRef<HTMLDivElement>(null)
+  const latestHtmlRef = useRef('')
+  const isSyncingFromPropsRef = useRef(false)
   const [editor, setEditor] = useState<ICustomDomEditor | null>(null)
-  const [curValue, setCurValue] = useState('')
 
-  const handleCreated = (createdEditor: IDomEditor) => {
+  const handleCreated = useCallback((createdEditor: IDomEditor) => {
     // 组件属性 onCreated
     if (onCreated) { onCreated(createdEditor) }
 
@@ -40,23 +47,32 @@ function EditorComponent(props: Partial<IProps>) {
     const { onCreated: onCreatedFromConfig } = defaultConfig
 
     if (onCreatedFromConfig) { onCreatedFromConfig(createdEditor) }
-  }
+  }, [defaultConfig, onCreated])
 
-  const handleDestroyed = (destroyedEditor: IDomEditor) => {
+  const handleDestroyed = useCallback((destroyedEditor: IDomEditor) => {
     const { onDestroyed } = defaultConfig
 
     setEditor(null)
     if (onDestroyed) {
       onDestroyed(destroyedEditor)
     }
-  }
+  }, [defaultConfig])
 
   useEffect(() => {
     if (editor == null) { return }
 
     // eslint-disable-next-line no-underscore-dangle
     editor.__react_on_change = (e: IDomEditor) => {
-      setCurValue(e.getHtml()) // 记录当前 html 值
+      const latestHtml = e.getHtml()
+      const prevHtml = latestHtmlRef.current
+
+      latestHtmlRef.current = latestHtml // 记录当前 html 值
+
+      // 由 props 同步触发 setHtml 时，不向外触发 onChange，避免受控场景产生回环
+      if (isSyncingFromPropsRef.current) { return }
+
+      // 仅在内容发生变化时触发，对齐输入控件 onChange 语义（忽略选区/焦点变化）
+      if (latestHtml === prevHtml) { return }
 
       // 组件属性 onChange
       if (onChange) { onChange(e) }
@@ -66,22 +82,29 @@ function EditorComponent(props: Partial<IProps>) {
 
       if (onChangeFromConfig) { onChangeFromConfig(e) }
     }
-  }, [editor, defaultConfig])
+    return () => {
+      // eslint-disable-next-line no-underscore-dangle
+      editor.__react_on_change = undefined
+    }
+  }, [editor, defaultConfig, onChange])
 
   // value 变化，重置 HTML
   useEffect(() => {
     if (editor == null) { return }
 
-    if (value === curValue) { return } // 如果和当前 html 值相等，则忽略
+    if (value === latestHtmlRef.current) { return } // 如果和当前 html 值相等，则忽略
 
     // ------ 重新设置 HTML ------
     try {
+      isSyncingFromPropsRef.current = true
       editor.setHtml(value)
+      latestHtmlRef.current = editor.getHtml()
     } catch (error) {
       console.error(error)
+    } finally {
+      isSyncingFromPropsRef.current = false
     }
-
-  }, [value])
+  }, [editor, value])
 
   useEffect(() => {
     if (ref.current == null) { return }
@@ -103,10 +126,47 @@ function EditorComponent(props: Partial<IProps>) {
       mode,
     })as ICustomDomEditor
 
+    latestHtmlRef.current = newEditor.getHtml()
     setEditor(newEditor)
-  }, [editor])
+  }, [
+    editor,
+    defaultConfig,
+    defaultContent,
+    defaultHtml,
+    handleCreated,
+    handleDestroyed,
+    mode,
+    value,
+  ])
 
-  return <div style={style} ref={ref} className={className}></div>
+  return (
+    <div
+      style={{ ...style, position: style.position || 'relative' }}
+      className={className}
+      data-w-e-react-editor-container="true"
+    >
+      <div style={{ minHeight: '1px' }} ref={ref}></div>
+      {loading && (
+      <div
+        data-w-e-loading-overlay="true"
+        style={{
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'rgba(255, 255, 255, 0.6)',
+          zIndex: 10,
+        }}
+      >
+        {loadingText}
+      </div>
+      )}
+    </div>
+  )
 }
 
 export default EditorComponent

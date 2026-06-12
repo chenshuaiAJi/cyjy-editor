@@ -76,7 +76,6 @@ typings/
 !.yarn/versions
 
 # pnpm
-pnpm-lock.yaml
 .pnpm-debug.log*
 
 # dotenv environment variables file
@@ -139,3 +138,8 @@ stats.html
 
 # Turbo cache
 .turbo
+
+# Playwright artifacts
+test-results/
+playwright-report/
+blob-report/

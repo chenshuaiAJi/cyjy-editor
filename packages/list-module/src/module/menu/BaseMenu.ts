@@ -8,12 +8,15 @@ import {
   Editor, Element, Node, Transforms,
 } from 'slate'
 
-import { ListItemElement } from '../custom-types'
+import { ListItemElement, OrderedListType } from '../custom-types'
+import { getNormalizedOrderedListType } from '../helpers'
 
 abstract class BaseMenu implements IButtonMenu {
   readonly type = 'list-item'
 
   abstract readonly ordered: boolean
+
+  readonly orderType?: OrderedListType
 
   abstract readonly title: string
 
@@ -35,9 +38,16 @@ abstract class BaseMenu implements IButtonMenu {
     const node = this.getListNode(editor)
 
     if (node == null) { return false }
-    const { ordered = false } = node as ListItemElement
+    const listNode = node as ListItemElement
+    const { ordered = false } = listNode
 
-    return ordered === this.ordered
+    if (ordered !== this.ordered) { return false }
+    if (!ordered) { return true }
+
+    const currentOrderType = getNormalizedOrderedListType(listNode)
+    const targetOrderType = this.orderType || '1'
+
+    return currentOrderType === targetOrderType
   }
 
   isDisabled(editor: IDomEditor): boolean {
@@ -68,6 +78,8 @@ abstract class BaseMenu implements IButtonMenu {
         // @ts-ignore
         ordered: undefined,
         level: undefined,
+        start: undefined,
+        orderType: undefined,
       })
     } else {
       // 否则，转换为 list-item
@@ -75,6 +87,8 @@ abstract class BaseMenu implements IButtonMenu {
         type: 'list-item',
         ordered: this.ordered, // 有序/无序
         indent: undefined,
+        start: undefined,
+        orderType: this.ordered ? this.orderType : undefined,
       })
     }
   }

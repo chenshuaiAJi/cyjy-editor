@@ -10,7 +10,9 @@ import { Range } from 'slate'
 import { EditorEvents } from '../config/interface'
 import { DomEditor } from '../editor/dom-editor'
 import { IDomEditor } from '../editor/interface'
-import $, { Dom7Array, DOMElement } from '../utils/dom'
+import $, {
+  Dom7Array, DOMElement, isDOMElement,
+} from '../utils/dom'
 import { promiseResolveThen } from '../utils/util'
 import { TEXTAREA_TO_EDITOR } from '../utils/weak-maps'
 import eventHandlerConf from './event-handlers/index'
@@ -21,6 +23,10 @@ import updateView from './update-view'
 let ID = 1
 
 class TextArea {
+  private selectionChangeRoot: Document | ShadowRoot | null = null
+
+  private destroyed = false
+
   // eslint-disable-next-line
   readonly id = ID++
 
@@ -71,15 +77,11 @@ class TextArea {
 
     // 异步，否则获取不到 editor 和 DOM
     promiseResolveThen(() => {
-      const editor = this.editorInstance
-      const window = DomEditor.getWindow(editor)
+      const editor = this.getActiveEditor()
 
-      // 监听 selection change
-      window.document.addEventListener('selectionchange', this.onDOMSelectionChange)
-      // editor 销毁时，解绑 selection change
-      editor.on(EditorEvents.DESTROYED, () => {
-        window.document.removeEventListener('selectionchange', this.onDOMSelectionChange)
-      })
+      if (editor == null) { return }
+
+      this.bindSelectionChange(editor)
 
       // 点击编辑区域，关闭 panel
       $container.on('click', () => editor.hidePanelOrModal())
@@ -117,11 +119,55 @@ class TextArea {
     return editor
   }
 
-  private onDOMSelectionChange = throttle(() => {
-    const editor = this.editorInstance
+  private getActiveEditor(): IDomEditor | null {
+    if (this.destroyed) { return null }
+
+    const editor = TEXTAREA_TO_EDITOR.get(this)
+
+    if (editor == null || editor.isDestroyed) { return null }
+    return editor
+  }
+
+  private bindSelectionChange(editor: IDomEditor, retries = 5) {
+    if (this.selectionChangeRoot != null || editor.isDestroyed) { return }
+
+    try {
+      const root = DomEditor.findDocumentOrShadowRoot(editor)
+
+      root.addEventListener('selectionchange', this.onDOMSelectionChange)
+      this.selectionChangeRoot = root
+    } catch (ex) {
+      if (retries > 0) {
+        setTimeout(() => this.bindSelectionChange(editor, retries - 1), 0)
+        return
+      }
+
+      window.document.addEventListener('selectionchange', this.onDOMSelectionChange)
+      this.selectionChangeRoot = window.document
+    }
+
+    editor.on(EditorEvents.DESTROYED, () => {
+      this.selectionChangeRoot?.removeEventListener('selectionchange', this.onDOMSelectionChange)
+      this.selectionChangeRoot = null
+    })
+  }
+
+  private onDOMSelectionChange = throttle((event?: Event) => {
+    const targetElement = isDOMElement(event?.target) ? event.target : null
+    const targetTagName = targetElement?.tagName
+
+    if (targetTagName === 'INPUT' || targetTagName === 'TEXTAREA') { return }
+
+    const editor = this.getActiveEditor()
+
+    if (editor == null) { return }
 
     DOMSelectionToEditor(this, editor)
   }, 100)
+
+  flushDOMSelectionChange() {
+    this.onDOMSelectionChange.flush()
+  }
 
   /**
    * 绑定事件，如 beforeinput onblur onfocus keydown click copy/paste drag/drop 等
@@ -155,7 +201,10 @@ class TextArea {
   }
 
   private onFocusAndOnBlur() {
-    const editor = this.editorInstance
+    const editor = this.getActiveEditor()
+
+    if (editor == null) { return }
+
     const { onBlur, onFocus } = editor.getConfig()
 
     this.latestEditorSelection = editor.selection
@@ -163,10 +212,16 @@ class TextArea {
     editor.on(EditorEvents.CHANGE, () => {
       if (this.latestEditorSelection == null && editor.selection != null) {
         // 异步触发 focus
-        setTimeout(() => onFocus && onFocus(editor))
+        setTimeout(() => {
+          if (this.destroyed || editor.isDestroyed) { return }
+          if (onFocus) { onFocus(editor) }
+        })
       } else if (this.latestEditorSelection != null && editor.selection == null) {
         // 异步触发 blur
-        setTimeout(() => onBlur && onBlur(editor))
+        setTimeout(() => {
+          if (this.destroyed || editor.isDestroyed) { return }
+          if (onBlur) { onBlur(editor) }
+        })
       }
 
       this.latestEditorSelection = editor.selection // 重新记录 selection
@@ -177,7 +232,10 @@ class TextArea {
    * 修改 maxLength 提示信息
    */
   private changeMaxLengthInfo() {
-    const editor = this.editorInstance
+    const editor = this.getActiveEditor()
+
+    if (editor == null) { return }
+
     const { maxLength } = editor.getConfig()
 
     if (maxLength) {
@@ -211,7 +269,9 @@ class TextArea {
    * 修改 view 状态
    */
   changeViewState() {
-    const editor = this.editorInstance
+    const editor = this.getActiveEditor()
+
+    if (editor == null) { return }
 
     // 更新 DOM
     // TODO 注意这里是否会有性能瓶颈？因为每次键盘输入，都会触发这里 —— 可单独测试大文件、多内容，如几万个字
@@ -222,6 +282,7 @@ class TextArea {
 
     // 同步选区（异步，否则拿不到 DOM 渲染结果，vdom）
     promiseResolveThen(() => {
+      if (this.destroyed || editor.isDestroyed) { return }
       editorSelectionToDOM(this, editor)
     })
   }
@@ -230,6 +291,11 @@ class TextArea {
    * 销毁 textarea
    */
   destroy() {
+    this.destroyed = true
+    this.onDOMSelectionChange.cancel()
+    this.selectionChangeRoot?.removeEventListener('selectionchange', this.onDOMSelectionChange)
+    this.selectionChangeRoot = null
+
     // 销毁 DOM （只销毁最外层 DOM 即可）
     this.$textAreaContainer.remove()
   }

@@ -14,13 +14,15 @@ import {
   NodeEntry,
   Path,
   Point,
-  Selection,
   Text,
   Transforms,
 } from 'slate'
 
+import { TableCursor } from './table-cursor'
 import { EDITOR_TO_SELECTION } from './weak-maps'
 import { withSelection } from './with-selection'
+
+const CELL_BREAK = '\n'
 
 // table cell 内部的删除处理
 function deleteHandler(newEditor: IDomEditor): boolean {
@@ -42,27 +44,6 @@ function deleteHandler(newEditor: IDomEditor): boolean {
   }
 
   return false
-}
-
-// #region 删除 cell 内的换行
-/**
- * 判断光标是否在换行符中间 \n|\r
- * @param newEditor
- * @param location
- */
-function isHalfBreak(newEditor: IDomEditor, location: Point): boolean {
-  const offset = location.offset
-
-  if (offset === 0) { return false }
-  const node = Editor.node(newEditor, location)
-
-  if (!Text.isText(node[0])) { return false }
-
-  const text = Node.string((node[0]))
-
-  if (offset >= text.length) { return false }
-
-  return text[offset - 1] === '\n' && text[offset] === '\r'
 }
 
 /**
@@ -100,40 +81,37 @@ function deleteCellBreak(newEditor: IDomEditor, unit: Parameters<IDomEditor['del
   if (aboveCell == null || cellNodeEntry == null || !Path.equals(aboveCell[1], cellNodeEntry[1])) { return false }
   const targetNode = Editor.node(newEditor, targetPoint)
 
-  if (!Text.isText(targetNode[0]) || targetNode[0].text.length < 2) { return false } // 如果存在\n\r，那长度必定大于2
+  if (!Text.isText(targetNode[0]) || targetNode[0].text.length < CELL_BREAK.length) { return false }
 
-  // 处理光标在换行符首/尾的情况,|表示光标  |\n\r   \n\r|
-  const parameters: Parameters<typeof String.prototype.slice> = direction === 'backward'
-    ? [targetPoint.offset - 2, targetPoint.offset]
-    : [targetPoint.offset, targetPoint.offset + 2]
+  // 处理光标在换行符首/尾的情况,|表示光标  |\n   \n|
+  const startOffset = direction === 'backward'
+    ? targetPoint.offset - CELL_BREAK.length
+    : targetPoint.offset
+  const endOffset = direction === 'backward'
+    ? targetPoint.offset
+    : targetPoint.offset + CELL_BREAK.length
+
+  if (startOffset < 0) { return false }
 
   const nodeText = Node.string(targetNode[0])
-  const isBreak = nodeText.slice(...parameters) === '\n\r'
+  const isBreak = nodeText.slice(startOffset, endOffset) === CELL_BREAK
 
   if (isBreak) {
-    Transforms.insertText(newEditor, nodeText.slice(0, parameters[0]) + nodeText.slice(parameters[1]), {
+    Transforms.insertText(newEditor, nodeText.slice(0, startOffset) + nodeText.slice(endOffset), {
       at: {
         anchor: Editor.start(newEditor, targetPoint.path),
         focus: Editor.end(newEditor, targetPoint.path),
       },
     })
-    return true
-  }
-
-  // 处理光标在换行符中间的情况
-  if (isHalfBreak(newEditor, targetPoint)) {
-    Transforms.insertText(newEditor, nodeText.slice(0, selection.anchor.offset - 1) + nodeText.slice(selection.anchor.offset + 1), {
-      at: {
-        anchor: Editor.start(newEditor, targetPoint.path),
-        focus: Editor.end(newEditor, targetPoint.path),
-      },
+    Transforms.select(newEditor, {
+      anchor: { path: targetPoint.path, offset: startOffset },
+      focus: { path: targetPoint.path, offset: startOffset },
     })
     return true
   }
 
   return false
 }
-// #endregion
 
 /**
  * 判断该 location 有没有命中 table
@@ -185,11 +163,11 @@ function withTable<T extends IDomEditor>(editor: T): T {
     insertBreak,
     deleteBackward,
     deleteForward,
-    deleteFragment,
     normalizeNode,
     insertData,
     handleTab,
     selectAll,
+    deleteFragment,
   } = editor
   const newEditor = editor
 
@@ -198,8 +176,8 @@ function withTable<T extends IDomEditor>(editor: T): T {
     const selectedNode = DomEditor.getSelectedNodeByType(newEditor, 'table')
 
     if (selectedNode != null) {
-      // 选中了 table ，则在 cell 内换行
-      newEditor.insertText('\n\r')
+      // 选中了 table ，则在 cell 内插入标准换行
+      newEditor.insertText(CELL_BREAK)
       return
     }
 
@@ -312,41 +290,6 @@ function withTable<T extends IDomEditor>(editor: T): T {
     deleteForward(unit)
   }
 
-  // 重写区域选中的删除，修正可能半选的换行符
-  newEditor.deleteFragment = unit => {
-    const { selection } = newEditor
-
-    if (!selection) { return }
-    let hasChange = false
-    const newSelection: Selection = {
-      anchor: selection.anchor,
-      focus: selection.focus,
-    }
-    // 是否是从左到右的选区
-    const isLeftToRight = Point.isBefore(newSelection.anchor, newSelection.focus)
-
-    if (isHalfBreak(newEditor, selection.anchor)) {
-      const nv = Editor[isLeftToRight ? 'before' : 'after'](newEditor, selection.anchor)
-
-      if (nv) {
-        newSelection.anchor = nv
-      }
-      hasChange = true
-    }
-    if (isHalfBreak(newEditor, selection.focus)) {
-      const nv = Editor[isLeftToRight ? 'after' : 'before'](newEditor, selection.focus)
-
-      if (nv) {
-        newSelection.focus = nv
-      }
-      hasChange = true
-    }
-    if (hasChange) {
-      Transforms.setSelection(newEditor, newSelection)
-    }
-    deleteFragment(unit)
-  }
-
   // 重新 normalize
   newEditor.normalizeNode = ([node, path]) => {
     const type = DomEditor.getNodeType(node)
@@ -428,6 +371,55 @@ function withTable<T extends IDomEditor>(editor: T): T {
     }
 
     newEditor.select(newSelection) // 选中 table-cell 内部的全部文字
+  }
+
+  // 重写 deleteFragment - 批量选中 table-cell 时只清空单元格内容，不破坏表格结构
+  newEditor.deleteFragment = options => {
+    const tableSelection = EDITOR_TO_SELECTION.get(newEditor)
+
+    if (tableSelection && tableSelection.length > 0) {
+      const selectedCellPaths: Path[] = []
+
+      tableSelection.forEach(row => {
+        row.forEach(cell => {
+          const [, cellPath] = cell[0]
+
+          if (!selectedCellPaths.some(path => Path.equals(path, cellPath))) {
+            selectedCellPaths.push(cellPath)
+          }
+        })
+      })
+
+      const firstCellPath = selectedCellPaths[0]
+
+      selectedCellPaths.forEach(cellPath => {
+        // 在复杂操作后 path 可能失效，跳过即可
+        if (!Node.has(newEditor, cellPath)) { return }
+
+        const start = Editor.start(newEditor, cellPath)
+        const end = Editor.end(newEditor, cellPath)
+
+        // 每次只选中单个 cell 的内容，再走原生 deleteFragment
+        // 避免跨 cell 删除触发 merge_node，导致表格结构错乱
+        Transforms.select(newEditor, {
+          anchor: start,
+          focus: end,
+        })
+        deleteFragment(options)
+      })
+
+      TableCursor.unselect(newEditor)
+
+      if (firstCellPath && Node.has(newEditor, firstCellPath)) {
+        const start = Editor.start(newEditor, firstCellPath)
+
+        Transforms.select(newEditor, start)
+      }
+
+      return
+    }
+
+    deleteFragment(options)
   }
 
   /**

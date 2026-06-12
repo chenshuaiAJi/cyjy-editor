@@ -11,8 +11,8 @@
 ## Installation
 
 ```shell
-yarn add katex
-yarn add @wangeditor-next/plugin-formula
+pnpm add katex
+pnpm add @wangeditor-next/plugin-formula
 ```
 
 ## Usage
@@ -23,11 +23,14 @@ yarn add @wangeditor-next/plugin-formula
 ```js
 import { Boot, IEditorConfig, IToolbarConfig } from '@wangeditor-next/editor'
 import formulaModule from '@wangeditor-next/plugin-formula'
+import 'katex/dist/katex.min.css'
 
 // Register
 // You should register this before create editor, and register only once (not repeatedly).
 Boot.registerModule(formulaModule)
 ```
+
+Ensure KaTeX stylesheet is loaded on the page, otherwise formulas will render as untypeset text.
 
 ### Menu config
 

@@ -9,12 +9,45 @@ import { Descendant, Text } from 'slate'
 import $, { DOMElement, getStyleValue, getTagName } from '../utils/dom'
 import { TableCellElement, TableElement, TableRowElement } from './custom-types'
 
+function parsePixelSize(value: string | null | undefined, fallback = 0): number {
+  const parsedValue = parseInt(value || '', 10)
+
+  if (Number.isNaN(parsedValue)) {
+    return fallback
+  }
+
+  return parsedValue
+}
+
+function getColgroupWidths(colgroupElements: HTMLCollection | null): number[] {
+  if (!colgroupElements || colgroupElements.length === 0) { return [] }
+
+  const columnWidths: number[] = []
+
+  Array.from(colgroupElements).forEach((col: any) => {
+    const span = parseInt(col.getAttribute('span') || '1', 10)
+    const width = parseInt(
+      col.getAttribute('width') || getStyleValue($(col), 'width') || '90',
+      10,
+    )
+
+    if (Number.isNaN(width)) { return }
+
+    for (let i = 0; i < span; i += 1) {
+      columnWidths.push(width)
+    }
+  })
+
+  return columnWidths
+}
+
 function parseCellHtml(
   elem: DOMElement,
   children: Descendant[],
   editor: IDomEditor,
 ): TableCellElement {
   const $elem = $(elem)
+  const cellText = $elem.text().replace(/\s+/gm, ' ').trim()
 
   children = children.filter(child => {
     if (DomEditor.getNodeType(child) === 'paragraph') { return true }
@@ -30,7 +63,7 @@ function parseCellHtml(
 
   const colSpan = parseInt($elem.attr('colSpan') || '1', 10)
   const rowSpan = parseInt($elem.attr('rowSpan') || '1', 10)
-  const hidden = getStyleValue($elem, 'display') === 'none'
+  const hidden = getStyleValue($elem, 'display') === 'none' && cellText.length === 0
   const width = $elem.attr('width') || 'auto'
 
   return {
@@ -74,8 +107,11 @@ function parseRowHtml(
     }
   }
 
-  // 解析行高度
-  const height = parseInt(getStyleValue($elem, 'height') || '0', 10) || undefined
+  // 解析行高度（style / class-mode data attr / legacy attr）
+  const rowHeightRaw = getStyleValue($elem, 'height')
+    || $elem.attr('data-w-e-row-height')
+    || $elem.attr('height')
+  const height = parsePixelSize(rowHeightRaw) || undefined
 
   return {
     type: 'table-row',
@@ -95,32 +131,41 @@ function parseTableHtml(
   _editor: IDomEditor,
 ): TableElement {
   const $elem = $(elem)
+  const caption = ($elem.find('caption').text() || '').replace(/\s+/gm, ' ').trim() || undefined
 
   // 计算宽度
   let tableWidth = 'auto'
 
-  if (getStyleValue($elem, 'width') === '100%') { tableWidth = '100%' }
+  const styleWidth = getStyleValue($elem, 'width')
+  const widthAttr = $elem.attr('width') || ''
+  const isClassModeTable = $elem.hasClass('w-e-table-layout-fixed') || !!$elem.attr('data-w-e-table-height')
+
+  if (styleWidth === '100%') { tableWidth = '100%' }
   if ($elem.attr('width') === '100%') { tableWidth = '100%' } // 兼容 v4 格式
+  if (isClassModeTable && widthAttr && widthAttr !== 'auto' && widthAttr !== '100%') {
+    tableWidth = widthAttr
+  }
 
   // 计算高度
-  const height = parseInt(getStyleValue($elem, 'height') || '0', 10)
+  const tableHeightRaw = getStyleValue($elem, 'height')
+    || $elem.attr('data-w-e-table-height')
+    || $elem.attr('height')
+  const height = parsePixelSize(tableHeightRaw)
 
   const tableELement: TableElement = {
     type: 'table',
     width: tableWidth,
+    caption,
     height,
     // @ts-ignore
     children: children.filter(child => DomEditor.getNodeType(child) === 'table-row'),
   }
   const tdList = $elem.find('tr')[0]?.children || []
   const colgroupElments: HTMLCollection = $elem.find('colgroup')[0]?.children || null
-  // @ts-ignore
-  const colLength = children[children.length - 1].children.length
+  const colgroupWidths = getColgroupWidths(colgroupElments)
 
-  if (colgroupElments && colgroupElments.length === colLength) {
-    tableELement.columnWidths = Array.from(colgroupElments).map((col: any) => {
-      return parseInt(col.getAttribute('width'), 10)
-    })
+  if (colgroupWidths.length > 0) {
+    tableELement.columnWidths = colgroupWidths
   } else if (tdList.length > 0) {
     const columnWidths: number[] = []
 

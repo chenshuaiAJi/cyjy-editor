@@ -1,6 +1,6 @@
 {
   "name": "@wangeditor-next/upload-image-module",
-  "version": "1.1.50",
+  "version": "3.0.2",
   "description": "wangEditor upload-image module",
   "author": "cycleccc <2991205548@qq.com>",
   "type": "module",
@@ -44,13 +44,13 @@
     "url": "https://github.com/wangeditor-next/wangeditor-next/issues"
   },
   "peerDependencies": {
-    "@uppy/core": "^2.0.3",
-    "@uppy/xhr-upload": "^2.0.3",
-    "@wangeditor-next/basic-modules": "1.5.47",
-    "@wangeditor-next/core": "1.7.45",
+    "@uppy/core": "^2.0.3 || ^5.0.0",
+    "@uppy/xhr-upload": "^2.0.3 || ^5.0.0",
+    "@wangeditor-next/basic-modules": "3.0.2",
+    "@wangeditor-next/core": ">=1.9.2",
     "dom7": "^3.0.0 || ^4.0.0",
     "lodash.foreach": "^4.5.0",
-    "slate": "^0.82.0",
+    "slate": "^0.124.0",
     "snabbdom": "^3.6.0"
   },
   "devDependencies": {

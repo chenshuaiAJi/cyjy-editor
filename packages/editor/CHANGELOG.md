@@ -1,5 +1,397 @@
 # Change Log
 
+## 5.7.10
+
+### Patch Changes
+
+- 8201b0e: fix IME composition commit after undo by recovering selection when editor selection is null to avoid placeholder overlap and dropped CJK input in demo flows
+- Updated dependencies [8201b0e]
+  - @wangeditor-next/core@1.9.4
+
+## 5.7.9
+
+### Patch Changes
+
+- e512013: fix beforeinput selection recovery after undo on void blocks (e.g. divider and code block) to avoid stale DOM range crashes and dropped input in demo flows
+- Updated dependencies [e512013]
+  - @wangeditor-next/core@1.9.3
+
+## 5.7.8
+
+### Patch Changes
+
+- Updated dependencies [4acff46]
+- Updated dependencies [a341fd2]
+- Updated dependencies [c26cea3]
+- Updated dependencies [5efc385]
+  - @wangeditor-next/table-module@3.0.2
+  - @wangeditor-next/basic-modules@3.0.2
+  - @wangeditor-next/code-highlight@3.0.2
+  - @wangeditor-next/list-module@3.0.2
+  - @wangeditor-next/upload-image-module@3.0.2
+  - @wangeditor-next/video-module@3.0.2
+  - @wangeditor-next/core@1.9.2
+
+## 5.7.7
+
+### Patch Changes
+
+- 8a8ae86: feat(table): add configurable width export mode for table html
+  - Added `insertTable.widthExportMode` with `adaptive | explicit`.
+  - Default mode remains `explicit` for backward compatibility.
+  - `adaptive` mode can be enabled to keep `width:auto` on table export.
+
+- Updated dependencies [8a8ae86]
+  - @wangeditor-next/core@1.9.1
+  - @wangeditor-next/table-module@3.0.1
+  - @wangeditor-next/basic-modules@3.0.1
+  - @wangeditor-next/code-highlight@3.0.1
+  - @wangeditor-next/list-module@3.0.1
+  - @wangeditor-next/upload-image-module@3.0.1
+  - @wangeditor-next/video-module@3.0.1
+
+## 5.7.6
+
+### Patch Changes
+
+- f8d9577: Align Slate to `^0.124.0` across the monorepo to avoid mixed Slate type sources.
+  - upgrade all internal `slate` dependency and peer dependency ranges from `^0.123.0` to `^0.124.0`
+  - remove dual installation of `slate@0.123.x` and `slate@0.124.x` in workspace builds
+  - fix `@wangeditor-next/yjs-for-react` build failures caused by cross-version Slate type incompatibilities
+
+- 0459fb2: Upgrade the Uppy integration to v5 while keeping upload behavior compatible.
+  - bump `@uppy/core` and `@uppy/xhr-upload` in `@wangeditor-next/editor` to `^5.0.0`
+  - extend peer dependency ranges in `core`, `upload-image-module`, and `video-module` to support both Uppy v2 and v5
+  - normalize upload header values to strings for stricter Uppy v5 XHR typings
+  - add a guarded `AbortSignal.any` fallback for environments that do not implement it
+
+- Updated dependencies [aa889ca]
+- Updated dependencies [f8d9577]
+- Updated dependencies [9a104c7]
+- Updated dependencies [0459fb2]
+- Updated dependencies [4743ff0]
+- Updated dependencies [25e55b4]
+- Updated dependencies [9b6631c]
+  - @wangeditor-next/basic-modules@3.0.0
+  - @wangeditor-next/code-highlight@3.0.0
+  - @wangeditor-next/core@1.9.0
+  - @wangeditor-next/list-module@3.0.0
+  - @wangeditor-next/table-module@3.0.0
+  - @wangeditor-next/upload-image-module@3.0.0
+  - @wangeditor-next/video-module@3.0.0
+
+## 5.7.5
+
+### Patch Changes
+
+- 42d5803: Optimize `@wangeditor-next/editor` package distribution and lightweight entry ergonomics:
+  - Exclude `.map` files from npm publish artifacts to reduce install size.
+  - Upload editor sourcemaps as GitHub Release assets for debugging workflows.
+  - Add a package-size CI guard (`pnpm run check:editor:pack-size`) to prevent regressions.
+
+- Updated dependencies [ef9d73d]
+- Updated dependencies [95660ea]
+  - @wangeditor-next/core@1.8.5
+  - @wangeditor-next/table-module@2.0.5
+  - @wangeditor-next/basic-modules@2.0.5
+  - @wangeditor-next/code-highlight@2.0.5
+  - @wangeditor-next/list-module@2.0.5
+  - @wangeditor-next/upload-image-module@2.0.5
+  - @wangeditor-next/video-module@2.0.5
+
+## 5.7.4
+
+### Patch Changes
+
+- 0b21edf: feat(image): add built-in image preview menu in hoverbar to open image src directly.
+- 008047e: fix: scope Slate DOM mapping lookup to the active editor root so duplicated legacy ids do not break DOM-to-Slate resolution when wangEditor and wangEditor-next coexist.
+- 438ab1c: fix(table): make `tableFullWidth` switch table nodes to responsive `width: 100%` mode instead of one-time pixel recalculation, and add regression coverage for width round-trip plus container-resize behavior.
+- Updated dependencies [6a0de8e]
+- Updated dependencies [0b21edf]
+- Updated dependencies [6cb2513]
+- Updated dependencies [db75eaf]
+- Updated dependencies [0c49afa]
+- Updated dependencies [69125f8]
+- Updated dependencies [dcf7a98]
+- Updated dependencies [008047e]
+- Updated dependencies [eac6814]
+- Updated dependencies [438ab1c]
+  - @wangeditor-next/basic-modules@2.0.4
+  - @wangeditor-next/core@1.8.4
+  - @wangeditor-next/list-module@2.0.4
+  - @wangeditor-next/table-module@2.0.4
+  - @wangeditor-next/upload-image-module@2.0.4
+  - @wangeditor-next/code-highlight@2.0.4
+  - @wangeditor-next/video-module@2.0.4
+
+## 5.7.3
+
+### Patch Changes
+
+- d311c7a: Fix first-node table lifecycle by removing the prepended empty paragraph workaround and making `clear()` reliably reset content when table is the first top-level node.
+
+  Add regressions for issue #47 to ensure first inserted table can be removed via select-all delete/cut and that setHtml fully replaces previous table content.
+
+- 6641948: Fix clipped first-line rendering when large-font superscript or subscript appears
+  at the top of the editor content.
+
+  `sup` and `sub` in the editor area now inherit line-height, preventing browser
+  default `line-height: 0` behavior from being cut by the scroll container.
+
+- edc17af: Fix table column resize after `setHtml` when the current selection is outside the table.
+
+  Column drag now captures the target table path on `mousedown` and keeps using
+  that path during `mousemove`, instead of looking up the table from current
+  selection state. This keeps full-width table column resize usable after
+  `setHtml` without requiring an extra click inside a cell first.
+
+- b2c0fa7: Fix toolbar object config compatibility for single menus such as `fontSize`.
+
+  `toolbarKeys` items like `{ key: 'fontSize', title: '文字大小' }` are now treated
+  as single-menu configs (instead of menu groups) when `menuKeys` is absent, so
+  `MENU_CONF.fontSize.fontSizeList` and the select dropdown keep working together.
+
+- e90bd5b: Fix nested span style parsing so explicit child style values correctly override inherited parent marks during HTML import.
+
+  This resolves issue #608 where a mixed bold span (`font-weight:700` parent with `font-weight:400` child) was imported as fully bold text instead of preserving the non-bold subrange.
+
+- Updated dependencies [d311c7a]
+- Updated dependencies [539e9f0]
+- Updated dependencies [917fe92]
+- Updated dependencies [c6c6c0b]
+- Updated dependencies [647b74c]
+- Updated dependencies [6641948]
+- Updated dependencies [18d2ae5]
+- Updated dependencies [edc17af]
+- Updated dependencies [b2c0fa7]
+- Updated dependencies [91dd27e]
+- Updated dependencies [e90bd5b]
+- Updated dependencies [9aa2987]
+  - @wangeditor-next/core@1.8.3
+  - @wangeditor-next/table-module@2.0.3
+  - @wangeditor-next/basic-modules@2.0.3
+  - @wangeditor-next/video-module@2.0.3
+  - @wangeditor-next/code-highlight@2.0.3
+  - @wangeditor-next/list-module@2.0.3
+  - @wangeditor-next/upload-image-module@2.0.3
+
+## 5.7.2
+
+### Patch Changes
+
+- 38532c2: Fix IME composition stability for long-text Chinese input (issue #793) by
+  capturing native DOM selection containers directly during composition
+  boundaries instead of converting Slate ranges in transient sync windows.
+
+  Align the composition flow with Slate-style handling to avoid
+  `Cannot resolve a DOM point from Slate point` errors, and add regression
+  coverage for repeated composition commits on long text.
+
+- ff0ba6a: Fix table row-resize hotspot alignment after table cell content expands.
+
+  The row resize UI now follows real DOM row heights (captured via table resize
+  observation) instead of stale model defaults, so hovering and dragging the row
+  bottom border stays accurate even when a cell grows taller from wrapped text.
+
+- Updated dependencies [38532c2]
+- Updated dependencies [ff0ba6a]
+  - @wangeditor-next/core@1.8.2
+  - @wangeditor-next/table-module@2.0.2
+  - @wangeditor-next/basic-modules@2.0.2
+  - @wangeditor-next/code-highlight@2.0.2
+  - @wangeditor-next/list-module@2.0.2
+  - @wangeditor-next/upload-image-module@2.0.2
+  - @wangeditor-next/video-module@2.0.2
+
+## 5.7.1
+
+### Patch Changes
+
+- 148253e: Add a lightweight subpath `@wangeditor-next/editor/core` for on-demand module composition,
+  and a separate `@wangeditor-next/editor/upload` entry for uploader APIs. The core subpath avoids
+  auto-registering built-in modules and does not include upload runtime code.
+
+  Align Babel transpilation targets with the repository browserslist (drop hardcoded `ie 11`
+  target) to reduce bundle size.
+
+  Add a tiptap-like composition API for the `@wangeditor-next/editor/core` subpath via extensions
+  and factory-based creation helpers.
+
+  Keep backward compatibility for legacy `createUploader` / `createUppyUploader` imports from
+  `@wangeditor-next/core`, and mark them as deprecated in favor of `@wangeditor-next/core/upload`.
+
+- 0c091d0: Fix IME composition after select-all so `compositionstart/compositionend` no longer throw
+  `Cannot resolve a DOM node from Slate node` in transient Slate-DOM sync windows.
+
+  Align selection syncing with Slate behavior by tolerating temporary DOM mapping lag, and
+  add an E2E regression case for issue #813 (`select all -> composition input`).
+
+- Updated dependencies [148253e]
+- Updated dependencies [0c091d0]
+  - @wangeditor-next/core@1.8.1
+  - @wangeditor-next/basic-modules@2.0.1
+  - @wangeditor-next/code-highlight@2.0.1
+  - @wangeditor-next/list-module@2.0.1
+  - @wangeditor-next/table-module@2.0.1
+  - @wangeditor-next/upload-image-module@2.0.1
+  - @wangeditor-next/video-module@2.0.1
+
+## 5.7.0
+
+### Minor Changes
+
+- fe22817: feat(upload): add upload adapter layer with default uppy implementation
+
+### Patch Changes
+
+- d51d961: feat(csp): add class-based editor style output mode with strict policy controls
+
+  Add a new `textStyleMode` editor config (`inline` by default, `class` optional).
+
+  When `textStyleMode: 'class'`, style export/import/render paths for:
+  - `color`, `bgColor`, `fontSize`, `fontFamily`
+  - `textAlign`, `lineHeight`, `indent`
+
+  now use deterministic class names with `data-w-e-*` attributes instead of inline styles.
+
+  This preserves existing behavior by default while enabling stricter CSP deployments that avoid inline text style attributes.
+
+  Add class-mode unknown-token controls:
+  - `classStylePolicy`: `preserve-data` (default), `fallback-inline`, `strict`
+  - `onClassStyleUnsupported`: callback for unsupported token reporting
+  - `styleClassTokens`: register extra allowed tokens for class output
+
+  Unknown class token behavior is now policy-driven instead of always generating classes. This prevents silent visual regressions and improves round-trip reliability.
+
+  Also add CSP class-mode export support for:
+  - basic `image` elem html export/parse
+  - `video-module` video/iframe alignment and size export/parse
+  - `list-module` list marker color export
+  - `table-module` table/row/cell export/parse fallback (class/data attrs)
+  - `plugin-float-image` export/parse
+
+  These paths now avoid inline `style` attributes when `textStyleMode: 'class'` is enabled.
+
+  For `list-module`, marker color class names are now `w-e-list-color-*` (instead of reusing basic module `w-e-color-*`) to remove implicit cross-package CSS coupling.
+
+  For `table-module`, unsupported class-mode `border-style` values now follow `classStylePolicy`:
+  - `preserve-data`: keep `data-w-e-border-line` only
+  - `fallback-inline`: keep data and use inline `border-style`
+  - `strict`: throw error
+
+- Updated dependencies [fe22817]
+- Updated dependencies [d51d961]
+  - @wangeditor-next/core@1.8.0
+  - @wangeditor-next/upload-image-module@2.0.0
+  - @wangeditor-next/video-module@2.0.0
+  - @wangeditor-next/basic-modules@2.0.0
+  - @wangeditor-next/list-module@2.0.0
+  - @wangeditor-next/table-module@2.0.0
+  - @wangeditor-next/code-highlight@2.0.0
+
+## 5.6.56
+
+### Patch Changes
+
+- Updated dependencies [e8ba2d8]
+- Updated dependencies [b260572]
+- Updated dependencies [de690f3]
+  - @wangeditor-next/table-module@1.6.67
+  - @wangeditor-next/core@1.7.51
+  - @wangeditor-next/basic-modules@1.5.53
+  - @wangeditor-next/code-highlight@1.3.49
+  - @wangeditor-next/list-module@1.1.58
+  - @wangeditor-next/upload-image-module@1.1.56
+  - @wangeditor-next/video-module@1.3.57
+
+## 5.6.55
+
+### Patch Changes
+
+- Updated dependencies [656898f]
+  - @wangeditor-next/table-module@1.6.66
+
+## 5.6.54
+
+### Patch Changes
+
+- 2da282d: Avoid throwing when an editor is destroyed before textarea async initialization completes.
+- 3bdc0b7: Preserve Excel-imported table cells that use `display:none` styles but still contain content.
+- 2c68112: Avoid restoring stale selections when `setHtml` replaces the entire document content.
+- Updated dependencies [2da282d]
+- Updated dependencies [3bdc0b7]
+- Updated dependencies [2c68112]
+  - @wangeditor-next/core@1.7.50
+  - @wangeditor-next/table-module@1.6.65
+  - @wangeditor-next/basic-modules@1.5.52
+  - @wangeditor-next/code-highlight@1.3.48
+  - @wangeditor-next/list-module@1.1.57
+  - @wangeditor-next/upload-image-module@1.1.55
+  - @wangeditor-next/video-module@1.3.56
+
+## 5.6.53
+
+### Patch Changes
+
+- 00d1de8: Fix multi-editor pages losing the active caret when switching between editors.
+- Updated dependencies [00d1de8]
+  - @wangeditor-next/core@1.7.49
+  - @wangeditor-next/basic-modules@1.5.51
+  - @wangeditor-next/code-highlight@1.3.47
+  - @wangeditor-next/list-module@1.1.56
+  - @wangeditor-next/table-module@1.6.64
+  - @wangeditor-next/upload-image-module@1.1.54
+  - @wangeditor-next/video-module@1.3.55
+
+## 5.6.52
+
+### Patch Changes
+
+- 2d02268: Fix IME selection handling so composition does not restore stale selections on commit.
+- Updated dependencies [2d02268]
+  - @wangeditor-next/core@1.7.48
+  - @wangeditor-next/basic-modules@1.5.50
+  - @wangeditor-next/code-highlight@1.3.46
+  - @wangeditor-next/list-module@1.1.55
+  - @wangeditor-next/table-module@1.6.63
+  - @wangeditor-next/upload-image-module@1.1.53
+  - @wangeditor-next/video-module@1.3.54
+
+## 5.6.51
+
+### Patch Changes
+
+- 015c192: fix HTML paste truncation when maxLength is exceeded
+- 5150062: Upgrade the Slate dependency line to `slate@^0.123.0` and `slate-history@^0.115.0`, and realign wangEditor's DOM bridge, selection sync, and composition handling with current Slate behavior.
+
+  This release also fixes regressions around full-document delete normalization, selectionchange handling in `Document | ShadowRoot`, and related list / paste / image / code-block flows covered by the workspace E2E suite.
+
+- Updated dependencies [f52436a]
+- Updated dependencies [f6836b6]
+- Updated dependencies [015c192]
+- Updated dependencies [5150062]
+  - @wangeditor-next/core@1.7.47
+  - @wangeditor-next/basic-modules@1.5.49
+  - @wangeditor-next/list-module@1.1.54
+  - @wangeditor-next/table-module@1.6.62
+  - @wangeditor-next/code-highlight@1.3.45
+  - @wangeditor-next/video-module@1.3.53
+  - @wangeditor-next/upload-image-module@1.1.52
+
+## 5.6.50
+
+### Patch Changes
+
+- 160e5a3: Improve paste handling, HTML import correctness, and table stability.
+  - Improve large plain-text paste performance by inserting lines as a single fragment
+  - Fix `customPaste` returning `false` not blocking the default paste behaviour
+  - Fix Word superscript copy introducing extra line breaks
+  - Sanitize imported HTML by default (editor init, `setHtml`, paste)
+  - Fix Office/nested inline styles (bold, superscript) incorrectly expanding to the whole text segment
+  - Preserve consecutive spaces when importing styled inline HTML
+  - (table) Preserve line breaks when importing cell content from Word-like HTML
+  - (table) Preserve `colgroup` column widths through `getHtml` / `setHtml` round-trips
+
 ## 5.6.49
 
 ### Patch Changes

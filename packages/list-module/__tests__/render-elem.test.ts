@@ -12,14 +12,18 @@ describe('list module - render elem', () => {
   const leveleTwoUndOrderedItem = { type: 'list-item', level: 2, children: [{ text: '' }] }
   const baseOrderedItem = { type: 'list-item', ordered: true, children: [{ text: '' }] }
   const leveledItem = { type: 'list-item', level: 3, children: [{ text: '' }] }
-  const baseEditor = createEditor({
-    content: [
-      unOrderedItem,
-      leveleOneUndOrderedItem,
-      leveleTwoUndOrderedItem,
-      baseOrderedItem,
-      leveledItem,
-    ],
+  let editor: ReturnType<typeof createEditor>
+
+  beforeEach(() => {
+    editor = createEditor({
+      content: [
+        unOrderedItem,
+        leveleOneUndOrderedItem,
+        leveleTwoUndOrderedItem,
+        baseOrderedItem,
+        leveledItem,
+      ],
+    })
   })
 
   it('render conf type', () => {
@@ -27,7 +31,7 @@ describe('list module - render elem', () => {
   })
 
   it('render ordered list item elem', () => {
-    const vnode: any = renderListItemConf.renderElem(baseOrderedItem, null, baseEditor)
+    const vnode: any = renderListItemConf.renderElem(baseOrderedItem, null, editor)
 
     expect(vnode.sel).toBe('div') // render-elem 使用 <div> 模拟 <li>
 
@@ -36,8 +40,41 @@ describe('list module - render elem', () => {
     expect(prefixVnode.text).toBe('1.') // ordered list-item 有序号
   })
 
+  it('render ordered list item with custom type', () => {
+    const upperAlphaOrderedItem = {
+      type: 'list-item',
+      ordered: true,
+      orderType: 'A',
+      children: [{ text: '' }],
+    }
+    const localEditor = createEditor({
+      content: [upperAlphaOrderedItem],
+    })
+    const vnode: any = renderListItemConf.renderElem(upperAlphaOrderedItem, null, localEditor)
+    const prefixVnode = vnode.children[0] || {}
+
+    expect(prefixVnode.text).toBe('A.')
+  })
+
+  it('render ordered list item with start', () => {
+    const upperRomanOrderedItem = {
+      type: 'list-item',
+      ordered: true,
+      orderType: 'I',
+      start: 2,
+      children: [{ text: '' }],
+    }
+    const localEditor = createEditor({
+      content: [upperRomanOrderedItem],
+    })
+    const vnode: any = renderListItemConf.renderElem(upperRomanOrderedItem, null, localEditor)
+    const prefixVnode = vnode.children[0] || {}
+
+    expect(prefixVnode.text).toBe('II.')
+  })
+
   it('render unOrdered list item elem', () => {
-    const vnode: any = renderListItemConf.renderElem(unOrderedItem, null, baseEditor)
+    const vnode: any = renderListItemConf.renderElem(unOrderedItem, null, editor)
 
     expect(vnode.sel).toBe('div') // render-elem 使用 <div> 模拟 <li>
 
@@ -47,7 +84,7 @@ describe('list module - render elem', () => {
   })
 
   it('render leveled list item elem', () => {
-    const vnode: any = renderListItemConf.renderElem(leveledItem, null, baseEditor)
+    const vnode: any = renderListItemConf.renderElem(leveledItem, null, editor)
     const style = vnode.data.style
 
     expect(style).toEqual({
@@ -58,7 +95,7 @@ describe('list module - render elem', () => {
   })
 
   it('render one leveled orderd list item elem', () => {
-    const vnode: any = renderListItemConf.renderElem(leveleOneUndOrderedItem, null, baseEditor)
+    const vnode: any = renderListItemConf.renderElem(leveleOneUndOrderedItem, null, editor)
 
     expect(vnode.sel).toBe('div') // render-elem 使用 <div> 模拟 <li>
 
@@ -68,7 +105,7 @@ describe('list module - render elem', () => {
   })
 
   it('render two leveled orderd list item elem', () => {
-    const vnode: any = renderListItemConf.renderElem(leveleTwoUndOrderedItem, null, baseEditor)
+    const vnode: any = renderListItemConf.renderElem(leveleTwoUndOrderedItem, null, editor)
 
     expect(vnode.sel).toBe('div') // render-elem 使用 <div> 模拟 <li>
 
@@ -79,15 +116,37 @@ describe('list module - render elem', () => {
 
   it('render two same leveled orderd list item elem', () => {
     const orderedItem = { type: 'list-item', ordered: true, children: [{ text: '' }] }
-    const editor = createEditor({
+    const localEditor = createEditor({
       content: [orderedItem, orderedItem],
     })
-    const vnode: any = renderListItemConf.renderElem(orderedItem, null, editor)
+    const vnode: any = renderListItemConf.renderElem(orderedItem, null, localEditor)
 
     expect(vnode.sel).toBe('div') // render-elem 使用 <div> 模拟 <li>
 
     const prefixVnode = vnode.children[0] || {}
 
     expect(prefixVnode.text).toBe('2.') // ordered list-item 有序号
+  })
+
+  it('restart ordered prefix when type/start config changes', () => {
+    const decimalOrderedItem = {
+      type: 'list-item',
+      ordered: true,
+      children: [{ text: '' }],
+    }
+    const romanOrderedItem = {
+      type: 'list-item',
+      ordered: true,
+      orderType: 'I',
+      start: 2,
+      children: [{ text: '' }],
+    }
+    const localEditor = createEditor({
+      content: [decimalOrderedItem, romanOrderedItem],
+    })
+    const vnode: any = renderListItemConf.renderElem(romanOrderedItem, null, localEditor)
+    const prefixVnode = vnode.children[0] || {}
+
+    expect(prefixVnode.text).toBe('II.')
   })
 })

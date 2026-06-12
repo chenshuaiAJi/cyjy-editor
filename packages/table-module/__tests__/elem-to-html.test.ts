@@ -94,6 +94,23 @@ describe('TableModule module', () => {
       expect(res).toBe('<tr style="height: 50px"><td>123</td></tr>')
     })
 
+    test('tableRowToHtmlConf elemToHtml should avoid inline style in class mode', () => {
+      const element = {
+        type: 'table-row',
+        height: 50,
+        children: [],
+      }
+      const mockEditor = {
+        getConfig() {
+          return { textStyleMode: 'class' }
+        },
+      } as any
+      const res = tableRowToHtmlConf.elemToHtml(element, '<td>123</td>', mockEditor)
+
+      expect(res).toBe('<tr height="50" data-w-e-row-height="50px"><td>123</td></tr>')
+      expect(res).not.toContain('style=')
+    })
+
     test('tableToHtmlConf should return object that include "type" and "elemToHtml" property', () => {
       expect(tableToHtmlConf.type).toBe('table')
       expect(typeof tableToHtmlConf.elemToHtml).toBe('function')
@@ -111,6 +128,47 @@ describe('TableModule module', () => {
       )
     })
 
+    test('tableToHtmlConf should include caption when present', () => {
+      const element = {
+        type: 'table',
+        caption: 'Table 2: Effects of contact',
+        children: [],
+      }
+      const res = tableToHtmlConf.elemToHtml(element, '<tr><td>123</td></tr>')
+
+      expect(res).toBe(
+        '<table style="width: auto;table-layout: fixed;height:auto"><caption>Table 2: Effects of contact</caption><tbody><tr><td>123</td></tr></tbody></table>',
+      )
+    })
+
+    test('tableToHtmlConf should export explicit pixel width when columnWidths are present', () => {
+      const element = {
+        type: 'table',
+        width: 'auto',
+        columnWidths: [120, 80],
+        children: [],
+      }
+      const res = tableToHtmlConf.elemToHtml(element, '<tr><td>123</td><td>456</td></tr>')
+
+      expect(res).toBe(
+        '<table style="width: 200px;table-layout: fixed;height:auto"><colgroup contentEditable="false"><col width=120></col><col width=80></col></colgroup><tbody><tr><td>123</td><td>456</td></tr></tbody></table>',
+      )
+    })
+
+    test('tableToHtmlConf should keep 100% width even when columnWidths are present', () => {
+      const element = {
+        type: 'table',
+        width: '100%',
+        columnWidths: [120, 80],
+        children: [],
+      }
+      const res = tableToHtmlConf.elemToHtml(element, '<tr><td>123</td><td>456</td></tr>')
+
+      expect(res).toBe(
+        '<table style="width: 100%;table-layout: fixed;height:auto"><colgroup contentEditable="false"><col width=120></col><col width=80></col></colgroup><tbody><tr><td>123</td><td>456</td></tr></tbody></table>',
+      )
+    })
+
     test('tableToHtmlConf should return html table string with full width style if element is set fullWith value true', () => {
       const element = {
         type: 'table',
@@ -122,6 +180,46 @@ describe('TableModule module', () => {
 
       expect(res).toBe(
         '<table style="width: 100%;table-layout: fixed;height:60px"><tbody><tr><td>123</td></tr></tbody></table>',
+      )
+    })
+
+    test('tableToHtmlConf should avoid inline style in class mode', () => {
+      const element = {
+        type: 'table',
+        width: '100%',
+        height: '60px',
+        children: [],
+      }
+      const mockEditor = {
+        getConfig() {
+          return { textStyleMode: 'class' }
+        },
+      } as any
+      const res = tableToHtmlConf.elemToHtml(element, '<tr><td>123</td></tr>', mockEditor)
+
+      expect(res).toBe(
+        '<table class="w-e-table-layout-fixed" width="100%" height="60px" data-w-e-table-height="60px"><tbody><tr><td>123</td></tr></tbody></table>',
+      )
+      expect(res).not.toContain('style=')
+    })
+
+    test('tableToHtmlConf should escape caption html', () => {
+      const element = {
+        type: 'table',
+        caption: '<script>alert(1)</script>',
+        width: '100%',
+        height: '60px',
+        children: [],
+      }
+      const mockEditor = {
+        getConfig() {
+          return { textStyleMode: 'class' }
+        },
+      } as any
+      const res = tableToHtmlConf.elemToHtml(element, '<tr><td>123</td></tr>', mockEditor)
+
+      expect(res).toBe(
+        '<table class="w-e-table-layout-fixed" width="100%" height="60px" data-w-e-table-height="60px"><caption>&lt;script&gt;alert(1)&lt;/script&gt;</caption><tbody><tr><td>123</td></tr></tbody></table>',
       )
     })
   })

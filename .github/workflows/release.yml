@@ -4,8 +4,10 @@ on:
   push:
     branches:
       - master
+      - dev
       - develop
-      - '^(dev-.*|dev/.*)$'
+      - 'dev-*'
+      - 'dev/**'
   workflow_dispatch:
 
 permissions:
@@ -15,7 +17,8 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # Ensure release jobs on master are not interrupted by subsequent pushes.
+  cancel-in-progress: ${{ github.ref_name != 'master' }}
 
 jobs:
   release:
@@ -23,7 +26,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18]
+        node-version: ['22.13.0']
+    env:
+      DOCS_REPO_DISPATCH_TOKEN: ${{ secrets.DOCS_REPO_DISPATCH_TOKEN }}
 
     steps:
       # 检出代码库
@@ -32,32 +37,27 @@ jobs:
         with:
           fetch-depth: 0
 
-      # 设置 Node.js 版本
+      # 安装 pnpm
+      - name: Install pnpm
+        uses: pnpm/action-setup@v5
+        with:
+          version: 9.15.0
+
+      # 设置 Node.js 版本并缓存 pnpm store
       - name: Setup Node ${{ matrix.node-version }}
         uses: actions/setup-node@v6
         with:
           node-version:  ${{ matrix.node-version }}
           registry-url: 'https://registry.npmjs.org/'
-
-      # 安装 pnpm
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-
-      # 加载依赖缓存
-      - name: Load cached dependencies
-        uses: actions/cache@v5.0.1
-        id: cache
-        with:
-          path: |
-            **/node_modules
-            **/.turbo
-            /home/runner/.cache/Cypress
-            ~/.pnpm-store
-          key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package.json', '**/pnpm-lock.yaml') }}
+          cache: pnpm
 
       # 安装依赖
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
+
+      # Full lint gate
+      - name: Lint
+        run: pnpm lint
 
       # 构建项目
       - name: Build packages
@@ -69,11 +69,11 @@ jobs:
 
       # 运行 E2E 测试
       - name: E2E test
-        uses: cypress-io/github-action@v6
-        with:
-          browser: chrome
-          start: pnpm run example
-          wait-on: 'http://localhost:8881/examples/default-mode.html'
+        env:
+          PLAYWRIGHT_SKIP_BUILD: '1'
+        run: |
+          pnpm exec playwright install --with-deps chromium
+          pnpm e2e
 
       # 创建测试版本或稳定版本的 Release PR
       - name: Manage Changeset Pre-release Mode
@@ -88,7 +88,10 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with:
-          createGithubReleases: true
+          # Disable per-package releases; a single consolidated release is
+          # created by the step below instead.
+          createGithubReleases: false
+          version: pnpm run version:release
           publish: pnpm changeset publish --access=public
           title: >-
             ${{ github.ref_name == 'master' && 'Publish a new stable version' || 'Publish a new pre-release version' }}
@@ -96,7 +99,74 @@ jobs:
             ${{ github.ref_name == 'master' && 'chore(release): publish a new release version' || 'chore(release): publish a new pre-release version' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      # Create one consolidated GitHub Release that aggregates all published
+      # packages into a single entry instead of one release per package.
+      - name: Create consolidated GitHub Release
+        id: consolidated_release
+        if: steps.changesets.outputs.published == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: >-
+          node .github/scripts/create-consolidated-release.js
+          '${{ steps.changesets.outputs.publishedPackages }}'
 
+      - name: Resolve published editor version
+        if: steps.changesets.outputs.published == 'true' && github.ref_name == 'master'
+        id: editor_version
+        env:
+          PUBLISHED_PACKAGES: ${{ steps.changesets.outputs.publishedPackages }}
+        run: |
+          set -euo pipefail
 
+          version="$(node -e "const pkgs = JSON.parse(process.env.PUBLISHED_PACKAGES || '[]'); const editor = pkgs.find(p => p.name === '@wangeditor-next/editor'); if (editor?.version) process.stdout.write(editor.version)")"
+          if [ -z "$version" ]; then
+            version="$(node -p "require('./packages/editor/package.json').version")"
+            echo "Fallback to packages/editor/package.json version: $version"
+          else
+            echo "Published @wangeditor-next/editor version: $version"
+          fi
+
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Upload editor sourcemaps to GitHub Release assets
+        if: steps.changesets.outputs.published == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ steps.consolidated_release.outputs.tag }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${RELEASE_TAG}" ]; then
+            echo "::warning::Missing release tag output. Skip sourcemap upload."
+            exit 0
+          fi
+
+          map_count="$(find packages/editor/dist -type f -name '*.map' | wc -l | tr -d ' ')"
+          if [ "${map_count}" = "0" ]; then
+            echo "::warning::No sourcemap files found under packages/editor/dist. Skip upload."
+            exit 0
+          fi
+
+          asset_name="editor-sourcemaps-${RELEASE_TAG}.tar.gz"
+          find packages/editor/dist -type f -name '*.map' -print0 \
+            | tar --null -T - -czf "${asset_name}"
+
+          gh release upload "${RELEASE_TAG}" "${asset_name}" --clobber
+
+      - name: Trigger docs site deployment for released editor version
+        if: steps.changesets.outputs.published == 'true' && github.ref_name == 'master' && env.DOCS_REPO_DISPATCH_TOKEN != ''
+        uses: peter-evans/repository-dispatch@v4
+        with:
+          token: ${{ env.DOCS_REPO_DISPATCH_TOKEN }}
+          repository: wangeditor-next/docs
+          event-type: editor-release-published
+          client-payload: >-
+            {"version":"${{ steps.editor_version.outputs.version }}","sourceRepo":"${{ github.repository }}","sourceSha":"${{ github.sha }}","sourceRunId":"${{ github.run_id }}"}
+
+      - name: Warn when docs dispatch token is missing
+        if: steps.changesets.outputs.published == 'true' && github.ref_name == 'master' && env.DOCS_REPO_DISPATCH_TOKEN == ''
+        run: |
+          echo "::warning::DOCS_REPO_DISPATCH_TOKEN is not set. Skip triggering wangeditor-next/docs deployment."

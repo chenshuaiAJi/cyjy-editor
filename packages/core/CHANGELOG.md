@@ -1,5 +1,226 @@
 # Change Log
 
+## 1.9.4
+
+### Patch Changes
+
+- 8201b0e: fix IME composition commit after undo by recovering selection when editor selection is null to avoid placeholder overlap and dropped CJK input in demo flows
+
+## 1.9.3
+
+### Patch Changes
+
+- e512013: fix beforeinput selection recovery after undo on void blocks (e.g. divider and code block) to avoid stale DOM range crashes and dropped input in demo flows
+
+## 1.9.2
+
+### Patch Changes
+
+- 5efc385: fix beforeinput target range mapping after divider undo to tolerate stale DOM nodes and avoid "Cannot resolve a Slate node from DOM node" errors when typing
+
+## 1.9.1
+
+### Patch Changes
+
+- 8a8ae86: feat(table): add configurable width export mode for table html
+  - Added `insertTable.widthExportMode` with `adaptive | explicit`.
+  - Default mode remains `explicit` for backward compatibility.
+  - `adaptive` mode can be enabled to keep `width:auto` on table export.
+
+## 1.9.0
+
+### Minor Changes
+
+- 25e55b4: add `editor.getHtmlWithId(idKey?)` to export HTML with generated unique element ids
+
+### Patch Changes
+
+- f8d9577: Align Slate to `^0.124.0` across the monorepo to avoid mixed Slate type sources.
+  - upgrade all internal `slate` dependency and peer dependency ranges from `^0.123.0` to `^0.124.0`
+  - remove dual installation of `slate@0.123.x` and `slate@0.124.x` in workspace builds
+  - fix `@wangeditor-next/yjs-for-react` build failures caused by cross-version Slate type incompatibilities
+
+- 9a104c7: add optional code-block copy button support via MENU_CONF.codeBlock.showCopyButton
+- 0459fb2: Upgrade the Uppy integration to v5 while keeping upload behavior compatible.
+  - bump `@uppy/core` and `@uppy/xhr-upload` in `@wangeditor-next/editor` to `^5.0.0`
+  - extend peer dependency ranges in `core`, `upload-image-module`, and `video-module` to support both Uppy v2 and v5
+  - normalize upload header values to strings for stricter Uppy v5 XHR typings
+  - add a guarded `AbortSignal.any` fallback for environments that do not implement it
+
+- 4743ff0: add `clearHistory` api on editor instances to clear slate undo/redo stacks
+
+## 1.8.5
+
+### Patch Changes
+
+- ef9d73d: add configurable table column insert position (before/after current column)
+
+## 1.8.4
+
+### Patch Changes
+
+- 0b21edf: feat(image): add built-in image preview menu in hoverbar to open image src directly.
+- db75eaf: feat(list): add built-in lower-alpha ordered-list menu key (`numberedListLowerAlpha`) for issue 702.
+- 69125f8: fix(core): map Shift+Enter to soft line breaks (`\n` -> `<br>`) instead of paragraph breaks.
+- dcf7a98: fix(core): preserve template-wrapped clipboard html by safely unwrapping template content during sanitize.
+- 008047e: fix: scope Slate DOM mapping lookup to the active editor root so duplicated legacy ids do not break DOM-to-Slate resolution when wangEditor and wangEditor-next coexist.
+
+## 1.8.3
+
+### Patch Changes
+
+- d311c7a: Fix first-node table lifecycle by removing the prepended empty paragraph workaround and making `clear()` reliably reset content when table is the first top-level node.
+
+  Add regressions for issue #47 to ensure first inserted table can be removed via select-all delete/cut and that setHtml fully replaces previous table content.
+
+- 539e9f0: Preserve SVG namespace (`data.ns`) during vnode data normalization so custom renderers using `h('svg')` keep valid SVG rendering semantics.
+- 647b74c: Fix list selection mapping when the browser selection lands on ordered-list reserve markers (`data-w-e-reserve`).
+
+  Treat reserve-marker targets as selectable during `selectionchange` sync, and resolve reserve-marker DOM points to nearby Slate text points so `editor.getSelectionText()` stays in sync with visible list-row selections.
+
+- 6641948: Fix clipped first-line rendering when large-font superscript or subscript appears
+  at the top of the editor content.
+
+  `sup` and `sub` in the editor area now inherit line-height, preventing browser
+  default `line-height: 0` behavior from being cut by the scroll container.
+
+- b2c0fa7: Fix toolbar object config compatibility for single menus such as `fontSize`.
+
+  `toolbarKeys` items like `{ key: 'fontSize', title: '文字大小' }` are now treated
+  as single-menu configs (instead of menu groups) when `menuKeys` is absent, so
+  `MENU_CONF.fontSize.fontSizeList` and the select dropdown keep working together.
+
+- 91dd27e: Fix caret auto-scroll alignment during rapid enter typing so Vue 3 wrapper editing keeps the caret visible at the viewport bottom.
+- e90bd5b: Fix nested span style parsing so explicit child style values correctly override inherited parent marks during HTML import.
+
+  This resolves issue #608 where a mixed bold span (`font-weight:700` parent with `font-weight:400` child) was imported as fully bold text instead of preserving the non-bold subrange.
+
+## 1.8.2
+
+### Patch Changes
+
+- 38532c2: Fix IME composition stability for long-text Chinese input (issue #793) by
+  capturing native DOM selection containers directly during composition
+  boundaries instead of converting Slate ranges in transient sync windows.
+
+  Align the composition flow with Slate-style handling to avoid
+  `Cannot resolve a DOM point from Slate point` errors, and add regression
+  coverage for repeated composition commits on long text.
+
+## 1.8.1
+
+### Patch Changes
+
+- 148253e: Add a lightweight subpath `@wangeditor-next/editor/core` for on-demand module composition,
+  and a separate `@wangeditor-next/editor/upload` entry for uploader APIs. The core subpath avoids
+  auto-registering built-in modules and does not include upload runtime code.
+
+  Align Babel transpilation targets with the repository browserslist (drop hardcoded `ie 11`
+  target) to reduce bundle size.
+
+  Add a tiptap-like composition API for the `@wangeditor-next/editor/core` subpath via extensions
+  and factory-based creation helpers.
+
+  Keep backward compatibility for legacy `createUploader` / `createUppyUploader` imports from
+  `@wangeditor-next/core`, and mark them as deprecated in favor of `@wangeditor-next/core/upload`.
+
+- 0c091d0: Fix IME composition after select-all so `compositionstart/compositionend` no longer throw
+  `Cannot resolve a DOM node from Slate node` in transient Slate-DOM sync windows.
+
+  Align selection syncing with Slate behavior by tolerating temporary DOM mapping lag, and
+  add an E2E regression case for issue #813 (`select all -> composition input`).
+
+## 1.8.0
+
+### Minor Changes
+
+- fe22817: feat(upload): add upload adapter layer with default uppy implementation
+
+### Patch Changes
+
+- d51d961: feat(csp): add class-based editor style output mode with strict policy controls
+
+  Add a new `textStyleMode` editor config (`inline` by default, `class` optional).
+
+  When `textStyleMode: 'class'`, style export/import/render paths for:
+  - `color`, `bgColor`, `fontSize`, `fontFamily`
+  - `textAlign`, `lineHeight`, `indent`
+
+  now use deterministic class names with `data-w-e-*` attributes instead of inline styles.
+
+  This preserves existing behavior by default while enabling stricter CSP deployments that avoid inline text style attributes.
+
+  Add class-mode unknown-token controls:
+  - `classStylePolicy`: `preserve-data` (default), `fallback-inline`, `strict`
+  - `onClassStyleUnsupported`: callback for unsupported token reporting
+  - `styleClassTokens`: register extra allowed tokens for class output
+
+  Unknown class token behavior is now policy-driven instead of always generating classes. This prevents silent visual regressions and improves round-trip reliability.
+
+  Also add CSP class-mode export support for:
+  - basic `image` elem html export/parse
+  - `video-module` video/iframe alignment and size export/parse
+  - `list-module` list marker color export
+  - `table-module` table/row/cell export/parse fallback (class/data attrs)
+  - `plugin-float-image` export/parse
+
+  These paths now avoid inline `style` attributes when `textStyleMode: 'class'` is enabled.
+
+  For `list-module`, marker color class names are now `w-e-list-color-*` (instead of reusing basic module `w-e-color-*`) to remove implicit cross-package CSS coupling.
+
+  For `table-module`, unsupported class-mode `border-style` values now follow `classStylePolicy`:
+  - `preserve-data`: keep `data-w-e-border-line` only
+  - `fallback-inline`: keep data and use inline `border-style`
+  - `strict`: throw error
+
+## 1.7.51
+
+### Patch Changes
+
+- b260572: Allow `MENU_CONF` overrides to provide partial nested menu configs so TypeScript users can set
+  only `customUpload` for upload menus without re-declaring the merged default fields.
+
+## 1.7.50
+
+### Patch Changes
+
+- 2da282d: Avoid throwing when an editor is destroyed before textarea async initialization completes.
+- 2c68112: Avoid restoring stale selections when `setHtml` replaces the entire document content.
+
+## 1.7.49
+
+### Patch Changes
+
+- 00d1de8: Fix multi-editor pages losing the active caret when switching between editors.
+
+## 1.7.48
+
+### Patch Changes
+
+- 2d02268: Fix IME selection handling so composition does not restore stale selections on commit.
+
+## 1.7.47
+
+### Patch Changes
+
+- f52436a: Fix full-document delete so clearing a code block resets the editor to a single empty paragraph and shows the placeholder immediately.
+- f6836b6: Fix default multi-file uploads to send one request per file and trigger success callbacks for every uploaded file.
+- 015c192: fix HTML paste truncation when maxLength is exceeded
+- 5150062: Upgrade the Slate dependency line to `slate@^0.123.0` and `slate-history@^0.115.0`, and realign wangEditor's DOM bridge, selection sync, and composition handling with current Slate behavior.
+
+  This release also fixes regressions around full-document delete normalization, selectionchange handling in `Document | ShadowRoot`, and related list / paste / image / code-block flows covered by the workspace E2E suite.
+
+## 1.7.46
+
+### Patch Changes
+
+- 943a933: Improve large multi-line plain-text paste performance by inserting pasted lines as a fragment instead of splitting and inserting each line one by one.
+- 1a859f0: Prevent the default browser paste when `customPaste` returns `false`, including plain-text paste flows.
+- 890a8b5: Ignore formatting newlines around nested inline html imports so Word superscript content does not introduce extra line breaks.
+- c10a734: Sanitize imported HTML by default for editor initialization, `setHtml`, and standard HTML paste flows before parsing it into editor content.
+- c47ad92: Improve HTML style parsing for nested and Office-like inline text styles so partial bold and superscript formatting do not expand to the whole text segment.
+- 56e2d9a: Preserve consecutive spaces when importing styled inline HTML so underlined whitespace does not collapse to a single space.
+
 ## 1.7.45
 
 ### Patch Changes

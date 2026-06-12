@@ -9,7 +9,10 @@ import { DomEditor } from '../../editor/dom-editor'
 import { IDomEditor } from '../../editor/interface'
 import { DOMStaticRange, isDataTransfer } from '../../utils/dom'
 import { HAS_BEFORE_INPUT_SUPPORT } from '../../utils/ua'
-import { EDITOR_TO_CAN_PASTE } from '../../utils/weak-maps'
+import {
+  EDITOR_TO_CAN_PASTE,
+  EDITOR_TO_PENDING_COMPOSITION_END,
+} from '../../utils/weak-maps'
 import { hasEditableTarget } from '../helpers'
 import TextArea from '../TextArea'
 
@@ -30,7 +33,10 @@ function handleBeforeInput(e: Event, textarea: TextArea, editor: IDomEditor) {
   if (readOnly) { return }
   if (!hasEditableTarget(editor, event.target)) { return }
 
-  const { selection } = editor
+  // 一些输入法和浏览器扩展会先改 DOM 选区，再触发 beforeinput
+  textarea.flushDOMSelectionChange?.()
+
+  let { selection } = editor
   const { inputType: type } = event
   const data = event.dataTransfer || event.data || undefined
 
@@ -50,13 +56,22 @@ function handleBeforeInput(e: Event, textarea: TextArea, editor: IDomEditor) {
     const [targetRange] = event.getTargetRanges()
 
     if (targetRange) {
-      const range = DomEditor.toSlateRange(editor, targetRange, {
-        exactMatch: false,
-        suppressThrow: false,
-      })
+      let range: Range | null = null
 
-      if (!selection || !Range.equals(selection, range)) {
+      try {
+        range = DomEditor.toSlateRange(editor, targetRange, {
+          exactMatch: false,
+          suppressThrow: true,
+        })
+      } catch {
+        // Undo/redo or IME transitions can leave beforeinput target ranges
+        // pointing to stale DOM nodes for a short time.
+        range = null
+      }
+
+      if (range && (!selection || !Range.equals(selection, range))) {
         Transforms.select(editor, range)
+        selection = range
       }
     }
   }
@@ -78,6 +93,41 @@ function handleBeforeInput(e: Event, textarea: TextArea, editor: IDomEditor) {
 
       Editor.deleteFragment(editor, { direction })
       return
+    }
+  }
+
+  if (selection == null && type.startsWith('insert')) {
+    const root = DomEditor.findDocumentOrShadowRoot(editor)
+    const domSelection = root.getSelection()
+
+    if (domSelection) {
+      const domRange = DomEditor.toSlateRange(editor, domSelection, {
+        exactMatch: false,
+        suppressThrow: true,
+      })
+
+      if (domRange) {
+        Transforms.select(editor, domRange)
+        selection = domRange
+      }
+    }
+
+    if (selection == null) {
+      try {
+        editor.restoreSelection?.()
+      } catch {
+        // Undo/redo across void blocks can keep a stale cached selection path.
+        // Fall through to the explicit end-of-document fallback below.
+      }
+      selection = editor.selection
+    }
+
+    if (selection == null) {
+      const fallbackPoint = Editor.end(editor, [])
+      const fallbackRange = { anchor: fallbackPoint, focus: fallbackPoint }
+
+      Transforms.select(editor, fallbackRange)
+      selection = fallbackRange
     }
   }
 
@@ -137,17 +187,27 @@ function handleBeforeInput(e: Event, textarea: TextArea, editor: IDomEditor) {
       break
     }
 
-    case 'insertLineBreak':
+    case 'insertLineBreak': {
+      Editor.insertText(editor, '\n')
+      break
+    }
+
     case 'insertParagraph': {
       Editor.insertBreak(editor)
       break
     }
 
     case 'insertFromDrop':
+    case 'insertFromComposition':
     case 'insertFromPaste':
     case 'insertFromYank':
     case 'insertReplacementText':
     case 'insertText': {
+      if (type === 'insertFromComposition') {
+        textarea.isComposing = false
+        EDITOR_TO_PENDING_COMPOSITION_END.set(editor, true)
+      }
+
       if (type === 'insertFromPaste') {
         if (!EDITOR_TO_CAN_PASTE.get(editor)) { break } // 不可默认粘贴
       }

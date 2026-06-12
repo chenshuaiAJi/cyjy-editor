@@ -1,5 +1,191 @@
 # Change Log
 
+## 3.0.2
+
+### Patch Changes
+
+- a341fd2: chore: relax internal peer dependency ranges to reduce forced lockstep upgrades.
+- Updated dependencies [5efc385]
+  - @wangeditor-next/core@1.9.2
+
+## 3.0.1
+
+### Patch Changes
+
+- Updated dependencies [8a8ae86]
+  - @wangeditor-next/core@1.9.1
+
+## 3.0.0
+
+### Patch Changes
+
+- f8d9577: Align Slate to `^0.124.0` across the monorepo to avoid mixed Slate type sources.
+  - upgrade all internal `slate` dependency and peer dependency ranges from `^0.123.0` to `^0.124.0`
+  - remove dual installation of `slate@0.123.x` and `slate@0.124.x` in workspace builds
+  - fix `@wangeditor-next/yjs-for-react` build failures caused by cross-version Slate type incompatibilities
+
+- 0459fb2: Upgrade the Uppy integration to v5 while keeping upload behavior compatible.
+  - bump `@uppy/core` and `@uppy/xhr-upload` in `@wangeditor-next/editor` to `^5.0.0`
+  - extend peer dependency ranges in `core`, `upload-image-module`, and `video-module` to support both Uppy v2 and v5
+  - normalize upload header values to strings for stricter Uppy v5 XHR typings
+  - add a guarded `AbortSignal.any` fallback for environments that do not implement it
+
+- Updated dependencies [f8d9577]
+- Updated dependencies [9a104c7]
+- Updated dependencies [0459fb2]
+- Updated dependencies [4743ff0]
+- Updated dependencies [25e55b4]
+  - @wangeditor-next/core@1.9.0
+
+## 2.0.5
+
+### Patch Changes
+
+- Updated dependencies [ef9d73d]
+  - @wangeditor-next/core@1.8.5
+
+## 2.0.4
+
+### Patch Changes
+
+- Updated dependencies [0b21edf]
+- Updated dependencies [db75eaf]
+- Updated dependencies [69125f8]
+- Updated dependencies [dcf7a98]
+- Updated dependencies [008047e]
+  - @wangeditor-next/core@1.8.4
+
+## 2.0.3
+
+### Patch Changes
+
+- 917fe92: Allow image and video insert/upload menus to stay enabled when the cursor is inside a list item.
+- Updated dependencies [d311c7a]
+- Updated dependencies [539e9f0]
+- Updated dependencies [647b74c]
+- Updated dependencies [6641948]
+- Updated dependencies [b2c0fa7]
+- Updated dependencies [91dd27e]
+- Updated dependencies [e90bd5b]
+  - @wangeditor-next/core@1.8.3
+
+## 2.0.2
+
+### Patch Changes
+
+- Updated dependencies [38532c2]
+  - @wangeditor-next/core@1.8.2
+
+## 2.0.1
+
+### Patch Changes
+
+- Updated dependencies [148253e]
+- Updated dependencies [0c091d0]
+  - @wangeditor-next/core@1.8.1
+
+## 2.0.0
+
+### Minor Changes
+
+- fe22817: feat(upload): add upload adapter layer with default uppy implementation
+
+### Patch Changes
+
+- d51d961: feat(csp): add class-based editor style output mode with strict policy controls
+
+  Add a new `textStyleMode` editor config (`inline` by default, `class` optional).
+
+  When `textStyleMode: 'class'`, style export/import/render paths for:
+  - `color`, `bgColor`, `fontSize`, `fontFamily`
+  - `textAlign`, `lineHeight`, `indent`
+
+  now use deterministic class names with `data-w-e-*` attributes instead of inline styles.
+
+  This preserves existing behavior by default while enabling stricter CSP deployments that avoid inline text style attributes.
+
+  Add class-mode unknown-token controls:
+  - `classStylePolicy`: `preserve-data` (default), `fallback-inline`, `strict`
+  - `onClassStyleUnsupported`: callback for unsupported token reporting
+  - `styleClassTokens`: register extra allowed tokens for class output
+
+  Unknown class token behavior is now policy-driven instead of always generating classes. This prevents silent visual regressions and improves round-trip reliability.
+
+  Also add CSP class-mode export support for:
+  - basic `image` elem html export/parse
+  - `video-module` video/iframe alignment and size export/parse
+  - `list-module` list marker color export
+  - `table-module` table/row/cell export/parse fallback (class/data attrs)
+  - `plugin-float-image` export/parse
+
+  These paths now avoid inline `style` attributes when `textStyleMode: 'class'` is enabled.
+
+  For `list-module`, marker color class names are now `w-e-list-color-*` (instead of reusing basic module `w-e-color-*`) to remove implicit cross-package CSS coupling.
+
+  For `table-module`, unsupported class-mode `border-style` values now follow `classStylePolicy`:
+  - `preserve-data`: keep `data-w-e-border-line` only
+  - `fallback-inline`: keep data and use inline `border-style`
+  - `strict`: throw error
+
+- Updated dependencies [fe22817]
+- Updated dependencies [d51d961]
+  - @wangeditor-next/core@1.8.0
+
+## 1.3.57
+
+### Patch Changes
+
+- Updated dependencies [b260572]
+  - @wangeditor-next/core@1.7.51
+
+## 1.3.56
+
+### Patch Changes
+
+- Updated dependencies [2da282d]
+- Updated dependencies [2c68112]
+  - @wangeditor-next/core@1.7.50
+
+## 1.3.55
+
+### Patch Changes
+
+- Updated dependencies [00d1de8]
+  - @wangeditor-next/core@1.7.49
+
+## 1.3.54
+
+### Patch Changes
+
+- Updated dependencies [2d02268]
+  - @wangeditor-next/core@1.7.48
+
+## 1.3.53
+
+### Patch Changes
+
+- 5150062: Upgrade the Slate dependency line to `slate@^0.123.0` and `slate-history@^0.115.0`, and realign wangEditor's DOM bridge, selection sync, and composition handling with current Slate behavior.
+
+  This release also fixes regressions around full-document delete normalization, selectionchange handling in `Document | ShadowRoot`, and related list / paste / image / code-block flows covered by the workspace E2E suite.
+
+- Updated dependencies [f52436a]
+- Updated dependencies [f6836b6]
+- Updated dependencies [015c192]
+- Updated dependencies [5150062]
+  - @wangeditor-next/core@1.7.47
+
+## 1.3.52
+
+### Patch Changes
+
+- Updated dependencies [943a933]
+- Updated dependencies [1a859f0]
+- Updated dependencies [890a8b5]
+- Updated dependencies [c10a734]
+- Updated dependencies [c47ad92]
+- Updated dependencies [56e2d9a]
+  - @wangeditor-next/core@1.7.46
+
 ## 1.3.51
 
 ### Patch Changes

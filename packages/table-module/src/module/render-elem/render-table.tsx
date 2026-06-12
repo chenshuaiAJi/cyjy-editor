@@ -67,8 +67,10 @@ function renderTable(elemNode: SlateElement, children: VNode[] | null, editor: I
   // 宽度和高度
   const {
     width: tableWidth = 'auto',
+    caption,
     height,
     columnWidths = [],
+    rowHeights = [],
     scrollWidth = 0,
     isHoverCellBorder,
     resizingIndex,
@@ -144,6 +146,11 @@ function renderTable(elemNode: SlateElement, children: VNode[] | null, editor: I
           ),
         }}
       >
+        {
+          caption ? (
+            <caption contentEditable={false}>{caption}</caption>
+          ) : null
+        }
         <colgroup contentEditable={false}>
           {
             /**
@@ -197,7 +204,10 @@ function renderTable(elemNode: SlateElement, children: VNode[] | null, editor: I
       <div className="row-resizer" contentEditable={false}>
         {(elemNode as TableElement).children.map((rowNode, index) => {
           const totalTableWidth = columnWidths.reduce((a, b) => a + b, 0)
-          const rowHeight = (rowNode as TableRowElement).height || 30
+          const rowHeightFromObserver = rowHeights[index]
+          const rowHeight = Number.isFinite(rowHeightFromObserver) && rowHeightFromObserver > 0
+            ? rowHeightFromObserver
+            : (rowNode as TableRowElement).height || 30
 
           return (
             <div className="row-resizer-item" style={{ minHeight: `${rowHeight}px` }}>

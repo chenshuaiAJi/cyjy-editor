@@ -3,15 +3,20 @@ name: Unit Test
 on:
   push:
     branches:
-      - 'main'
       - 'master'
       - 'dev'
-      - '^(dev-.*|dev/.*)$'
-      - '^(feature-.*|feature/.*)$'
-      - '^(fix-.*|fix/.*)$'
-      - '^(hotfix-.*|hotfix/.*)$'
-      - '^(refactor-.*|refactor/.*)$'
-      - '^(test-.*|test/.*)$'
+      - 'dev-*'
+      - 'dev/**'
+      - 'feature-*'
+      - 'feature/**'
+      - 'fix-*'
+      - 'fix/**'
+      - 'hotfix-*'
+      - 'hotfix/**'
+      - 'refactor-*'
+      - 'refactor/**'
+      - 'test-*'
+      - 'test/**'
     paths:
       - '.github/workflows/*'
       - 'packages/**'
@@ -23,9 +28,17 @@ on:
       - master
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
+    name: Unit Test (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ['20.19.0', '22.13.0']
 
     steps:
       # 检出代码库
@@ -34,39 +47,49 @@ jobs:
         with:
           fetch-depth: 0
 
-      # 设置 Node.js 版本
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 18.x
-          registry-url: https://registry.npmjs.com
-
       # 安装 pnpm
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
         with:
           version: 9.15.0
 
-      # 加载依赖缓存
-      - name: Load cached dependencies
-        uses: actions/cache@v5.0.1
-        id: cache
+      # 设置 Node.js 版本并缓存 pnpm store
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
         with:
-          path: |
-            **/node_modules
-            **/.turbo
-            /home/runner/.cache/Cypress
-            ~/.pnpm-store
-          key: ${{ runner.os }}-node-18-${{ hashFiles('**/pnpm-lock.yaml') }}
+          node-version: ${{ matrix.node-version }}
+          registry-url: https://registry.npmjs.com
+          cache: pnpm
 
       # 安装依赖
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
+
+      # Full lint gate
+      - name: Lint
+        run: pnpm lint
 
       # 构建项目
       - name: Build packages
         run: pnpm build
 
-      # 运行单元测试
+      - name: Check editor package size budget
+        run: pnpm run check:editor:pack-size
+
+      # 在 master 上顺带产出覆盖率，避免额外 workflow 重复跑一轮
+      - name: Unit test with coverage
+        if: matrix.node-version == '22.13.0' && (github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref_name == 'master'))
+        run: pnpm run test-c
+
       - name: Unit test
+        if: matrix.node-version != '22.13.0' || (github.event_name != 'workflow_dispatch' && !(github.event_name == 'push' && github.ref_name == 'master'))
         run: pnpm run test
+
+      - name: Upload coverage reports to Codecov
+        if: matrix.node-version == '22.13.0' && (github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref_name == 'master'))
+        uses: codecov/codecov-action@v7.0.0
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage/lcov.info
+          disable_search: true
+          verbose: true

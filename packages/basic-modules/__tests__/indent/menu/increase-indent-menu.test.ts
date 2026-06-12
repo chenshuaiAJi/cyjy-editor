@@ -38,12 +38,9 @@ describe('increase indent menu', () => {
     expect(menu.isDisabled(editor)).toBeTruthy() // 除了 p header 之外，其他 type 不可用 indent
   })
 
-  it('is active', () => {
-    expect(menu.isActive(editor)).toBeFalsy()
-  })
-
   it('exec and getValue', () => {
     editor.select(startLocation)
+    expect(menu.isActive(editor)).toBeFalsy()
     expect(menu.getValue(editor)).toBe('')
 
     menu.exec(editor, '')
@@ -59,5 +56,24 @@ describe('increase indent menu', () => {
     menu.exec(editor, '')
 
     expect(menu.getValue(editor)).toBe('36px')
+  })
+
+  it('exec should only apply indent to paragraph/header nodes', () => {
+    editor = createEditor({
+      content: [
+        { type: 'paragraph', children: [{ text: 'hello' }] },
+        {
+          type: 'blockquote',
+          children: [{ text: 'quote' }],
+        },
+      ] as any,
+    })
+
+    editor.select([])
+    menu.exec(editor, '')
+
+    expect((editor.children[0] as any).indent).toBe('2em')
+    expect((editor.children[1] as any).type).toBe('blockquote')
+    expect((editor.children[1] as any).indent).toBeUndefined()
   })
 })

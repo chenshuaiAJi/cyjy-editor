@@ -29,13 +29,14 @@ about: 请大家一定要按照该模板填写，以方便我们更快复现，�
 ## 在线 demo
 
 <!-- 如官网demo无法复现可使用线上沙盒复现 （推荐以下网站,wangeditor-next 现在统一使用的 stackblitz ），帮助我们最低成本复现 bug -->
+<!-- 仓库内维护的 demo 源码以 apps/* 为准，StackBlitz 主要用于在线复现 -->
 <!-- 进入以下对应链接并fork修改，将修改后可复现的沙盒链接粘贴在此处 -->
 
 <!--
 | HTML | [在 StackBlitz 上复现](https://stackblitz.com/edit/stackblitz-starters-xxqmwl) |
 | Vue 2 | [在 StackBlitz 上复现](https://stackblitz.com/edit/vue2-vite-starter-hkmsif) |
-| Vue 3 | [在 StackBlitz 上复现](https://stackblitz.com/edit/vue3-wangeditor-demo-8emmc7) |
-| React | [在 StackBlitz 上复现](https://stackblitz.com/edit/react-4osjqn) |
+| Vue 3 | [在 StackBlitz 上复现](https://stackblitz.com/fork/github/wangeditor-next/demo-templates/tree/main/demo-vue3?title=wangEditor%20Vue%203%20Demo&startScript=dev) |
+| React | [在 StackBlitz 上复现](https://stackblitz.com/fork/github/wangeditor-next/demo-templates/tree/main/demo-react?title=wangEditor%20React%20Demo&startScript=dev) |
  -->
 
 <!-- 粘贴替换为你 fork 修改后的沙盒链接 -->

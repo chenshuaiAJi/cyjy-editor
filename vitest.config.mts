@@ -7,6 +7,29 @@ const modulePaths = [
   '@wangeditor-next/basic-modules',
   '@wangeditor-next/code-highlight',
   '@wangeditor-next/editor',
+  '@wangeditor-next/editor-for-react',
+  '@wangeditor-next/list-module',
+  '@wangeditor-next/plugin-float-image',
+  '@wangeditor-next/plugin-attachment',
+  '@wangeditor-next/plugin-ctrl-enter',
+  '@wangeditor-next/plugin-formula',
+  '@wangeditor-next/plugin-link-card',
+  '@wangeditor-next/plugin-markdown',
+  '@wangeditor-next/plugin-mention',
+  '@wangeditor-next/table-module',
+  '@wangeditor-next/upload-image-module',
+  '@wangeditor-next/video-module',
+  '@wangeditor-next/yjs',
+  '@wangeditor-next/yjs-for-react',
+  '@wangeditor-next/yjs-for-vue',
+]
+
+// 覆盖率只统计已纳入当前单测范围的内置模块
+const coverageModulePaths = [
+  '@wangeditor-next/core',
+  '@wangeditor-next/basic-modules',
+  '@wangeditor-next/code-highlight',
+  '@wangeditor-next/editor',
   '@wangeditor-next/list-module',
   '@wangeditor-next/table-module',
   '@wangeditor-next/upload-image-module',
@@ -20,33 +43,54 @@ export default defineConfig({
     globals: true, // 如果需要全局的 vi 函数
     setupFiles: path.resolve(__dirname, 'tests/setup/index.ts'), // 对应 setup 文件
     coverage: {
-      reporter: ['text', 'json', 'html'], // 覆盖率报告格式
+      reporter: ['text', 'json', 'html', 'lcov'], // 覆盖率报告格式
       include: [
-        `packages/{${modulePaths.map(p => p.split('/')[1]).join(',')}}/src/**/*.{ts,tsx}`,
+        `packages/{${coverageModulePaths.map(p => p.split('/')[1]).join(',')}}/src/**/*.{ts,tsx}`,
       ],
       exclude: [
         'dist',
         'locale',
+        '**/*.d.ts',
         'index.ts',
         'config.ts',
         'browser-polyfill.ts',
         'node-polyfill.ts',
-       '**/locale/**/*',
-       '**/index.ts',
+        '**/custom-types.ts',
+        'packages/core/src/editor/interface.ts',
+        'packages/core/src/menus/interface.ts',
+        'packages/core/src/upload/interface.ts',
+        'packages/table-module/src/utils/types.ts',
+        '**/locale/**/*',
+        '**/index.ts',
       ], // 忽略覆盖率计算的文件
+      thresholds: {
+        lines: 70,
+        functions: 70,
+        branches: 60,
+        statements: 70,
+      },
     },
   },
   resolve: {
-    alias: {
+    alias: [
       // 对于样式文件 mock
-      '^.+\\.(css|less)$': path.resolve(__dirname, 'tests/utils/stylesMock.js'),
-      ...Object.fromEntries(
-        modulePaths.map(p => [
-          `${p}/dist/css/style.css`,
-          path.resolve(__dirname, 'tests/utils/stylesMock.js')
-        ])
-      ),
-    },
+      {
+        find: /^.+\.(css|less)$/,
+        replacement: path.resolve(__dirname, 'tests/utils/stylesMock.js'),
+      },
+      ...modulePaths.map(p => ({
+        find: new RegExp(`^${p}$`),
+        replacement: path.resolve(__dirname, `packages/${p.split('/')[1]}/src/index.ts`),
+      })),
+      ...modulePaths.map(p => ({
+        find: `${p}/dist/css/style.css`,
+        replacement: path.resolve(__dirname, 'tests/utils/stylesMock.js'),
+      })),
+      {
+        find: /^@wangeditor-next\/core\/upload$/,
+        replacement: path.resolve(__dirname, 'packages/core/src/upload/index.ts'),
+      },
+    ],
   },
   esbuild: {
     // 如果需要特定的转译处理

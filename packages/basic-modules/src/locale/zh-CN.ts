@@ -16,6 +16,9 @@ export default {
   },
   codeBlock: {
     title: '代码块',
+    copy: '复制',
+    copied: '已复制',
+    copyFailed: '复制失败',
   },
   color: {
     color: '文字颜色',
@@ -50,6 +53,7 @@ export default {
     delete: '删除图片',
     edit: '编辑图片',
     editSize: '修改尺寸',
+    preview: '预览图片',
     viewLink: '查看链接',
     src: '图片地址',
     desc: '图片描述',

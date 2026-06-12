@@ -9,17 +9,14 @@ import NumberedListMenu from '../../src/module/menu/NumberedListMenu'
 describe('list NumberedListMenu', () => {
   const menu = new NumberedListMenu()
 
-  it('getValue', () => {
-    const editor = createEditor()
-
-    expect(menu.getValue(editor)).toBe('')
-  })
-
   it('isActive', () => {
     const editor = createEditor({
       content: [
         { type: 'paragraph', children: [{ text: 'hello' }] },
         { type: 'list-item', ordered: true, children: [{ text: 'a' }] },
+        {
+          type: 'list-item', ordered: true, orderType: 'a', children: [{ text: 'b' }],
+        },
       ],
     })
 
@@ -31,6 +28,9 @@ describe('list NumberedListMenu', () => {
 
     editor.select({ path: [1, 0], offset: 0 }) // 选中 li
     expect(menu.isActive(editor)).toBeTruthy()
+
+    editor.select({ path: [2, 0], offset: 0 }) // 选中 lower-alpha li
+    expect(menu.isActive(editor)).toBeFalsy()
   })
 
   it('isDisabled', () => {
@@ -77,6 +77,7 @@ describe('list NumberedListMenu', () => {
       content: [pElem],
     })
 
+    expect(menu.getValue(editor)).toBe('')
     editor.select({ path: [0, 0], offset: 0 }) // 选中 p
 
     menu.exec(editor, '') // p 转 li
@@ -90,5 +91,24 @@ describe('list NumberedListMenu', () => {
 
     menu.exec(editor, '') // li 转 p
     expect(editor.children).toEqual([pElem])
+  })
+
+  it('exec should switch lower-alpha to numbered', () => {
+    const editor = createEditor({
+      content: [{
+        type: 'list-item', ordered: true, orderType: 'a', children: [{ text: 'hello' }],
+      }],
+    })
+
+    editor.select({ path: [0, 0], offset: 0 })
+
+    menu.exec(editor, '')
+    expect(editor.children).toEqual([
+      {
+        type: 'list-item',
+        ordered: true,
+        children: [{ text: 'hello' }],
+      },
+    ])
   })
 })

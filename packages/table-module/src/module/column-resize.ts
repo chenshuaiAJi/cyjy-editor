@@ -1,8 +1,12 @@
 import { DomEditor, IDomEditor, isHTMLElememt } from '@wangeditor-next/core'
 import throttle from 'lodash.throttle'
-import { Editor, Element as SlateElement, Transforms } from 'slate'
+import {
+  Editor,
+  Element as SlateElement,
+  Path,
+  Transforms,
+} from 'slate'
 
-import { isOfType } from '../utils'
 import $ from '../utils/dom'
 import { TableElement } from './custom-types'
 
@@ -41,18 +45,31 @@ export function getColumnWidthRatios(columnWidths: number[]) {
  */
 let resizeObserver: ResizeObserver | null = null
 
+function getTableRowHeights(table: Element): number[] {
+  const tableRows = Array.from(table.querySelectorAll('tr'))
+
+  return tableRows.map(row => {
+    const rowRect = row.getBoundingClientRect()
+
+    return Math.max(1, Math.round(rowRect.height * 100) / 100)
+  })
+}
+
 export function observerTableResize(editor: IDomEditor, elm: Node | undefined) {
   if (isHTMLElememt(elm)) {
     const table = elm.querySelector('table')
 
     if (table) {
       resizeObserver = new ResizeObserver(([{ contentRect }]) => {
+        const rowHeights = getTableRowHeights(table)
+
         // 当非拖动引起的宽度变化，需要调整 columnWidths
         Transforms.setNodes(
           editor,
           {
             scrollWidth: contentRect.width,
             height: contentRect.height,
+            rowHeights,
           } as TableElement,
           { mode: 'highest' },
         )
@@ -75,6 +92,7 @@ let isSelectionOperation = false
 let isMouseDownForResize = false
 let clientXWhenMouseDown = 0
 let editorWhenMouseDown: IDomEditor | null = null
+let tablePathWhenMouseDown: Path | null = null
 const $window = $(window)
 
 function onMouseDown(event: Event) {
@@ -85,7 +103,7 @@ function onMouseDown(event: Event) {
   if (elem.closest('[data-block-type="table-cell"]')) {
     isSelectionOperation = true
   } else if (elem.tagName === 'DIV' && elem.closest('.column-resizer-item')) {
-    if (editorWhenMouseDown === null) { return }
+    if (editorWhenMouseDown === null || tablePathWhenMouseDown === null) { return }
 
     // 记录必要信息
     isMouseDownForResize = true
@@ -170,56 +188,114 @@ function calculateAdjacentWidthsByBorderPosition(
 const onMouseMove = throttle((event: Event) => {
   if (!isMouseDownForResize) { return }
   if (editorWhenMouseDown === null) { return }
+  if (tablePathWhenMouseDown === null) { return }
   event.preventDefault()
 
   const { clientX } = event as MouseEvent
   const widthChange = clientX - clientXWhenMouseDown // 计算宽度变化
 
-  const [[elemNode]] = Editor.nodes(editorWhenMouseDown, {
-    match: isOfType(editorWhenMouseDown, 'table'),
-  })
-  const { columnWidths = [], resizingIndex = -1 } = elemNode as TableElement
+  let tableNode: TableElement | null = null
+  let tablePath: Path | null = null
+
+  try {
+    const [node, path] = Editor.node(editorWhenMouseDown, tablePathWhenMouseDown)
+
+    if (Editor.isEditor(node) || !SlateElement.isElement(node) || node.type !== 'table') {
+      return
+    }
+
+    tableNode = node as TableElement
+    tablePath = path
+  } catch {
+    return
+  }
+
+  if (tableNode === null || tablePath === null) { return }
+
+  const {
+    width: tableWidth = 'auto',
+    columnWidths = [],
+    resizingIndex = -1,
+    scrollWidth = 0,
+  } = tableNode
+
+  if (columnWidths.length === 0 || resizingIndex < 0 || resizingIndex >= columnWidths.length) {
+    return
+  }
 
   let adjustColumnWidths: number[]
-  const tableNode = DomEditor.getSelectedNodeByType(editorWhenMouseDown, 'table') as TableElement
-  const tableDom = DomEditor.toDOMNode(editorWhenMouseDown, tableNode)
+  let baseColumnWidths = columnWidths
+  let tableDom: HTMLElement | null = null
+
+  try {
+    tableDom = DomEditor.toDOMNode(editorWhenMouseDown, tableNode)
+  } catch {
+    tableDom = null
+  }
+
+  if (tableWidth === '100%' && scrollWidth > 0) {
+    const totalColumnWidth = columnWidths.reduce((sum, width) => sum + width, 0)
+
+    if (totalColumnWidth > 0) {
+      baseColumnWidths = getColumnWidthRatios(columnWidths).map(ratio => ratio * scrollWidth)
+    }
+  }
 
   // 所有列都采用相同的拖拽逻辑：当前列宽度增加，其他列不变
-  const tableElement = tableDom.querySelector('.table')
+  const tableElement = tableDom?.querySelector('.table')
 
   if (tableElement) {
     const tableRect = tableElement.getBoundingClientRect()
     const mousePositionInTable = clientX - tableRect.left // 鼠标相对于表格左边的位置
 
     // 计算边界的新位置
-    const cumulativeWidths = getCumulativeWidths(columnWidths)
+    const cumulativeWidths = getCumulativeWidths(baseColumnWidths)
     const newBorderPosition = mousePositionInTable
 
     // 根据新的边界位置计算列宽度
-    adjustColumnWidths = calculateAdjacentWidthsByBorderPosition(columnWidths, resizingIndex, newBorderPosition, cumulativeWidths, editorWhenMouseDown)
+    adjustColumnWidths = calculateAdjacentWidthsByBorderPosition(
+      baseColumnWidths,
+      resizingIndex,
+      newBorderPosition,
+      cumulativeWidths,
+      editorWhenMouseDown,
+    )
   } else {
     // 如果找不到表格元素，则使用简单的宽度变化逻辑
-    adjustColumnWidths = calculateAdjacentWidths(columnWidths, resizingIndex, widthChange, editorWhenMouseDown)
+    adjustColumnWidths = calculateAdjacentWidths(baseColumnWidths, resizingIndex, widthChange, editorWhenMouseDown)
   }
 
-  // 移除容器宽度限制，允许表格宽度超过编辑器宽度，显示横向滚动条
+  const nextTableProps: Partial<TableElement> = {
+    columnWidths: adjustColumnWidths,
+  }
+
+  // 用户在自适应表格中手动拖拽列宽时，切回显式列宽模式，保证拖拽边界与鼠标位置一致。
+  if (tableWidth === '100%') {
+    nextTableProps.width = 'auto'
+  }
 
   // 应用新的列宽度
-  Transforms.setNodes(editorWhenMouseDown, { columnWidths: adjustColumnWidths } as TableElement, {
-    mode: 'highest',
+  Transforms.setNodes(editorWhenMouseDown, nextTableProps as TableElement, {
+    at: tablePath,
   })
 }, 100)
 
 function onMouseUp(_event: Event) {
+  // Flush any throttled trailing mousemove before clearing drag state.
+  // Fast drags can queue the last movement; without flush the final width change is lost.
+  if (isMouseDownForResize) {
+    onMouseMove.flush()
+  }
+  onMouseMove.cancel()
+
   isSelectionOperation = false
   isMouseDownForResize = false
   editorWhenMouseDown = null
+  tablePathWhenMouseDown = null
   document.body.style.cursor = ''
 
   // 解绑事件
-  // eslint-disable-next-line @typescript-eslint/no-use-before-define
   $window.off('mousemove', onMouseMove)
-  // eslint-disable-next-line @typescript-eslint/no-use-before-define
   $window.off('mouseup', onMouseUp)
 }
 /**
@@ -313,7 +389,13 @@ export function handleCellBorderHighlight(editor: IDomEditor, e: MouseEvent) {
   }
 }
 
-export function handleCellBorderMouseDown(editor: IDomEditor, _elemNode: SlateElement) {
+export function handleCellBorderMouseDown(editor: IDomEditor, elemNode: SlateElement) {
   if (isMouseDownForResize) { return } // 此时正在修改列宽
   editorWhenMouseDown = editor
+
+  try {
+    tablePathWhenMouseDown = DomEditor.findPath(editor, elemNode)
+  } catch {
+    tablePathWhenMouseDown = null
+  }
 }

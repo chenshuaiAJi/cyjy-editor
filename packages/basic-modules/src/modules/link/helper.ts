@@ -8,6 +8,7 @@ import { Editor, Range, Transforms } from 'slate'
 
 import { replaceSymbols } from '../../utils/util'
 import { LinkElement } from './custom-types'
+import { normalizeLinkUrl } from './url'
 
 /**
  * 校验 link
@@ -22,10 +23,11 @@ async function check(
   text: string,
   url: string,
 ): Promise<boolean> {
+  const normalizedUrl = normalizeLinkUrl(url)
   const { checkLink } = editor.getMenuConfig(menuKey)
 
   if (checkLink) {
-    const res = await checkLink(text, url)
+    const res = await checkLink(text, normalizedUrl)
 
     if (typeof res === 'string') {
       // 检验未通过，提示信息
@@ -49,14 +51,15 @@ async function check(
  * @returns parsedUrl
  */
 async function parse(menuKey: string, editor: IDomEditor, url: string): Promise<string> {
+  const normalizedUrl = normalizeLinkUrl(url)
   const { parseLinkUrl } = editor.getMenuConfig(menuKey)
 
   if (parseLinkUrl) {
-    const newUrl = await parseLinkUrl(url)
+    const newUrl = await parseLinkUrl(normalizedUrl)
 
-    return newUrl
+    return normalizeLinkUrl(newUrl)
   }
-  return url
+  return normalizedUrl
 }
 
 export function isMenuDisabled(editor: IDomEditor): boolean {
@@ -97,7 +100,6 @@ function genLinkNode(url: string, text?: string): LinkElement {
  * @param url url
  */
 export async function insertLink(editor: IDomEditor, text: string, url: string) {
-  if (!url) { return }
   if (!text) { text = url } // 无 text 则用 url 代替
 
   // 还原选区
@@ -112,6 +114,8 @@ export async function insertLink(editor: IDomEditor, text: string, url: string) 
 
   // 转换 url
   const parsedUrl = await parse('insertLink', editor, url)
+
+  if (!parsedUrl) { return }
 
   // 判断选区是否折叠
   const { selection } = editor
@@ -181,8 +185,6 @@ export async function insertLink(editor: IDomEditor, text: string, url: string) 
  * @param url link url
  */
 export async function updateLink(editor: IDomEditor, text: string, url: string) {
-  if (!url) { return }
-
   // 校验
   const checkRes = await check('editLink', editor, text, url)
 
@@ -190,6 +192,8 @@ export async function updateLink(editor: IDomEditor, text: string, url: string) 
 
   // 转换 url
   const parsedUrl = await parse('editLink', editor, url)
+
+  if (!parsedUrl) { return }
 
   // 修改链接
   const props: Partial<LinkElement> = { url: replaceSymbols(parsedUrl) }

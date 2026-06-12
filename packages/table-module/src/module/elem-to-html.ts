@@ -3,25 +3,97 @@
  * @author wangfupeng
  */
 
+import { getTextStyleMode, IDomEditor } from '@wangeditor-next/core'
 import { Element } from 'slate'
 
 import { TableCellElement, TableElement, TableRowElement } from './custom-types'
 
-function tableToHtml(elemNode: Element, childrenHtml: string): string {
-  const { width = 'auto', columnWidths, height = 'auto' } = elemNode as TableElement
+type TableWidthExportMode = 'adaptive' | 'explicit'
+
+function escapeHtml(raw: string): string {
+  return raw
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+function getTableWidthExportMode(editor?: IDomEditor): TableWidthExportMode {
+  if (!editor || typeof editor.getMenuConfig !== 'function') {
+    return 'explicit'
+  }
+
+  const menuConf = editor.getMenuConfig('insertTable') as { widthExportMode?: TableWidthExportMode }
+
+  return menuConf?.widthExportMode === 'explicit' ? 'explicit' : 'adaptive'
+}
+
+function getExportTableWidth(tableNode: TableElement, editor?: IDomEditor): string {
+  const { width = 'auto', columnWidths = [] } = tableNode
+
+  if (width && width !== 'auto') {
+    return width
+  }
+
+  const widthExportMode = getTableWidthExportMode(editor)
+
+  // In adaptive mode, keep imported or generated auto-width tables as auto
+  // and only persist explicit fixed widths when width is not auto.
+  if (widthExportMode === 'adaptive') {
+    return 'auto'
+  }
+
+  const totalWidth = columnWidths.reduce((sum, columnWidth) => {
+    if (!Number.isFinite(columnWidth)) { return sum }
+    if (columnWidth <= 0) { return sum }
+    return sum + columnWidth
+  }, 0)
+
+  if (totalWidth > 0) {
+    return `${totalWidth}px`
+  }
+
+  return 'auto'
+}
+
+function tableToHtml(elemNode: Element, childrenHtml: string, editor?: IDomEditor): string {
+  const tableNode = elemNode as TableElement
+  const { columnWidths, caption, height = 'auto' } = tableNode
   const cols = columnWidths
     ?.map(colWidth => {
       return `<col width=${colWidth}></col>`
     })
     .join('')
 
+  const captionStr = caption ? `<caption>${escapeHtml(caption)}</caption>` : ''
   const colgroupStr = cols ? `<colgroup contentEditable="false">${cols}</colgroup>` : ''
+  const exportedWidth = getExportTableWidth(tableNode, editor)
+  const textStyleMode = getTextStyleMode(editor)
 
-  return `<table style="width: ${width};table-layout: fixed;height:${height}">${colgroupStr}<tbody>${childrenHtml}</tbody></table>`
+  if (textStyleMode === 'class') {
+    const widthAttr = exportedWidth ? ` width="${exportedWidth}"` : ''
+    const heightValue = String(height || '').trim()
+    const heightAttr = heightValue && heightValue !== 'auto' ? ` height="${heightValue}"` : ''
+    const heightDataAttr = heightValue ? ` data-w-e-table-height="${heightValue}"` : ''
+
+    return `<table class="w-e-table-layout-fixed"${widthAttr}${heightAttr}${heightDataAttr}>${captionStr}${colgroupStr}<tbody>${childrenHtml}</tbody></table>`
+  }
+
+  return `<table style="width: ${exportedWidth};table-layout: fixed;height:${height}">${captionStr}${colgroupStr}<tbody>${childrenHtml}</tbody></table>`
 }
 
-function tableRowToHtml(elem: Element, childrenHtml: string): string {
+function tableRowToHtml(elem: Element, childrenHtml: string, editor?: IDomEditor): string {
   const { height } = elem as TableRowElement
+  const textStyleMode = getTextStyleMode(editor)
+
+  if (textStyleMode === 'class') {
+    if (height) {
+      return `<tr height="${height}" data-w-e-row-height="${height}px">${childrenHtml}</tr>`
+    }
+    return `<tr>${childrenHtml}</tr>`
+  }
+
   const heightStyle = height ? ` style="height: ${height}px"` : ''
 
   return `<tr${heightStyle}>${childrenHtml}</tr>`

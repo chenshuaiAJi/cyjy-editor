@@ -3,16 +3,16 @@
  * @author wangfupeng
  */
 
-import { ImageElement } from 'packages/basic-modules/src/modules/image/custom-types'
-import { VideoElement } from 'packages/video-module/src/module/custom-types'
-import {
+import type { ImageElement } from 'packages/basic-modules/src/modules/image/custom-types'
+import type { VideoElement } from 'packages/video-module/src/module/custom-types'
+import type {
   Descendant, Node, NodeEntry, Range,
 } from 'slate'
 
-import { IDomEditor } from '../editor/interface'
-import { IMenuGroup } from '../menus/interface'
-import { IUploadConfig } from '../upload'
-import { DOMElement } from '../utils/dom'
+import type { IDomEditor } from '../editor/interface'
+import type { IMenuGroup } from '../menus/interface'
+import type { IUploadConfig } from '../upload/interface'
+import type { DOMElement } from '../utils/dom'
 
 interface IHoverbarConf {
   // key 即 element type
@@ -23,6 +23,25 @@ interface IHoverbarConf {
 }
 
 export type AlertType = 'success' | 'info' | 'warning' | 'error'
+export type TextStyleMode = 'inline' | 'class'
+export type ClassStylePolicy = 'preserve-data' | 'fallback-inline' | 'strict'
+export type TableWidthExportMode = 'adaptive' | 'explicit'
+export type StyleClassTokenType =
+  | 'color'
+  | 'bgColor'
+  | 'fontSize'
+  | 'fontFamily'
+  | 'textAlign'
+  | 'lineHeight'
+  | 'indent'
+
+export interface IClassStyleUnsupportedPayload {
+  type: string
+  value: string
+  scene: 'render' | 'toHtml'
+  fallback: 'preserve-data' | 'inline' | 'throw'
+  message: string
+}
 
 /**
  * EditorEvents 包含所有编辑器的生命周期事件。
@@ -98,12 +117,18 @@ interface IEmotionConfig {
 
 interface IInsertTableConfig {
   minWidth: number;
+  minRowHeight: number;
   tableHeader: {
     selected: boolean;
   };
   tableFullWidth: {
     selected: boolean;
-  }
+  };
+  widthExportMode: TableWidthExportMode;
+}
+
+interface IInsertTableColConfig {
+  insertPosition: 'before' | 'after';
 }
 
 interface ILinkConfig {
@@ -126,6 +151,10 @@ export type IUploadImageConfig = IUploadConfig & {
 
 interface ICodeLangConfig {
   codeLangs: { text: string; value: string; selected?: boolean }[];
+}
+
+interface ICodeBlockConfig {
+  showCopyButton?: boolean;
 }
 
 export interface IMenuConfig {
@@ -151,6 +180,7 @@ export interface IMenuConfig {
   insertImage: IInsertImageConfig;
   deleteImage: ISingleMenuConfig;
   editImage: IEditImageConfig;
+  previewImage: ISingleMenuConfig;
   viewImageLink: ISingleMenuConfig;
   imageWidth30: ISingleMenuConfig;
   imageWidth50: ISingleMenuConfig;
@@ -162,7 +192,7 @@ export interface IMenuConfig {
   editLink: ILinkConfig;
   unLink: ISingleMenuConfig;
   viewLink: ISingleMenuConfig;
-  codeBlock: ISingleMenuConfig;
+  codeBlock: ICodeBlockConfig;
   blockquote: ISingleMenuConfig;
   headerSelect: ISingleMenuConfig;
   header1: ISingleMenuConfig;
@@ -179,11 +209,12 @@ export interface IMenuConfig {
   enter: ISingleMenuConfig;
   bulletedList: ISingleMenuConfig;
   numberedList: ISingleMenuConfig;
+  numberedListLowerAlpha: ISingleMenuConfig;
   insertTable: ISingleMenuConfig;
   deleteTable: ISingleMenuConfig;
   insertTableRow: IInsertTableConfig;
   deleteTableRow: ISingleMenuConfig;
-  insertTableCol: ISingleMenuConfig;
+  insertTableCol: IInsertTableColConfig;
   deleteTableCol: ISingleMenuConfig;
   tableHeader: ISingleMenuConfig;
   tableFullWidth: ISingleMenuConfig;
@@ -197,6 +228,10 @@ export interface IMenuConfig {
   editVideoSrc: ISingleMenuConfig;
   uploadImage: IUploadImageConfig;
   codeSelectLang: ICodeLangConfig;
+}
+
+export type IMenuConfigUpdate = {
+  [K in keyof IMenuConfig]?: Partial<IMenuConfig[K]>
 }
 
 /**
@@ -222,6 +257,33 @@ export interface IEditorConfig {
    * 自定义复制。拦截 event 添加或修改 clipboardData 数据
    */
   customCopy?: (editor: IDomEditor, e: ClipboardEvent) => void
+  /**
+   * 自定义 HTML 清洗逻辑。在 setHtml / 初始化 html / 默认粘贴 HTML 前执行。
+   * 返回值会继续进入编辑器的 HTML 解析流程。
+   */
+  sanitizeHtml?: (html: string) => string
+  /**
+   * 文本/段落样式（color/bgColor/fontSize/fontFamily/textAlign/lineHeight/indent）导出模式。
+   * - `inline`: 输出 style 属性（默认）
+   * - `class`: 输出 class + data-w-e-*，便于严格 CSP 场景使用
+   */
+  textStyleMode?: TextStyleMode
+  /**
+   * class 模式遇到“不在受支持样式 token 集合中”的值时的处理策略。
+   * - `preserve-data`（默认）：保留 data-w-e-*，不输出 class/inline，确保可回读但可能不展示
+   * - `fallback-inline`：回退为 inline style，优先保证展示
+   * - `strict`：直接抛错，阻止静默降级
+   */
+  classStylePolicy?: ClassStylePolicy
+  /**
+   * class 模式遇到未知值时的通知回调。
+   */
+  onClassStyleUnsupported?: (payload: IClassStyleUnsupportedPayload) => void
+  /**
+   * class 模式下允许输出 class 的样式 token 注册表。
+   * 用于扩展默认 token（需配合业务方自行提供对应 CSS）。
+   */
+  styleClassTokens?: Partial<Record<StyleClassTokenType, string[]>>
 
   // edit state
   scroll: boolean
@@ -232,7 +294,7 @@ export interface IEditorConfig {
   maxLength?: number
 
   // 各个 menu 的配置汇总，可以通过 key 获取单个 menu 的配置
-  MENU_CONF?: Partial<IMenuConfig>
+  MENU_CONF?: IMenuConfigUpdate
 
   // 悬浮菜单栏 menu
   hoverbarKeys?: IHoverbarConf
@@ -246,15 +308,23 @@ export interface IEditorConfig {
 
 export interface IInsertKeysConfig {
   index: number
-  keys: string | Array<string | IMenuGroup>
-  replaceFn?: (config: string | IMenuGroup) => string | IMenuGroup
+  keys: string | IToolbarMenuKey[]
+  replaceFn?: (config: IToolbarMenuKey) => IToolbarMenuKey
 }
+
+export interface IToolbarMenuItemConf {
+  key: string
+  title?: string
+  iconSvg?: string
+}
+
+export type IToolbarMenuKey = string | IMenuGroup | IToolbarMenuItemConf
 
 /**
  * toolbar config
  */
 export interface IToolbarConfig {
-  toolbarKeys: Array<string | IMenuGroup>
+  toolbarKeys: IToolbarMenuKey[]
   insertKeys: IInsertKeysConfig | Array<IInsertKeysConfig>
   excludeKeys: Array<string> // 排除哪些菜单
   modalAppendToBody: boolean // modal append 到 body ，而非 $textAreaContainer 内

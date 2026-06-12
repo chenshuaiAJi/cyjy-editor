@@ -22,15 +22,15 @@
  * this.constructor so that the native HTMLElement constructor can access the
  * current under-construction element's definition.
  */
-;(function () {
+(function () {
   if (
     // No Reflect, no classes, no need for shim because native custom elements
     // require ES2015 classes or Reflect.
-    window.Reflect === undefined ||
-    window.customElements === undefined ||
+    window.Reflect === undefined
+    || window.customElements === undefined
     // The webcomponentsjs custom elements polyfill doesn't require
     // ES2015-compatible construction (`super()` or `Reflect.construct`).
-    window.customElements.polyfillWrapFlushCallback
+    || window.customElements.polyfillWrapFlushCallback
   ) {
     return
   }
@@ -46,11 +46,12 @@
       return Reflect.construct(BuiltInHTMLElement, [], /** @type {!Function} */ this.constructor)
     },
   }
-  window.HTMLElement = wrapperForTheName['HTMLElement']
+
+  window.HTMLElement = wrapperForTheName.HTMLElement
   HTMLElement.prototype = BuiltInHTMLElement.prototype
   HTMLElement.prototype.constructor = HTMLElement
   Object.setPrototypeOf(HTMLElement, BuiltInHTMLElement)
-})()
+}())
 // ------------------------------------------ native-shim end ------------------------------------------
 
 // ------------------------------------------ 顶部导航 start ------------------------------------------
@@ -67,6 +68,7 @@
       const document = shadow.ownerDocument
 
       const style = document.createElement('style')
+
       style.innerHTML = `
       .container {
         display: flex;
@@ -93,15 +95,18 @@
 
       // 容器
       const container = document.createElement('div')
+
       container.className = 'container'
 
       // 标题
       const header = document.createElement('h1')
+
       header.textContent = ''
       this.header = header
 
       // 右侧链接
       const rightContainer = document.createElement('div')
+
       rightContainer.className = 'right-container'
       if (LANG === 'en') {
         rightContainer.innerHTML = `
@@ -125,14 +130,16 @@
 
     attributeChangedCallback(name, oldValue, newValue) {
       if (name === 'title') {
-        if (oldValue == newValue) return
+        if (oldValue == newValue) {
+          return
+        }
         this.header.textContent = newValue
       }
     }
   }
   MyNav.observedAttributes = ['title']
   window.customElements.define('demo-nav', MyNav)
-})()
+}())
 // ------------------------------------------ 顶部导航 end ------------------------------------------
 
 // ------------------------------------------ 左侧菜单 start ------------------------------------------
@@ -201,11 +208,11 @@ const MENU_CONF = [
   {
     'zh-CN': {
       text: 'Shadow DOM',
-      link: 'https://github.com/cycleccc/wangEditor/blob/master/packages/editor/examples/shadow-dom.html',
+      link: 'https://github.com/wangeditor-next/wangEditor-next/blob/master/apps/demo-html/examples/shadow-dom.html',
     },
     en: {
       text: 'Shadow DOM',
-      link: 'https://github.com/cycleccc/wangEditor/blob/master/packages/editor/examples/shadow-dom.html',
+      link: 'https://github.com/wangeditor-next/wangEditor-next/blob/master/apps/demo-html/examples/shadow-dom.html',
     },
   },
   {
@@ -225,29 +232,29 @@ const MENU_CONF = [
     en: { text: 'Extend modal menu', link: './extend-menu-modal.html?lang=en' },
   },
   {
-    'zh-CN': { text: 'Vue2 demo', link: 'https://www.wangeditor.com/v5/for-frame.html#vue2' },
-    en: { text: 'Vue2 demo', link: 'https://www.wangeditor.com/en/v5/for-frame.html#vue2' },
+    'zh-CN': { text: 'Vue2 demo', link: 'https://wangeditor-next.github.io/docs/guide/for-frame#vue2' },
+    en: { text: 'Vue2 demo', link: 'https://wangeditor-next.github.io/docs/en/guide/for-frame#vue2' },
   },
   {
-    'zh-CN': { text: 'Vue3 demo', link: 'https://www.wangeditor.com/v5/for-frame.html#vue3' },
-    en: { text: 'Vue3 demo', link: 'https://www.wangeditor.com/en/v5/for-frame.html#vue3' },
+    'zh-CN': { text: 'Vue3 demo', link: 'https://wangeditor-next.github.io/docs/guide/for-frame#vue3' },
+    en: { text: 'Vue3 demo', link: 'https://wangeditor-next.github.io/docs/en/guide/for-frame#vue3' },
   },
   {
     'zh-CN': {
       text: 'React demo',
-      link: 'https://www.wangeditor.com/v5/for-frame.html#react',
+      link: 'https://wangeditor-next.github.io/docs/guide/for-frame#react',
     },
     en: {
       text: 'React demo',
-      link: 'https://www.wangeditor.com/en/v5/for-frame.html#react',
+      link: 'https://wangeditor-next.github.io/docs/en/guide/for-frame#react',
     },
   },
   {
     'zh-CN': {
       text: 'Webpack demo',
-      link: 'https://github.com/wangfupeng1988/webpack-wangeditor-demo',
+      link: 'https://github.com/wangeditor-next/wangEditor-next/tree/master/apps/demo-html',
     },
-    en: { text: 'Webpack demo', link: 'https://github.com/wangfupeng1988/webpack-wangeditor-demo' },
+    en: { text: 'Webpack demo', link: 'https://github.com/wangeditor-next/wangEditor-next/tree/master/apps/demo-html' },
   },
 ]
 
@@ -264,6 +271,7 @@ const MENU_CONF = [
       const document = shadow.ownerDocument
 
       const style = document.createElement('style')
+
       style.innerHTML = `
         ul {
           list-style-type: none;
@@ -285,16 +293,18 @@ const MENU_CONF = [
       shadow.appendChild(style)
 
       const container = document.createElement('div')
+
       container.innerHTML = `<ul>
         ${MENU_CONF.map(item => {
-          const { link, text } = item[LANG]
-          return `<li><a href="${link}">${text}</a></li>`
-        }).join('')}
+    const { link, text } = item[LANG]
+
+    return `<li><a href="${link}">${text}</a></li>`
+  }).join('')}
       </ul>`
 
       shadow.appendChild(container)
     }
   }
   window.customElements.define('demo-menu', MyMenu)
-})()
+}())
 // ------------------------------------------ 左侧菜单 end ------------------------------------------

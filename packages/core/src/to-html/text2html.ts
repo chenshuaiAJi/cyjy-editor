@@ -9,8 +9,9 @@ import { DomEditor } from '../editor/dom-editor'
 import { IDomEditor } from '../editor/interface'
 import { replaceHtmlSpecialSymbols } from '../utils/util'
 import { STYLE_TO_HTML_FN_LIST } from './index'
+import type { INodeToHtmlOptions } from './node2html'
 
-function textToHtml(textNode: Text, editor: IDomEditor): string {
+function textToHtml(textNode: Text, editor: IDomEditor, _options: INodeToHtmlOptions = {}): string {
   const { text } = textNode
 
   if (text == null) { throw new Error(`Current node is not slate Text ${JSON.stringify(textNode)}`) }
@@ -47,7 +48,7 @@ function textToHtml(textNode: Text, editor: IDomEditor): string {
   }
 
   // 增加文本样式，如 color bgColor
-  STYLE_TO_HTML_FN_LIST.forEach(fn => (textHtml = fn(textNode, textHtml)))
+  STYLE_TO_HTML_FN_LIST.forEach(fn => (textHtml = fn(textNode, textHtml, editor)))
 
   return textHtml
 }

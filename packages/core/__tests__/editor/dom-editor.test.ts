@@ -5,6 +5,7 @@
 
 import { Editor, Range as SlateRange } from 'slate'
 
+import flushPromises from '../../../../tests/utils/flush-promises'
 import { CustomElement } from '../../../custom-types'
 import { DomEditor } from '../../src/editor/dom-editor'
 import { IDomEditor } from '../../src/editor/interface'
@@ -23,6 +24,21 @@ describe('Core DomEditor', () => {
     editor = createCoreEditor()
     editor.select(genStartLocation())
   })
+
+  function createStaleNonEditableDOMPoint(): [Node, number] {
+    const paragraph = DomEditor.toDOMNode(editor, editor.children[0] as CustomElement)
+    const textNodeWrapper = paragraph.querySelector('[data-slate-node="text"]') as HTMLElement
+    const staleTextNodeWrapper = textNodeWrapper.cloneNode(true) as HTMLElement
+    const leaf = staleTextNodeWrapper.querySelector('[data-slate-leaf]') as HTMLElement
+    const nonEditable = document.createElement('span')
+
+    nonEditable.setAttribute('contenteditable', 'false')
+    nonEditable.textContent = 'x'
+    staleTextNodeWrapper.insertBefore(nonEditable, leaf)
+    textNodeWrapper.replaceWith(staleTextNodeWrapper)
+
+    return [nonEditable.firstChild as Node, 0]
+  }
 
   afterEach(() => {
     editor.destroy()
@@ -168,11 +184,42 @@ describe('Core DomEditor', () => {
     expect(res).toBeTruthy()
   })
 
-  // TODO 待写...
-  // test('toDOMRange', () => {})
+  test('hasDOMNode treats readonly editor descendants as editable targets', async () => {
+    editor.insertText('x')
+    await flushPromises()
 
-  // TODO 待写...
-  // test('toDOMPoint', () => {})
+    const editorElement = DomEditor.toDOMNode(editor, editor)
+    const textNode = editorElement.querySelector('[data-slate-string]')?.firstChild as Node
+
+    editorElement.setAttribute('contenteditable', 'false')
+
+    expect(DomEditor.hasDOMNode(editor, textNode, { editable: true })).toBe(true)
+  })
+
+  test('toDOMRange', async () => {
+    editor.insertText('hello')
+    await flushPromises()
+
+    const range = {
+      anchor: { path: [0, 0], offset: 1 },
+      focus: { path: [0, 0], offset: 4 },
+    }
+    const domRange = DomEditor.toDOMRange(editor, range)
+
+    expect(domRange.toString()).toBe('ell')
+  })
+
+  test('toDOMPoint', async () => {
+    editor.insertText('hello')
+    await flushPromises()
+
+    const point = { path: [0, 0], offset: 2 }
+    const [domNode, domOffset] = DomEditor.toDOMPoint(editor, point)
+
+    expect(domNode.nodeType).toBe(Node.TEXT_NODE)
+    expect(domNode.textContent).toBe('hello')
+    expect(domOffset).toBe(2)
+  })
 
   test('toSlateNode', () => {
     const p = editor.children[0]
@@ -183,14 +230,186 @@ describe('Core DomEditor', () => {
     expect(slateNode).toBe(p)
   })
 
-  // TODO 待写...
-  // test('findEventRange', () => {})
+  test('findEventRange', async () => {
+    editor.insertText('hello')
+    await flushPromises()
 
-  // TODO 待写...
-  // test('toSlateRange', () => {})
+    const range = {
+      anchor: { path: [0, 0], offset: 1 },
+      focus: { path: [0, 0], offset: 3 },
+    }
+    const domRange = DomEditor.toDOMRange(editor, range)
+    const target = DomEditor.toDOMNode(editor, editor.children[0])
+    const { document } = DomEditor.getWindow(editor)
+    const original = (document as any).caretRangeFromPoint;
 
-  // TODO 待写...
-  // test('toSlatePoint', () => {})
+    (document as any).caretRangeFromPoint = vi.fn(() => domRange)
+
+    const event = {
+      clientX: 10,
+      clientY: 20,
+      target,
+    }
+    const res = DomEditor.findEventRange(editor, event)
+
+    expect(res).toEqual(range)
+
+    if (original) {
+      (document as any).caretRangeFromPoint = original
+    } else {
+      delete (document as any).caretRangeFromPoint
+    }
+  })
+
+  test('toSlateRange', async () => {
+    editor.insertText('hello')
+    await flushPromises()
+
+    const range = {
+      anchor: { path: [0, 0], offset: 1 },
+      focus: { path: [0, 0], offset: 4 },
+    }
+    const domRange = DomEditor.toDOMRange(editor, range)
+    const slateRange = DomEditor.toSlateRange(editor, domRange, {
+      exactMatch: false,
+      suppressThrow: false,
+    })
+
+    expect(slateRange).toEqual(range)
+  })
+
+  test('toSlatePoint', async () => {
+    editor.insertText('hello')
+    await flushPromises()
+
+    const point = { path: [0, 0], offset: 3 }
+    const domPoint = DomEditor.toDOMPoint(editor, point)
+    const slatePoint = DomEditor.toSlatePoint(editor, domPoint, {
+      exactMatch: false,
+      suppressThrow: false,
+    })
+
+    expect(slatePoint).toEqual(point)
+  })
+
+  test('toSlatePoint returns null when suppressThrow is enabled and path lookup is stale', async () => {
+    editor.insertText('hello')
+    await flushPromises()
+
+    const point = { path: [0, 0], offset: 3 }
+    const domPoint = DomEditor.toDOMPoint(editor, point)
+
+    vi.spyOn(DomEditor, 'findPath').mockImplementationOnce(() => {
+      throw new Error('stale path')
+    })
+
+    const slatePoint = DomEditor.toSlatePoint(editor, domPoint, {
+      exactMatch: false,
+      suppressThrow: true,
+    })
+
+    expect(slatePoint).toBeNull()
+  })
+
+  test('toSlatePoint returns null when suppressThrow is enabled and dom mapping is stale', async () => {
+    editor.insertText('hello')
+    await flushPromises()
+
+    const staleDomPoint = createStaleNonEditableDOMPoint()
+    const slatePoint = DomEditor.toSlatePoint(editor, staleDomPoint, {
+      exactMatch: false,
+      suppressThrow: true,
+      searchDirection: 'forward',
+    })
+
+    expect(slatePoint).toBeNull()
+  })
+
+  test('toSlateRange returns null when suppressThrow is enabled and dom mapping is stale', async () => {
+    editor.insertText('hello')
+    await flushPromises()
+
+    const staleDomPoint = createStaleNonEditableDOMPoint()
+    const { document } = DomEditor.getWindow(editor)
+    const staleDomRange = document.createRange()
+
+    staleDomRange.setStart(staleDomPoint[0], staleDomPoint[1])
+    staleDomRange.setEnd(staleDomPoint[0], staleDomPoint[1])
+
+    const slateRange = DomEditor.toSlateRange(editor, staleDomRange, {
+      exactMatch: false,
+      suppressThrow: true,
+    })
+
+    expect(slateRange).toBeNull()
+  })
+
+  test('toSlatePoint finds the next selectable leaf when selection lands inside a non-editable node', async () => {
+    editor.insertText('hello')
+    await flushPromises()
+
+    const paragraph = DomEditor.toDOMNode(editor, editor.children[0] as CustomElement)
+    const textNodeWrapper = paragraph.querySelector('[data-slate-node="text"]') as HTMLElement
+    const leaf = paragraph.querySelector('[data-slate-leaf]') as HTMLElement
+    const nonEditable = document.createElement('span')
+
+    nonEditable.setAttribute('contenteditable', 'false')
+    nonEditable.textContent = 'x'
+    textNodeWrapper.insertBefore(nonEditable, leaf)
+
+    const slatePoint = DomEditor.toSlatePoint(editor, [nonEditable.firstChild as Node, 0], {
+      exactMatch: false,
+      suppressThrow: false,
+      searchDirection: 'forward',
+    })
+
+    expect(slatePoint).toEqual({ path: [0, 0], offset: 0 })
+  })
+
+  test('toSlatePoint finds the previous selectable leaf when selection lands after a non-editable node', async () => {
+    editor.insertText('hello')
+    await flushPromises()
+
+    const paragraph = DomEditor.toDOMNode(editor, editor.children[0] as CustomElement)
+    const textNodeWrapper = paragraph.querySelector('[data-slate-node="text"]') as HTMLElement
+    const leaf = paragraph.querySelector('[data-slate-leaf]') as HTMLElement
+    const nonEditable = document.createElement('span')
+
+    nonEditable.setAttribute('contenteditable', 'false')
+    nonEditable.textContent = 'x'
+    textNodeWrapper.insertBefore(nonEditable, leaf.nextSibling)
+
+    const slatePoint = DomEditor.toSlatePoint(editor, [nonEditable.firstChild as Node, 1], {
+      exactMatch: false,
+      suppressThrow: false,
+      searchDirection: 'backward',
+    })
+
+    expect(slatePoint).toEqual({ path: [0, 0], offset: 5 })
+  })
+
+  test('toSlatePoint keeps backward semantics for reserve markers when only next leaf is available', async () => {
+    editor.insertText('hello')
+    await flushPromises()
+
+    const paragraph = DomEditor.toDOMNode(editor, editor.children[0] as CustomElement)
+    const textNodeWrapper = paragraph.querySelector('[data-slate-node="text"]') as HTMLElement
+    const leaf = paragraph.querySelector('[data-slate-leaf]') as HTMLElement
+    const reserve = document.createElement('span')
+
+    reserve.setAttribute('contenteditable', 'false')
+    reserve.setAttribute('data-w-e-reserve', 'true')
+    reserve.textContent = '1.'
+    textNodeWrapper.insertBefore(reserve, leaf)
+
+    const slatePoint = DomEditor.toSlatePoint(editor, [reserve.firstChild as Node, 2], {
+      exactMatch: false,
+      suppressThrow: false,
+      searchDirection: 'backward',
+    })
+
+    expect(slatePoint).toEqual({ path: [0, 0], offset: 5 })
+  })
 
   test('hasRange', () => {
     editor.insertText('hello')

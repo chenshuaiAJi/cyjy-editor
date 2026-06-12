@@ -4,7 +4,7 @@
  */
 
 import {
-  Editor, Element, Node, Operation, Path, Range, Text, Transforms,
+  Editor, Element, Node, Operation, Path, Point, Range, Text, Transforms,
 } from 'slate'
 
 import { IDomEditor } from '../..'
@@ -56,10 +56,59 @@ function insertElemToEditor(editor: IDomEditor, elem: Element) {
   }
 }
 
+function isSelectedAll(editor: IDomEditor): boolean {
+  const { selection } = editor
+
+  if (selection == null || Range.isCollapsed(selection)) { return false }
+
+  const [start, end] = Range.edges(selection)
+  const [editorStart, editorEnd] = Editor.edges(editor, [])
+
+  return Point.equals(start, editorStart) && Point.equals(end, editorEnd)
+}
+
+function ensureEmptyParagraph(editor: IDomEditor) {
+  const firstNode = editor.children[0]
+
+  if (editor.children.length !== 1) { return }
+  if (!Element.isElement(firstNode)) { return }
+  if (firstNode.type === 'paragraph' && Node.string(firstNode) === '') { return }
+  if (Node.string(firstNode) !== '') { return }
+
+  const initialEditorValue: Node[] = [
+    {
+      type: 'paragraph',
+      children: [{ text: '' }],
+    },
+  ]
+
+  Editor.withoutNormalizing(editor, () => {
+    Transforms.removeNodes(editor, { at: [0] })
+    Transforms.insertNodes(editor, initialEditorValue, { at: [0] })
+  })
+}
+
+function resetToEmptyParagraph(editor: IDomEditor) {
+  const initialEditorValue: Node[] = [
+    {
+      type: 'paragraph',
+      children: [{ text: '' }],
+    },
+  ]
+
+  Editor.withoutNormalizing(editor, () => {
+    for (let i = editor.children.length - 1; i >= 0; i -= 1) {
+      Transforms.removeNodes(editor, { at: [i] })
+    }
+
+    Transforms.insertNodes(editor, initialEditorValue, { at: [0] })
+  })
+}
+
 export const withContent = <T extends Editor>(editor: T) => {
   const e = editor as T & IDomEditor
   const {
-    onChange, insertText, apply, deleteBackward,
+    onChange, insertText, apply, deleteBackward, deleteFragment,
   } = e
 
   e.insertText = (text: string) => {
@@ -141,7 +190,7 @@ export const withContent = <T extends Editor>(editor: T) => {
 
     if (editor.selection && Range.isCollapsed(editor.selection)) {
       const parentBlockEntry = Editor.above(editor, {
-        match: n => Editor.isBlock(editor, n),
+        match: n => Element.isElement(n) && Editor.isBlock(editor, n),
         at: editor.selection,
       })
 
@@ -158,6 +207,20 @@ export const withContent = <T extends Editor>(editor: T) => {
         if (!Range.isCollapsed(currentLineRange)) {
           Transforms.delete(editor, { at: currentLineRange })
         }
+      }
+    }
+  }
+
+  e.deleteFragment = options => {
+    const shouldResetToParagraph = isSelectedAll(e)
+
+    deleteFragment(options)
+
+    if (shouldResetToParagraph) {
+      resetToEmptyParagraph(e)
+
+      if (e.children.length > 0) {
+        Transforms.select(e, Editor.start(e, []))
       }
     }
   }
@@ -208,6 +271,16 @@ export const withContent = <T extends Editor>(editor: T) => {
     }).join('')
 
     return html
+  }
+
+  /**
+   * 获取带元素 id 的 html（用于外部定位/标识）
+   * @param idKey 自定义 id 属性名，默认 data-w-e-id
+   */
+  e.getHtmlWithId = (idKey = 'data-w-e-id'): string => {
+    const { children = [] } = e
+
+    return children.map(child => node2html(child, e, { includeId: true, idKey })).join('')
   }
 
   // 获取 text
@@ -295,16 +368,18 @@ export const withContent = <T extends Editor>(editor: T) => {
       },
     ]
 
-    Transforms.delete(e, {
-      at: {
-        anchor: Editor.start(e, []),
-        focus: Editor.end(e, []),
-      },
-    })
+    // 逐个删除顶层节点，避免首节点为 table 等复杂结构时
+    // 全文 range 删除出现残留节点（导致 setHtml 追加而非覆盖）。
+    for (let i = e.children.length - 1; i >= 0; i -= 1) {
+      Transforms.removeNodes(e, { at: [i] })
+    }
 
     if (e.children.length === 0) {
       Transforms.insertNodes(e, initialEditorValue)
+      return
     }
+
+    ensureEmptyParagraph(e)
   }
 
   e.getParentNode = (node: Node) => {
@@ -404,16 +479,47 @@ export const withContent = <T extends Editor>(editor: T) => {
         const $el = $(el)
         const parsedRes = parseElemHtml($el, e) as Element
 
-        if (Array.isArray(parsedRes)) {
-          parsedRes.forEach(parsedEl => insertElemToEditor(e, parsedEl))
-          insertedElemNum += 1 // 记录数量
-        } else {
-          insertElemToEditor(e, parsedRes)
-          insertedElemNum += 1 // 记录数量
-        }
+        const parsedElems = Array.isArray(parsedRes) ? parsedRes : [parsedRes]
+
+        parsedElems.forEach(parsedEl => insertElemToEditor(e, parsedEl))
+        insertedElemNum += parsedElems.length // 记录数量
 
         // 如果当前选中 void node ，则选区移动一下
         if (DomEditor.isSelectedVoidNode(e)) { e.move(1) }
+
+        const insertedInlineLikeElem = parsedElems.some(parsedEl => {
+          if (!Element.isElement(parsedEl)) { return false }
+          if (e.isInline(parsedEl)) { return true }
+
+          return parsedEl.children.some(child => {
+            return Element.isElement(child) && e.isInline(child)
+          })
+        })
+
+        // 如果本次插入的块内含 inline（如 link），选区会停在 inline 内部；
+        // 下一次插入 block 会发生 split 并产生多余空段落。这里显式把选区移到 inline 后的 text。
+        if (insertedInlineLikeElem && e.selection) {
+          const selectedInlineNodes = Editor.nodes(e, {
+            at: e.selection,
+            match: node => Element.isElement(node) && e.isInline(node),
+            universal: true,
+          })
+          const firstInlineEntry = selectedInlineNodes.next().value
+
+          if (firstInlineEntry) {
+            const [, inlinePath] = firstInlineEntry
+            const afterInlinePath = Path.next(inlinePath)
+
+            if (Editor.hasPath(e, afterInlinePath)) {
+              Transforms.select(e, {
+                anchor: { path: afterInlinePath, offset: 0 },
+                focus: { path: afterInlinePath, offset: 0 },
+              })
+            } else {
+              e.move(1)
+            }
+          }
+        }
 
         return
       }
@@ -460,6 +566,7 @@ export const withContent = <T extends Editor>(editor: T) => {
 
     // 删除当前内容
     e.enable()
+    EDITOR_TO_SELECTION.delete(e)
     e.focus()
     // 需要标准的{anchor:xxx, focus: xxxx} 否则无法通过slate history的检查
     // 使用 e.select([]) e.selectAll() 生成的location不是标准的{anchor: xxxx, focus: xxx}形式
@@ -481,7 +588,13 @@ export const withContent = <T extends Editor>(editor: T) => {
     }
     if (e.isFocused()) {
       try {
-        e.select(JSON.parse(editorSelectionStr)) // 选中原来的位置
+        const previousSelection = JSON.parse(editorSelectionStr)
+
+        if (Range.isRange(previousSelection) && DomEditor.hasRange(e, previousSelection)) {
+          e.select(previousSelection) // 选中原来的位置
+        } else {
+          e.select(Editor.start(e, []))
+        }
       } catch (ex) {
         e.select(Editor.start(e, [])) // 选中开始
       }

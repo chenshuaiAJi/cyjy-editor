@@ -1,5 +1,128 @@
 # @wangeditor-next/plugin-mention
 
+## 2.0.8
+
+### Patch Changes
+
+- a341fd2: chore: relax internal peer dependency ranges to reduce forced lockstep upgrades.
+  - @wangeditor-next/editor@5.7.8
+
+## 2.0.7
+
+### Patch Changes
+
+- Updated dependencies [8a8ae86]
+  - @wangeditor-next/editor@5.7.7
+
+## 2.0.6
+
+### Patch Changes
+
+- Updated dependencies [f8d9577]
+- Updated dependencies [0459fb2]
+  - @wangeditor-next/editor@5.7.6
+
+## 2.0.5
+
+### Patch Changes
+
+- Updated dependencies [42d5803]
+  - @wangeditor-next/editor@5.7.5
+
+## 2.0.4
+
+### Patch Changes
+
+- Updated dependencies [0b21edf]
+- Updated dependencies [008047e]
+- Updated dependencies [438ab1c]
+  - @wangeditor-next/editor@5.7.4
+
+## 2.0.3
+
+### Patch Changes
+
+- Updated dependencies [d311c7a]
+- Updated dependencies [6641948]
+- Updated dependencies [edc17af]
+- Updated dependencies [b2c0fa7]
+- Updated dependencies [e90bd5b]
+  - @wangeditor-next/editor@5.7.3
+
+## 2.0.2
+
+### Patch Changes
+
+- Updated dependencies [38532c2]
+- Updated dependencies [ff0ba6a]
+  - @wangeditor-next/editor@5.7.2
+
+## 2.0.1
+
+### Patch Changes
+
+- Updated dependencies [148253e]
+- Updated dependencies [0c091d0]
+  - @wangeditor-next/editor@5.7.1
+
+## 2.0.0
+
+### Patch Changes
+
+- Updated dependencies [fe22817]
+- Updated dependencies [d51d961]
+  - @wangeditor-next/editor@5.7.0
+
+## 1.0.26
+
+### Patch Changes
+
+- @wangeditor-next/editor@5.6.56
+
+## 1.0.25
+
+### Patch Changes
+
+- @wangeditor-next/editor@5.6.55
+
+## 1.0.24
+
+### Patch Changes
+
+- Updated dependencies [2da282d]
+- Updated dependencies [3bdc0b7]
+- Updated dependencies [2c68112]
+  - @wangeditor-next/editor@5.6.54
+
+## 1.0.23
+
+### Patch Changes
+
+- Updated dependencies [00d1de8]
+  - @wangeditor-next/editor@5.6.53
+
+## 1.0.22
+
+### Patch Changes
+
+- Updated dependencies [2d02268]
+  - @wangeditor-next/editor@5.6.52
+
+## 1.0.21
+
+### Patch Changes
+
+- Updated dependencies [015c192]
+- Updated dependencies [5150062]
+  - @wangeditor-next/editor@5.6.51
+
+## 1.0.20
+
+### Patch Changes
+
+- Updated dependencies [160e5a3]
+  - @wangeditor-next/editor@5.6.50
+
 ## 1.0.19
 
 ### Patch Changes

@@ -8,11 +8,24 @@ import { Range, Transforms } from 'slate'
 
 import { DomEditor } from '../editor/dom-editor'
 import { IDomEditor } from '../editor/interface'
-import { DOMElement } from '../utils/dom'
+import { DOMElement, DOMRange } from '../utils/dom'
 import { IS_FIREFOX } from '../utils/ua'
-import { EDITOR_TO_ELEMENT, IS_FOCUSED } from '../utils/weak-maps'
-import { hasEditableTarget, isTargetInsideNonReadonlyVoid } from './helpers'
+import {
+  EDITOR_TO_ELEMENT,
+  IS_FOCUSED,
+} from '../utils/weak-maps'
+import { hasSelectableTarget, hasTarget } from './helpers'
 import TextArea from './TextArea'
+
+function clearSelectionWithoutDomEffect(editor: IDomEditor) {
+  if (editor.selection == null) { return }
+
+  // Transforms.deselect ultimately calls editor.deselect(), which clears the
+  // shared DOM Selection. In multi-editor pages that can erase the active
+  // editor's caret, so only clear the Slate model selection here.
+  editor.selection = null
+  editor.onChange()
+}
 
 /**
  * editor onchange 时，将 editor selection 同步给 DOM
@@ -93,7 +106,7 @@ export function editorSelectionToDOM(textarea: TextArea, editor: IDomEditor, foc
   if (selection && !DomEditor.hasRange(editor, selection)) {
     editor.selection = DomEditor.toSlateRange(editor, domSelection, {
       exactMatch: false,
-      suppressThrow: false,
+      suppressThrow: true,
     })
     return
   }
@@ -101,7 +114,16 @@ export function editorSelectionToDOM(textarea: TextArea, editor: IDomEditor, foc
   // Otherwise the DOM selection is out of sync, so update it.
   textarea.isUpdatingSelection = true
 
-  const newDomRange = selection && DomEditor.toDOMRange(editor, selection)
+  let newDomRange: DOMRange | null = null
+
+  try {
+    newDomRange = selection && DomEditor.toDOMRange(editor, selection)
+  } catch (error) {
+    // Align with Slate Editable behavior: during composition the Slate tree can
+    // briefly lead DOM mapping updates, so selection sync should tolerate that
+    // transient mismatch and retry on subsequent updates.
+    newDomRange = null
+  }
 
   if (newDomRange) {
     if (Range.isBackward(selection!)) {
@@ -143,8 +165,35 @@ export function editorSelectionToDOM(textarea: TextArea, editor: IDomEditor, foc
         scrollMode: 'if-needed',
         boundary: config.scroll ? editorElement.parentElement || body : body, // issue 4215
         block: 'end',
-        behavior: 'smooth',
+        // Keep caret tracking deterministic during fast typing/enter bursts.
+        // Smooth scrolling can lag behind and leave the caret above viewport bottom.
+        behavior: 'auto',
       })
+
+      // Some wrapper runtimes can still leave the collapsed caret slightly
+      // outside of the scroll viewport after rapid enter bursts. Force a
+      // final correction so caret is always visible (issue #388).
+      if (config.scroll) {
+        const scrollContainer = editorElement.parentElement as HTMLElement | null
+
+        if (scrollContainer) {
+          const keepCaretVisible = () => {
+            const latestRect = newDomRange!.getBoundingClientRect()
+            const containerRect = scrollContainer.getBoundingClientRect()
+            const overflowBottom = latestRect.bottom - containerRect.bottom
+            const overflowTop = containerRect.top - latestRect.top
+
+            if (overflowBottom > 0) {
+              scrollContainer.scrollTop += overflowBottom + 1
+            } else if (overflowTop > 0) {
+              scrollContainer.scrollTop -= overflowTop + 1
+            }
+          }
+
+          keepCaretVisible()
+          requestAnimationFrame(keepCaretVisible)
+        }
+      }
       // @ts-ignore
       delete leafEl.getBoundingClientRect
     }
@@ -172,8 +221,6 @@ export function DOMSelectionToEditor(textarea: TextArea, editor: IDomEditor) {
   const { isComposing, isUpdatingSelection, isDraggingInternally } = textarea
   const config = editor.getConfig()
 
-  if (config.readOnly) { return }
-  if (isComposing) { return }
   if (isUpdatingSelection) { return }
   if (isDraggingInternally) { return }
 
@@ -187,26 +234,34 @@ export function DOMSelectionToEditor(textarea: TextArea, editor: IDomEditor) {
     IS_FOCUSED.set(editor, true)
   } else {
     IS_FOCUSED.delete(editor)
-    Transforms.deselect(editor)
+    clearSelectionWithoutDomEffect(editor)
     return
   }
 
   if (!domSelection) {
-    return Transforms.deselect(editor)
+    return clearSelectionWithoutDomEffect(editor)
   }
 
   const { anchorNode, focusNode } = domSelection
 
-  const anchorNodeSelectable = hasEditableTarget(editor, anchorNode) || isTargetInsideNonReadonlyVoid(editor, anchorNode)
-  const focusNodeSelectable = hasEditableTarget(editor, focusNode) || isTargetInsideNonReadonlyVoid(editor, focusNode)
+  const anchorNodeSelectable = hasSelectableTarget(editor, anchorNode)
+  const focusNodeInEditor = hasTarget(editor, focusNode)
 
-  if (anchorNodeSelectable && focusNodeSelectable) {
+  // Align with Slate's Editable: on non-Android flows, selectionchange events
+  // that happen during IME composition should not mutate editor.selection.
+  if (isComposing) { return }
+
+  if (anchorNodeSelectable && focusNodeInEditor) {
     const range = DomEditor.toSlateRange(editor, domSelection, {
       exactMatch: false,
-      suppressThrow: false,
+      suppressThrow: true,
     })
 
-    Transforms.select(editor, range)
+    if (range) {
+      Transforms.select(editor, range)
+    }
+  } else if (config.readOnly) {
+    clearSelectionWithoutDomEffect(editor)
   } else {
     // 禁用此行，让光标选区继续生效
     // Transforms.deselect(editor)

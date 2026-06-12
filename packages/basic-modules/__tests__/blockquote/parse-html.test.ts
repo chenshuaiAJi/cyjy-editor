@@ -9,7 +9,11 @@ import createEditor from '../../../../tests/utils/create-editor'
 import { parseHtmlConf } from '../../src/modules/blockquote/parse-elem-html'
 
 describe('blockquote - parse html', () => {
-  const editor = createEditor()
+  let editor: ReturnType<typeof createEditor>
+
+  beforeEach(() => {
+    editor = createEditor()
+  })
 
   it('without children', () => {
     const $elem = $('<blockquote>hello&nbsp;world</blockquote>')
@@ -60,6 +64,43 @@ describe('blockquote - parse html', () => {
     expect(res).toEqual({
       type: 'blockquote',
       children: [{ text: 'hello ' }, { type: 'link', url: 'http://wangeditor.com' }],
+    })
+  })
+
+  it('with block children from other editors', () => {
+    const $elem = $('<blockquote></blockquote>')
+    const children: any[] = [
+      { type: 'paragraph', children: [{ text: 'line 1' }] },
+      { type: 'paragraph', children: [{ text: 'line 2' }] },
+    ]
+
+    // parse
+    const res = parseHtmlConf.parseElemHtml($elem[0], children, editor)
+
+    expect(res).toEqual({
+      type: 'blockquote',
+      children: [{ text: 'line 1' }, { text: '\n' }, { text: 'line 2' }],
+    })
+  })
+
+  it('with block children should keep text marks', () => {
+    const $elem = $('<blockquote></blockquote>')
+    const children: any[] = [
+      { type: 'paragraph', children: [{ text: 'hello ', bold: true }, { text: 'world' }] },
+      { type: 'paragraph', children: [{ text: 'tail', italic: true }] },
+    ]
+
+    // parse
+    const res = parseHtmlConf.parseElemHtml($elem[0], children, editor)
+
+    expect(res).toEqual({
+      type: 'blockquote',
+      children: [
+        { text: 'hello ', bold: true },
+        { text: 'world' },
+        { text: '\n' },
+        { text: 'tail', italic: true },
+      ],
     })
   })
 })

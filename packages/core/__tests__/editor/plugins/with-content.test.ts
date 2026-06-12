@@ -11,6 +11,7 @@ import { parseHtmlConf } from '../../../../basic-modules/src/modules/link/parse-
 import { registerParseElemHtmlConf } from '../../../src'
 import { IDomEditor } from '../../../src/editor/interface'
 import { withContent } from '../../../src/editor/plugins/with-content'
+import { EDITOR_TO_SELECTION } from '../../../src/utils/weak-maps'
 import createCoreEditor from '../../create-core-editor' // packages/core 不依赖 packages/editor ，不能使用后者的 createEditor
 
 function createEditor(...args) {
@@ -76,6 +77,53 @@ describe('editor content API', () => {
     const html = editor.getHtml()
 
     expect(html).toBe('<div>hello</div><div></div>')
+  })
+
+  it('getHtmlWithId', () => {
+    const editor = createEditor({
+      content: [
+        { type: 'paragraph', children: [{ text: 'hello' }] },
+        {
+          type: 'table',
+          children: [
+            {
+              type: 'table-row',
+              children: [
+                {
+                  type: 'table-cell',
+                  children: [{ text: 'A' }],
+                } as any,
+              ],
+            } as any,
+          ],
+        } as any,
+      ],
+    })
+
+    const html = editor.getHtmlWithId?.() || ''
+
+    expect(html).toContain('<div data-w-e-id="w-e-element-paragraph-')
+    expect(html).toContain('data-w-e-id="w-e-element-table-')
+    expect(html).toContain('data-w-e-id="w-e-element-table-row-')
+    expect(html).toContain('data-w-e-id="w-e-element-table-cell-')
+
+    const rawHtml = editor.getHtml()
+
+    expect(rawHtml).not.toContain('data-w-e-id=')
+  })
+
+  it('getHtmlWithId with custom id attribute key', () => {
+    const editor = createEditor({
+      content: [{ type: 'paragraph', children: [{ text: 'hello' }] }],
+    })
+
+    const html = editor.getHtmlWithId?.('data-node-id') || ''
+
+    expect(html).toContain('data-node-id="w-e-element-paragraph-')
+
+    const htmlWithInvalidKey = editor.getHtmlWithId?.('invalid key') || ''
+
+    expect(htmlWithInvalidKey).toContain('data-w-e-id="w-e-element-paragraph-')
   })
 
   it('getText', () => {
@@ -257,6 +305,27 @@ describe('editor content API', () => {
     expect(editor.getText()).toBe('lo')
   })
 
+  it('deleteFragment resets a full-document selection to an empty paragraph', () => {
+    const editor = createEditor({
+      content: [
+        {
+          type: 'header1',
+          textAlign: 'center',
+          children: [{ text: 'hello' }],
+        } as any,
+      ],
+    })
+
+    editor.select([])
+    editor.deleteFragment()
+
+    expect(editor.children).toEqual([{ type: 'paragraph', children: [{ text: '' }] }])
+    expect(editor.selection).toEqual({
+      anchor: { path: [0, 0], offset: 0 },
+      focus: { path: [0, 0], offset: 0 },
+    })
+  })
+
   it('insertBreak', () => {
     const editor = createEditor()
 
@@ -285,6 +354,35 @@ describe('editor content API', () => {
     expect(editor.getText()).toBe('')
   })
 
+  it('clear should reset editor when the first top-level node is a table', () => {
+    const editor = createEditor({
+      content: [
+        {
+          type: 'table',
+          children: [
+            {
+              type: 'table-row',
+              children: [
+                {
+                  type: 'table-cell',
+                  children: [{ text: 'A' }],
+                } as any,
+              ],
+            } as any,
+          ],
+        } as any,
+        {
+          type: 'paragraph',
+          children: [{ text: '' }],
+        } as any,
+      ],
+    })
+
+    editor.clear()
+
+    expect(editor.children).toEqual([{ type: 'paragraph', children: [{ text: '' }] }])
+  })
+
   it('undo', () => {
     const editor = createEditor()
 
@@ -309,6 +407,30 @@ describe('editor content API', () => {
     // @ts-ignore
     editor.redo()
     expect(editor.getText()).toBe('hello')
+  })
+
+  it('clearHistory', () => {
+    const editor = createEditor()
+
+    editor.select(getStartLocation(editor))
+    editor.insertText('hello')
+
+    // @ts-ignore
+    editor.undo()
+    expect(editor.getText()).toBe('')
+
+    // @ts-ignore
+    editor.clearHistory()
+    // @ts-ignore
+    editor.redo()
+    expect(editor.getText()).toBe('')
+
+    editor.insertText('world')
+    // @ts-ignore
+    editor.clearHistory()
+    // @ts-ignore
+    editor.undo()
+    expect(editor.getText()).toBe('world')
   })
 
   describe('dangerouslyInsertHtml API', () => {
@@ -424,5 +546,164 @@ describe('editor content API', () => {
       expect(editor.getHtml()).toBe(newHtml)
       expect(editor.isDisabled()).toBe(true)
     })
+
+    it('setHtml falls back to document start when previous selection is no longer valid', async () => {
+      const editor = createEditor({
+        content: [
+          { type: 'paragraph', children: [{ text: '' }] },
+          { type: 'paragraph', children: [{ text: 'middle' }] },
+          { type: 'paragraph', children: [{ text: 'tail' }] },
+        ],
+      })
+
+      let isFocused = true
+
+      vi.spyOn(editor, 'focus').mockImplementation(() => {})
+      vi.spyOn(editor, 'isFocused').mockImplementation(() => isFocused)
+      vi.spyOn(editor, 'select').mockImplementation((selection: any) => {
+        editor.selection = Editor.range(editor, selection)
+      })
+      setEditorSelection(editor, {
+        anchor: { path: [2, 0], offset: 2 },
+        focus: { path: [2, 0], offset: 2 },
+      })
+
+      expect(() => editor.setHtml('<div>world</div>')).not.toThrow()
+      expect(editor.getHtml()).toBe('<div>world</div>')
+      expect(editor.selection).toEqual({
+        anchor: { path: [0, 0], offset: 0 },
+        focus: { path: [0, 0], offset: 0 },
+      })
+
+      isFocused = false
+      await Promise.resolve()
+      await Promise.resolve()
+    })
+
+    it('setHtml clears stale cached selection before focusing', () => {
+      const editor = createEditor({
+        content: [
+          { type: 'paragraph', children: [{ text: '' }] },
+          { type: 'paragraph', children: [{ text: 'middle' }] },
+          { type: 'paragraph', children: [{ text: 'tail' }] },
+        ],
+      })
+
+      editor.selection = null
+      EDITOR_TO_SELECTION.set(editor, {
+        anchor: { path: [2, 0], offset: 2 },
+        focus: { path: [2, 0], offset: 2 },
+      })
+
+      vi.spyOn(editor, 'focus').mockImplementation(() => {
+        if (EDITOR_TO_SELECTION.has(editor)) {
+          throw new Error('stale cached selection was restored before setHtml reset')
+        }
+      })
+
+      expect(() => editor.setHtml('<div>world</div>')).not.toThrow()
+      expect(EDITOR_TO_SELECTION.has(editor)).toBe(false)
+    })
+
+    it('setHtml uses sanitizeHtml config before parsing', () => {
+      const sanitizeHtml = vi.fn().mockReturnValue('<div>safe</div>')
+      const editor = createEditor({
+        html: '<div>hello</div>',
+        config: {
+          sanitizeHtml,
+        },
+      })
+
+      editor.setHtml('<a href="javascript:alert(1)">unsafe</a>')
+
+      expect(sanitizeHtml).toHaveBeenCalledWith('<a href="javascript:alert(1)">unsafe</a>')
+      expect(editor.getHtml()).toBe('<div>safe</div>')
+    })
+  })
+
+  it('insertData sanitizes html before inserting', () => {
+    const unsafeHref = ['java', 'script:alert(1)'].join('')
+    const sanitizeHtml = vi.fn().mockReturnValue('<a href="https://example.com">safe</a>')
+    const editor = createEditor({
+      config: {
+        sanitizeHtml,
+      },
+    })
+    const insertHtmlSpy = vi.spyOn(editor, 'dangerouslyInsertHtml')
+
+    editor.select(getStartLocation(editor))
+    editor.insertData({
+      getData(type: string) {
+        if (type === 'text/html') { return `<a href="${unsafeHref}">unsafe</a>` }
+        return ''
+      },
+    } as DataTransfer)
+
+    expect(sanitizeHtml).toHaveBeenCalledWith(`<a href="${unsafeHref}">unsafe</a>`)
+    expect(insertHtmlSpy).toHaveBeenCalledWith('<a href="https://example.com">safe</a>')
+  })
+
+  it('insertData truncates html paste when maxLength is exceeded', () => {
+    const editor = createCoreEditor({
+      config: {
+        maxLength: 5,
+      },
+    })
+
+    editor.select(getStartLocation(editor))
+    editor.insertData({
+      getData(type: string) {
+        if (type === 'text/html') { return '<div><span>hello</span><span> world</span></div>' }
+        if (type === 'text/plain') { return 'hello world' }
+        return ''
+      },
+    } as DataTransfer)
+
+    expect(editor.getText()).toBe('hello')
+    expect(editor.getHtml()).toContain('hello')
+  })
+
+  it('insertData inserts multiline plain text as paragraphs', () => {
+    const editor = createEditor()
+
+    editor.select(getStartLocation(editor))
+    editor.insertData({
+      getData(type: string) {
+        if (type === 'text/plain') { return 'hello\nworld\n' }
+        return ''
+      },
+    } as DataTransfer)
+
+    expect(editor.children).toEqual([
+      {
+        type: 'paragraph',
+        children: [{ text: 'hello' }],
+      },
+      {
+        type: 'paragraph',
+        children: [{ text: 'world' }],
+      },
+      {
+        type: 'paragraph',
+        children: [{ text: '' }],
+      },
+    ])
+  })
+
+  it('insertData parses html wrapped by template tags', () => {
+    const editor = createEditor()
+
+    editor.select(getStartLocation(editor))
+    editor.insertData({
+      getData(type: string) {
+        if (type === 'text/html') {
+          return '<template><p>hello <strong>world</strong></p></template>'
+        }
+        return ''
+      },
+    } as DataTransfer)
+
+    expect(editor.getText()).toBe('hello world')
+    expect(editor.getHtml()).toContain('hello world')
   })
 })

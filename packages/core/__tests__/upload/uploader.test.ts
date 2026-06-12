@@ -6,7 +6,6 @@
 import nock from 'nock'
 
 import createUploader from '../../src/upload/createUploader'
-import { IUploadConfig } from '../../src/upload/interface'
 
 const server = 'https://fake-endpoint.wangeditor-v5.com'
 
@@ -27,6 +26,39 @@ describe('uploader', () => {
     expect(uppy).not.toBeNull()
   })
 
+  test('it should invoke uploadAdapter if configured', async () => {
+    const addFiles = vi.fn()
+    const upload = vi.fn(async () => undefined)
+    const uploadAdapter = vi.fn(({ config: _config, editor: _editor }) => ({
+      addFiles,
+      upload,
+    }))
+    const editor = { id: 'editor-1' } as any
+    const uploader = createUploader({
+      metaWithUrl: false,
+      onSuccess: (_file, _res) => { return undefined },
+      onFailed: (_file, _res) => { return undefined },
+      onError: (_file, _err, _res) => { return undefined },
+      uploadAdapter,
+    }, editor)
+    const file = {
+      name: 'adapter.jpg',
+      type: 'image/jpeg',
+      size: 1,
+      data: new Blob([Buffer.alloc(1)]),
+    }
+
+    uploader.addFiles([file])
+    await uploader.upload()
+
+    expect(uploadAdapter).toHaveBeenCalledWith({
+      config: expect.objectContaining({ uploadAdapter }),
+      editor,
+    })
+    expect(addFiles).toHaveBeenCalledWith([file])
+    expect(upload).toHaveBeenCalledTimes(1)
+  })
+
   test('it should throw can not get address error if not pass server option', () => {
     try {
       createUploader({
@@ -35,7 +67,7 @@ describe('uploader', () => {
         onSuccess: (_file, _res) => { return undefined },
         onFailed: (_file, _res) => { return undefined },
         onError: (_file, _err, _res) => { return undefined },
-      } as IUploadConfig)
+      } as any)
     } catch (err: unknown) {
       expect((err as Error).message).toBe('Cannot get upload server address\n没有配置上传地址')
     }
@@ -49,23 +81,13 @@ describe('uploader', () => {
         onSuccess: (_file, _res) => { return undefined },
         onFailed: (_file, _res) => { return undefined },
         onError: (_file, _err, _res) => { return undefined },
-      } as IUploadConfig)
+      } as any)
     } catch (err: unknown) {
       expect((err as Error).message).toBe('Cannot get fieldName\n没有配置 fieldName')
     }
   })
 
   test('it should invoke success callback if file be uploaded successfully', () => {
-    nock(server)
-      .defaultReplyHeaders({
-        'access-control-allow-method': 'POST',
-        'access-control-allow-origin': '*',
-      })
-      .options('/')
-      .reply(200, {})
-      .post('/')
-      .reply(200, {})
-
     const fn = vi.fn()
     const uppy = createUploader({
       server,
@@ -75,18 +97,38 @@ describe('uploader', () => {
       onFailed: (_file, _res) => { return undefined },
       onError: (_file, _err, _res) => { return undefined },
     })
-
-    // reference https://github.com/transloadit/uppy/blob/main/packages/%40uppy/xhr-upload/src/index.test.js
-    uppy.addFile({
+    const file = {
       source: 'vi',
       name: 'foo.jpg',
       type: 'image/jpeg',
       data: new Blob([Buffer.alloc(8192)]),
-    })
+      size: 8192,
+    }
 
-    return uppy.upload().then(() => {
-      expect(fn).toBeCalled()
+    uppy.emit('upload-success', file, { body: {} })
+
+    expect(fn).toBeCalled()
+  })
+
+  test('it should invoke success callback for each file when uploading multiple files', () => {
+    const fn = vi.fn()
+    const uppy = createUploader({
+      server,
+      fieldName: 'file1',
+      metaWithUrl: false,
+      onSuccess: fn,
+      onFailed: (_file, _res) => { return undefined },
+      onError: (_file, _err, _res) => { return undefined },
     })
+    const files = [
+      { name: 'foo.jpg' },
+      { name: 'bar.jpg' },
+    ]
+
+    files.forEach(file => uppy.emit('upload-success', file, { body: {} }))
+
+    expect(fn).toHaveBeenCalledTimes(2)
+    expect(fn.mock.calls.map(([file]) => file.name)).toEqual(['foo.jpg', 'bar.jpg'])
   })
 
   test('it should invoke error callback if file be uploaded error', () => {
@@ -115,13 +157,13 @@ describe('uploader', () => {
       onError: (_file, _err, _res) => { return undefined },
     })
 
-    // reference https://github.com/transloadit/uppy/blob/main/packages/%40uppy/xhr-upload/src/index.test.js
-    uppy.addFile({
+    uppy.addFiles([{
       source: 'vi',
       name: 'foo.jpg',
       type: 'image/jpeg',
       data: new Blob([Buffer.alloc(8192)]),
-    })
+      size: 8192,
+    }])
 
     return uppy.upload().catch(_err => {
       expect(fn).toBeCalled()
@@ -129,16 +171,6 @@ describe('uploader', () => {
   })
 
   test('it should invoke onProgress callback if file be uploaded successfully', () => {
-    nock(server)
-      .defaultReplyHeaders({
-        'access-control-allow-method': 'POST',
-        'access-control-allow-origin': '*',
-      })
-      .options('/')
-      .reply(200, {})
-      .post('/')
-      .reply(200, {})
-
     const fn = vi.fn()
     const uppy = createUploader({
       server,
@@ -150,17 +182,9 @@ describe('uploader', () => {
       onError: (_file, _err, _res) => { return undefined },
     })
 
-    // reference https://github.com/transloadit/uppy/blob/main/packages/%40uppy/xhr-upload/src/index.test.js
-    uppy.addFile({
-      source: 'vi',
-      name: 'foo.jpg',
-      type: 'image/jpeg',
-      data: new Blob([Buffer.alloc(8192)]),
-    })
+    uppy.emit('progress', 55)
 
-    return uppy.upload().then(() => {
-      expect(fn).toBeCalled()
-    })
+    expect(fn).toBeCalled()
   })
 
   test('it should invoke error callback if file be uploaded failed', () => {
@@ -184,13 +208,13 @@ describe('uploader', () => {
       onError: fn,
     })
 
-    // reference https://github.com/transloadit/uppy/blob/main/packages/%40uppy/xhr-upload/src/index.test.js
-    uppy.addFile({
+    uppy.addFiles([{
       source: 'vi',
       name: 'foo.jpg',
       type: 'image/jpeg',
       data: new Blob([Buffer.alloc(8192)]),
-    })
+      size: 8192,
+    }])
 
     return uppy.upload().catch(() => {
       expect(fn).toBeCalled()
@@ -219,13 +243,13 @@ describe('uploader', () => {
       onFailed: (_file, _res) => { return undefined },
     } as any)
 
-    // reference https://github.com/transloadit/uppy/blob/main/packages/%40uppy/xhr-upload/src/index.test.js
-    uppy.addFile({
+    uppy.addFiles([{
       source: 'vi',
       name: 'foo.jpg',
       type: 'image/jpeg',
       data: new Blob([Buffer.alloc(8192)]),
-    })
+      size: 8192,
+    }])
 
     return uppy.upload().catch(() => {
       expect(fn).toBeCalled()
@@ -257,13 +281,13 @@ describe('uploader', () => {
       },
     } as any)
 
-    // reference https://github.com/transloadit/uppy/blob/main/packages/%40uppy/xhr-upload/src/index.test.js
-    uppy.addFile({
+    uppy.addFiles([{
       source: 'vi',
       name: 'foo.jpg',
       type: 'image/jpeg',
       data: new Blob([Buffer.alloc(8192)]),
-    })
+      size: 8192,
+    }])
 
     return uppy.upload().catch(_err => {
       expect(fn).toBeCalled()
@@ -286,12 +310,13 @@ describe('uploader', () => {
     })
 
     try {
-      uppy.addFile({
+      uppy.addFiles([{
         source: 'vi',
         name: 'foo.jpg',
         type: 'image/jpeg',
         data: new Blob([Buffer.alloc(8192)]),
-      })
+        size: 8192,
+      }])
     } catch {
       expect(fn).toBeCalled()
     }
@@ -309,12 +334,13 @@ describe('uploader', () => {
     })
 
     try {
-      uppy.addFile({
+      uppy.addFiles([{
         source: 'vi',
         name: 'foo.jpg',
         type: 'image/jpeg',
         data: new Blob([Buffer.alloc(8192)]),
-      })
+        size: 8192,
+      }])
     } catch {
       expect(consoleFn).toBeCalled()
     }

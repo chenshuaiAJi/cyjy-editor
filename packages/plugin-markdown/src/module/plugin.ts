@@ -48,7 +48,7 @@ function getBeforeText(editor: IDomEditor): { beforeText: string; range: SlateRa
   const { anchor } = selection
   // 找到当前文本上面的 block 元素，如 header1 paragraph
   const block = SlateEditor.above(editor, {
-    match: n => SlateEditor.isBlock(editor, n),
+    match: n => SlateElement.isElement(n) && SlateEditor.isBlock(editor, n),
   })
 
   if (block == null) {
@@ -66,10 +66,23 @@ function withMarkdown<T extends IDomEditor>(editor: T) {
   const { insertBreak, insertText } = editor
   const newEditor = editor
 
+  const isComposing = () => {
+    try {
+      return DomEditor.getTextarea(editor).isComposing
+    } catch {
+      return false
+    }
+  }
+
   // 输入空格时，尝试转换 markdown
   newEditor.insertText = text => {
     const { selection } = editor
 
+    // Align with Slate/Plate autoformat behavior: never run markdown trigger
+    // while IME composition is active.
+    if (isComposing()) {
+      return insertText(text)
+    }
     if (selection == null) {
       return insertText(text)
     }
@@ -105,7 +118,7 @@ function withMarkdown<T extends IDomEditor>(editor: T) {
     }
 
     SlateTransforms.setNodes<SlateElement>(editor, props, {
-      match: n => SlateEditor.isBlock(editor, n),
+      match: n => SlateElement.isElement(n) && SlateEditor.isBlock(editor, n),
     })
 
     // 如果是 list-item ，则包裹一层 bulleted-list
@@ -125,6 +138,9 @@ function withMarkdown<T extends IDomEditor>(editor: T) {
   newEditor.insertBreak = () => {
     const { selection } = editor
 
+    if (isComposing()) {
+      return insertBreak()
+    }
     if (selection == null) {
       return insertBreak()
     }
@@ -210,7 +226,7 @@ function withMarkdown<T extends IDomEditor>(editor: T) {
     }
 
     SlateTransforms.setNodes<SlateElement>(editor, props, {
-      match: n => SlateEditor.isBlock(editor, n),
+      match: n => SlateElement.isElement(n) && SlateEditor.isBlock(editor, n),
     })
   }
 
